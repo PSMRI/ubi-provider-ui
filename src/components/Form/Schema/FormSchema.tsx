@@ -1,8 +1,9 @@
 import React from "react";
-import Form, { IChangeEvent } from "@rjsf/core";
+import { withTheme } from "@rjsf/core";
+import { Theme as ChakraUITheme } from "@rjsf/chakra-ui";
+const Form = withTheme(ChakraUITheme);
 import { JSONSchema7 } from "json-schema"; // Use this for the schema type
-// Import the default validator
-import validator from "@rjsf/validator-ajv6"; // Use AJV 8 validator
+import validator from "@rjsf/validator-ajv6";
 // Define your JSON Schema for the form
 const schema: JSONSchema7 = {
   title: "General Information",
@@ -21,28 +22,13 @@ const schema: JSONSchema7 = {
   },
 };
 
-// Optional UI Schema for customizing the form's look
-const uiSchema = {
-  age: {
-    "ui:widget": "updown", // Chakra UI styled number input widget
-  },
-};
-
 // Form Component
-const RJSFChakraForm: React.FC = () => {
-  // Form submission handler
-  const handleSubmit = (e: IChangeEvent) => {
-    console.log("Form data:", e.formData);
-  };
-
+const FormSchema: React.FC = () => {
   return (
-    <Form
-      schema={schema}
-      uiSchema={uiSchema}
-      onSubmit={handleSubmit}
-      validator={validator}
-    />
+    <Form schema={schema} validator={validator}>
+      <div />
+    </Form>
   );
 };
 
-export default RJSFChakraForm;
+export default FormSchema;

@@ -1,14 +1,16 @@
-import Home from "../pages/Home";
-import CreateForm from "../components/Form/Form";
+import { lazy } from "react";
+const Home = lazy(() => import("../pages/Home"));
+const CreateForm = lazy(() => import("../pages/CreateBenefitForm"));
+
 //lazy loading
 const routes = [
   {
     path: "/",
-    element: Home,
+    component: Home,
   },
   {
     path: "/create",
-    element: CreateForm,
+    component: CreateForm,
   },
 ];
 
