@@ -6,8 +6,6 @@ import {
   InputGroup,
   Menu,
   MenuButton,
-  MenuItem,
-  MenuList,
   Input,
   IconButton,
   Select,

@@ -1,15 +1,28 @@
-import React from "react";
 import { ChakraProvider } from "@chakra-ui/react";
-import Layout from "./Components/Layout/Layout";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { initializeI18n } from "./i18n";
-import Login from "./Components/Layout/Login";
+import Approutes from "./routes/routes";
+
 initializeI18n("local"); // Initialize i18n with default language
 function App() {
   return (
     <ChakraProvider>
-      <Layout>
-        <Login />
-      </Layout>
+      <Router>
+        <Routes>
+          {Approutes.map((item: any) => (
+            <Route
+              key={item.path}
+              path={item.path}
+              element={<item.component />}
+            />
+          ))}
+        </Routes>
+      </Router>
+      {/* <Router>
+        <Route path="/" element={<Home />} />
+        <Route path="/create" element={<Form />} />
+      </Router> */}
+      {/* <Form /> */}
     </ChakraProvider>
   );
 }
