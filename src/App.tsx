@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { initializeI18n } from "./i18n";
 import authRoutes from "./routes/authRoutes";
 import guestRoutes from "./routes/guestRoutes";
-import Loading from "./components/commun_components/Loading";
+import Loading from "./components/common_components/Loading";
 
 initializeI18n("local"); // Initialize i18n with default language
 function App() {
