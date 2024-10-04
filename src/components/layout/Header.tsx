@@ -2,6 +2,7 @@ import React from "react";
 import {
   Box,
   Flex,
+  HStack,
   InputRightElement,
   InputGroup,
   Menu,
@@ -17,10 +18,19 @@ import { useTranslation } from "react-i18next";
 const Header: React.FC = () => {
   const { t } = useTranslation();
   return (
-    <Box w="100%" p={4} boxShadow="md" position="fixed" top={0}>
-      <Flex align="center" justify="space-between" mx="auto">
+    <Box
+      w="100%"
+      p={4}
+      boxShadow="md"
+      position="fixed"
+      top={0}
+      right="0"
+      zIndex="11"
+      bg="white"
+    >
+      <HStack align="center" justify="space-between" flex="1">
         {/* Left Section: Logo and Company Name */}
-        <Flex align="center">
+        <HStack align="center">
           <img
             src={Logo}
             alt="Logo"
@@ -29,10 +39,10 @@ const Header: React.FC = () => {
           <Text fontWeight="bold" fontSize="lg" color="#484848">
             {t("HEADER_COMPANY_NAME")}
           </Text>
-        </Flex>
+        </HStack>
 
         {/* Right Section: Menu, Search Bar, and Language Dropdown */}
-        <Flex align="center" gap={4}>
+        <HStack align="center" gap={4}>
           {/* Menu 1 */}
           <Menu>
             <MenuButton as={Text} fontWeight="bold" cursor="pointer">
@@ -48,7 +58,7 @@ const Header: React.FC = () => {
           </Menu>
 
           {/* Search Bar */}
-          <Flex align="center">
+          <HStack align="center">
             <InputGroup>
               {/* Input Field */}
               <Input borderRadius="50" placeholder="Search..." />
@@ -64,16 +74,14 @@ const Header: React.FC = () => {
                 />
               </InputRightElement>
             </InputGroup>
-          </Flex>
+          </HStack>
 
           {/* Language Dropdown */}
           <Select borderRadius="8" size="sm" width="100px">
             <option value="en">English</option>
-            <option value="fr">French</option>
-            <option value="es">Spanish</option>
           </Select>
-        </Flex>
-      </Flex>
+        </HStack>
+      </HStack>
     </Box>
   );
 };
