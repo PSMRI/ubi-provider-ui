@@ -1,11 +1,5 @@
-import React from "react";
-import { withTheme } from "@rjsf/core";
-import { Theme as ChakraUITheme } from "@rjsf/chakra-ui";
-const Form = withTheme(ChakraUITheme);
 import { JSONSchema7 } from "json-schema"; // Use this for the schema type
-import validator from "@rjsf/validator-ajv6";
-// Define your JSON Schema for the form
-const schema: JSONSchema7 = {
+export const schema: JSONSchema7 = {
   title: "General Information",
   type: "object",
   required: ["firstName", "lastName", "age"],
@@ -21,14 +15,3 @@ const schema: JSONSchema7 = {
     description: { type: "string", title: "Description" },
   },
 };
-
-// Form Component
-const FormSchema: React.FC = () => {
-  return (
-    <Form schema={schema} validator={validator}>
-      <div />
-    </Form>
-  );
-};
-
-export default FormSchema;
