@@ -30,6 +30,22 @@ export const financialInformaionUiSchema = {
       "ui:widget": "select",
     },
   },
+  "": {
+    items: {
+      beneficieryCaste: {
+        "ui:widget": "select",
+      },
+      beneficieryType: {
+        "ui:widget": "select",
+      },
+      beneficieryCategory: {
+        "ui:widget": "select",
+      },
+      beneficieryAmount: {
+        "ui:widget": "select",
+      },
+    },
+  },
   maxBeneficiariesLimit: { "ui:widget": "radio" },
 };
 

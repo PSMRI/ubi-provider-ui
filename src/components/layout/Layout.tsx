@@ -12,7 +12,7 @@ interface LayoutProps {
 // Layout Component
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <VStack pt="80px" w="100%">
+    <VStack align={"stretch"} pt="80px" pl={"10px"}>
       {/* Header */}
       <Header />
 

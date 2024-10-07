@@ -43,27 +43,27 @@ const Header: React.FC = () => {
         {/* Right Section: Menu, Search Bar, and Language Dropdown */}
         <HStack align="center" gap={4}>
           {/* Menu 1 */}
-          <Menu>
+          {/* <Menu>
             <MenuButton as={Text} fontWeight="bold" cursor="pointer">
               About
             </MenuButton>
-          </Menu>
+          </Menu> */}
 
           {/* Menu 2 */}
-          <Menu>
+          {/* <Menu>
             <MenuButton as={Text} fontWeight="bold" cursor="pointer">
               Contact Us
             </MenuButton>
-          </Menu>
+          </Menu> */}
 
           {/* Search Bar */}
-          <HStack align="center">
-            <InputGroup>
-              {/* Input Field */}
-              <Input borderRadius="50" placeholder="Search..." />
+          {/* <HStack align="center">
+            <InputGroup> */}
+          {/* Input Field */}
+          {/* <Input borderRadius="50" placeholder="Search..." /> */}
 
-              {/* Icon Button inside Input */}
-              <InputRightElement>
+          {/* Icon Button inside Input */}
+          {/* <InputRightElement>
                 <IconButton
                   borderRadius="50"
                   aria-label="Search"
@@ -73,7 +73,7 @@ const Header: React.FC = () => {
                 />
               </InputRightElement>
             </InputGroup>
-          </HStack>
+          </HStack> */}
 
           {/* Language Dropdown */}
           <Select borderRadius="8" size="sm" width="100px">

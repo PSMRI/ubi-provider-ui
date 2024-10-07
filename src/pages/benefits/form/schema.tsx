@@ -9,9 +9,19 @@ export const generalInfoSchema: JSONSchema7 = {
     benefitSponsor1: { type: "string", title: "Benefit Sponsor-1" },
     sponsor1Entity: { type: "string", title: "Sponsor-1 Entity Type" },
     sponsor1Share: { type: "string", title: "Sponsor-1 Share (Percentage)" },
-    benefitSponsor2: { type: "string", title: "Benefit Sponsor-2" },
-    sponsor2Entity: { type: "string", title: "Sponsor-2 Entity Type" },
-    sponsor2Share: { type: "string", title: "Sponsor-2 Share (Percentage)" },
+
+    "": {
+      type: "array",
+      title: "",
+      items: {
+        type: "object",
+        properties: {
+          benefitSponsor: { type: "string", title: "Benefit Sponsor" },
+          sponsorEntity: { type: "string", title: "Sponsor Entity Type" },
+          sponsorShare: { type: "string", title: "Sponsor Share (Percentage)" },
+        },
+      },
+    },
     description: { type: "string", title: "Description" },
   },
 };
@@ -82,7 +92,7 @@ export const financialInformationSchema: JSONSchema7 = {
     },
     amountPerBeneficiaryCategory: {
       type: "object",
-      title: "Amount Per Beneficiary Category)",
+      title: "Amount Per Beneficiary Category",
       properties: {
         beneficieryCaste: {
           type: "string",
@@ -106,7 +116,35 @@ export const financialInformationSchema: JSONSchema7 = {
         },
       },
     },
-
+    "": {
+      type: "array",
+      title: "",
+      items: {
+        type: "object",
+        properties: {
+          beneficieryCaste: {
+            type: "string",
+            title: "Beneficiary Caste",
+            enum: ["SC", "ST", "Others"],
+          },
+          beneficieryType: {
+            type: "string",
+            title: "Beneficiary Type",
+            enum: ["SC", "ST", "Others"],
+          },
+          beneficieryCategory: {
+            type: "string",
+            title: "Beneficiary Category",
+            enum: ["SC", "ST", "Others"],
+          },
+          beneficieryAmount: {
+            type: "string",
+            title: "Amount",
+            enum: ["SC", "ST", "Others"],
+          },
+        },
+      },
+    },
     maxBeneficiariesLimit: {
       type: "boolean",
       title: "Max Beneficiaries Limit",

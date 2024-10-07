@@ -16,7 +16,7 @@ import Logo from "../../assets/Images/GOM.png";
 import Layout from "../../components/layout/Layout";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-export default function Login() {
+export default function UserRegister() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   return (
@@ -43,15 +43,14 @@ export default function Login() {
             </VStack>
           </HStack>
         </VStack>
-
-        <VStack p={8} flex={1} align={"center"} justify={"center"} w={"full"}>
-          <Stack spacing={4} w={"full"}>
-            <Text fontSize={"lg"} textAlign={"left"}>
-              {t("LOGIN_TITLE")}
-            </Text>
+        <VStack p={8} flex={1} align={"center"} justify={"center"}>
+          <Stack spacing={4} w={"full"} maxW={"md"}>
+            <Heading fontSize={"2xl"}>{t("LOGIN_TITLE")}</Heading>
             <FormControl id="email">
+              <FormLabel>{t("REGISTER_ORGANISATION_NAME")}</FormLabel>
+              <Input type="text" />
               <FormLabel>{t("LOGIN_ENAIL_ID")}</FormLabel>
-              <Input type="email" w={"full"} />
+              <Input type="email" />
             </FormControl>
 
             <Stack spacing={6}>
@@ -72,17 +71,7 @@ export default function Login() {
                   navigate("/otp");
                 }}
               >
-                {t("LOGIN_LOGIN")}
-              </Button>
-              <Button
-                colorScheme={"blue"}
-                variant={"outline"}
-                onClick={() => {
-                  // localStorage.setItem("token", "true");
-                  navigate("/user/register");
-                }}
-              >
-                {t("LOGIN_REGISTER")}
+                {t("REGISTER_PROCEED")}
               </Button>
             </Stack>
           </Stack>
