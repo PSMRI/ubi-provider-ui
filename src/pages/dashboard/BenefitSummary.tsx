@@ -21,7 +21,7 @@ import {
   TabIndicator,
 } from "@chakra-ui/react";
 import { ChevronRightIcon, EditIcon } from "@chakra-ui/icons";
-import { tableData, tableHeader } from "./TableJSON";
+import { tableData, tableHeader } from "../../utils/dataJSON/BenefitSummary";
 
 const BenefitSummary = () => {
   const [searchTerm, setSearchTerm] = useState("");

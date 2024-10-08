@@ -14,5 +14,9 @@
   "OTP_ENTER_OTP": "Enter OTP",
   "OTP_RESEND": "Request to Resend OTP in 4:59",
   "REGISTER_ORGANISATION_NAME": "Organisation Name",
-  "REGISTER_PROCEED": "Proceed"
+  "REGISTER_PROCEED": "Proceed",
+  "DASHBOARD_KEY_MATRICS": "Key Metrics",
+  "DASHBOARD_APPLICANT_OVERVIEW": "Applicant Overview",
+  "DASHBOARD_FINANCIAL_OVERVIEW": "Financial Overview",
+  "DASHBOARD_KEY_MATRICS_BUTTON": "View Details"
 }

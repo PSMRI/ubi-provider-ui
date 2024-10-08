@@ -17,6 +17,9 @@ import Logo from "../../assets/Images/GOM.png";
 import Layout from "../../components/layout/Layout";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import TH3 from "../../components/common/typography/TH3";
+import TT2 from "../../components/common/typography/TT2";
+import TT3 from "../../components/common/typography/TT3";
 export default function OTP() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -35,8 +38,22 @@ export default function OTP() {
       element.target.nextSibling.focus();
     }
   };
+
+  // Handle backspace
+  const handleBackspace = (
+    index: number,
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (event.key === "Backspace" && index > 0 && otp[index] === "") {
+      const previousSibling = (event.target as HTMLInputElement)
+        .previousElementSibling as HTMLInputElement | null;
+      if (previousSibling) {
+        previousSibling.focus();
+      }
+    }
+  };
   return (
-    <Layout>
+    <Layout showMenu={false} showSearchBar={false} showLanguage={true}>
       <HStack w="full" h="2xl" spacing={8} align="stretch">
         <VStack
           flex={1}
@@ -47,24 +64,24 @@ export default function OTP() {
           <HStack>
             <Image src={Logo} />
             <VStack align={"start"}>
-              <Text color={"white"} textAlign="left">
+              <TH3 color={"white"} textAlign="left">
                 {t("HEADER_COMPANY_NAME")}
-              </Text>
-              <Text color={"white"} textAlign="left">
+              </TH3>
+              <TT2 color={"white"} textAlign="left">
                 {t("LOGIN_RIGHT_TEXT_H2")}
-              </Text>
-              <Text color={"white"} textAlign="left">
+              </TT2>
+              <TT2 color={"white"} textAlign="left">
                 {t("LOGIN_RIGHT_TEXT_H3")}
-              </Text>
+              </TT2>
             </VStack>
           </HStack>
         </VStack>
         <VStack p={8} flex={1} align={"center"} justify={"center"}>
           <Stack spacing={4} w={"full"} maxW={"md"}>
-            <Heading fontSize={"2xl"}>{t("OTP_LOGIN")}</Heading>
-            <Heading fontSize={"2xl"}>{t("OTP_WELCOME")}</Heading>
+            <TH3>{t("OTP_LOGIN")}</TH3>
+            <TT2>{t("OTP_WELCOME")}</TT2>
             <FormControl id="email">
-              <FormLabel>{t("OTP_ENTER_OTP")}</FormLabel>
+              <TT2>{t("OTP_ENTER_OTP")}</TT2>
 
               <HStack spacing={2}>
                 {otp.map((data, index) => (
@@ -75,6 +92,7 @@ export default function OTP() {
                     value={data}
                     onChange={(e) => handleChange(e, index)}
                     onFocus={(e) => e.target.select()} // Select input on focus
+                    onKeyDown={(e) => handleBackspace(index, e)}
                     textAlign="center" // Center align the text
                     size="lg" // Larger input size
                     width="3rem" // Custom width for OTP boxes
@@ -83,16 +101,17 @@ export default function OTP() {
               </HStack>
             </FormControl>
             <Stack spacing={6}>
-              <Text>{t("OTP_RESEND")}</Text>
+              <TT2>{t("OTP_RESEND")}</TT2>
               <Button
                 colorScheme={"blue"}
                 variant={"solid"}
+                borderRadius={"100px"}
                 onClick={() => {
                   localStorage.setItem("token", "true");
                   navigate(0);
                 }}
               >
-                {t("LOGIN_LOGIN")}
+                <TT3>{t("LOGIN_LOGIN")}</TT3>
               </Button>
             </Stack>
           </Stack>

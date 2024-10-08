@@ -16,11 +16,14 @@ import Logo from "../../assets/Images/GOM.png";
 import Layout from "../../components/layout/Layout";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import TH3 from "../../components/common/typography/TH3";
+import TT2 from "../../components/common/typography/TT2";
+import TT3 from "../../components/common/typography/TT3";
 export default function UserRegister() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   return (
-    <Layout>
+    <Layout showMenu={false} showSearchBar={false} showLanguage={true}>
       <HStack w="full" h="2xl" spacing={8} align="stretch">
         <VStack
           flex={1}
@@ -31,25 +34,25 @@ export default function UserRegister() {
           <HStack>
             <Image src={Logo} />
             <VStack align={"start"}>
-              <Text color={"white"} textAlign="left">
+              <TH3 color={"white"} textAlign="left">
                 {t("HEADER_COMPANY_NAME")}
-              </Text>
-              <Text color={"white"} textAlign="left">
+              </TH3>
+              <TT2 color={"white"} textAlign="left">
                 {t("LOGIN_RIGHT_TEXT_H2")}
-              </Text>
-              <Text color={"white"} textAlign="left">
+              </TT2>
+              <TT2 color={"white"} textAlign="left">
                 {t("LOGIN_RIGHT_TEXT_H3")}
-              </Text>
+              </TT2>
             </VStack>
           </HStack>
         </VStack>
         <VStack p={8} flex={1} align={"center"} justify={"center"}>
           <Stack spacing={4} w={"full"} maxW={"md"}>
-            <Heading fontSize={"2xl"}>{t("LOGIN_TITLE")}</Heading>
+            <TH3 fontSize={"2xl"}>{t("LOGIN_TITLE")}</TH3>
             <FormControl id="email">
-              <FormLabel>{t("REGISTER_ORGANISATION_NAME")}</FormLabel>
+              <TT2>{t("REGISTER_ORGANISATION_NAME")}</TT2>
               <Input type="text" />
-              <FormLabel>{t("LOGIN_ENAIL_ID")}</FormLabel>
+              <TT2>{t("LOGIN_ENAIL_ID")}</TT2>
               <Input type="email" />
             </FormControl>
 
@@ -59,19 +62,22 @@ export default function UserRegister() {
                 align={"start"}
                 justify={"space-between"}
               >
-                <Text>{t("LOGIN_TERMS")}</Text>
-                <Text>{t("LOGIN_TERMS_ACCEPT")}</Text>
-                <Checkbox>{t("LOGIN_AGREE")}</Checkbox>
+                <TT2>{t("LOGIN_TERMS")}</TT2>
+                <TT2>{t("LOGIN_TERMS_ACCEPT")}</TT2>
+                <Checkbox>
+                  <TT2>{t("LOGIN_AGREE")}</TT2>
+                </Checkbox>
               </Stack>
               <Button
                 colorScheme={"blue"}
                 variant={"solid"}
+                borderRadius={"100px"}
                 onClick={() => {
                   // localStorage.setItem("token", "true");
                   navigate("/otp");
                 }}
               >
-                {t("REGISTER_PROCEED")}
+                <TT3>{t("REGISTER_PROCEED")}</TT3>
               </Button>
             </Stack>
           </Stack>

@@ -17,7 +17,7 @@ import {
 
 export default function CreateBenefitForm() {
   return (
-    <Layout>
+    <Layout showMenu={true} showSearchBar={true} showLanguage={false}>
       <Form schema={generalInfoSchema} validator={validator} />
       <Form
         schema={eligibilityCriteriaSchema}

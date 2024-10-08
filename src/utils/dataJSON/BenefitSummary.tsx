@@ -14,7 +14,7 @@ export const tableHeader = [
 export const tableData = [
   {
     id: 1,
-    name: "Pre-Matric Scholarship-SC",
+    name: "Pre-Matric Scholarship-SC Active",
     applicants: 980,
     approved: 512,
     rejected: 468,
@@ -24,7 +24,7 @@ export const tableData = [
   },
   {
     id: 2,
-    name: "Pre-Matric Scholarship-SC",
+    name: "Pre-Matric Scholarship-SC Closed",
     applicants: 980,
     approved: 512,
     rejected: 468,
@@ -34,7 +34,7 @@ export const tableData = [
   },
   {
     id: 3,
-    name: "Pre-Matric Scholarship-SC",
+    name: "Pre-Matric Scholarship-SC Drafts",
     applicants: 980,
     approved: 512,
     rejected: 468,
