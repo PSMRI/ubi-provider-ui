@@ -1,3 +1,53 @@
+export const generalInformationUiSchema = {
+  benefitName: {
+    "ui:widget": "text",
+    "ui:options": {
+      label: "Benefit Name",
+      placeholder: "Benefit name",
+      classNames: "column-left",
+    },
+  },
+  benefitProvider: {
+    "ui:widget": "text",
+    "ui:options": {
+      label: "Benefit Provider",
+      placeholder: "Benefit provider",
+      classNames: "column-left",
+    },
+  },
+  benefitSponsor1: {
+    "ui:widget": "text",
+    "ui:options": {
+      label: "Benefit Sponsor-1",
+      placeholder: "Benefit Sponsor 1 Name",
+    },
+    "ui:classNames": "half-width", // Add a class for styling
+  },
+  sponsor1Entity: {
+    "ui:widget": "select",
+    "ui:options": {
+      label: "Sponsor-1 Entity Type",
+      placeholder: "Select Entity Type",
+    },
+    "ui:classNames": "half-width", // Add a class for styling
+  },
+  sponsor1Share: {
+    "ui:widget": "select",
+    "ui:options": {
+      label: "Sponsor-1 Share (Percentage)",
+      placeholder: "Select Share Percentage",
+    },
+    "ui:classNames": "half-width", // Add a class for styling
+  },
+  description: {
+    "ui:widget": "text",
+    "ui:options": {
+      label: "Description",
+      placeholder: "Benefit Description",
+    },
+  },
+};
+
 export const eligibilityUiSchema = {
   class: { "ui:widget": "select" },
   marks: { "ui:widget": "select" },
@@ -9,7 +59,7 @@ export const eligibilityUiSchema = {
   age: { "ui:widget": "select" },
   eligibleChildren: { "ui:widget": "select" },
   gender: { "ui:widget": "radio" },
-  caste: { "ui:widget": "radio" },
+  caste: { "ui:widget": "checkboxes" },
   disability: { "ui:widget": "radio" },
   dayScholar: { "ui:widget": "radio" },
 };

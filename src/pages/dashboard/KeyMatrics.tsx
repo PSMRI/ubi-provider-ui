@@ -1,83 +1,89 @@
+// src/components/KeyMetrics.tsx
 import React from "react";
 import {
   Box,
-  Stack,
+  Heading,
   VStack,
   HStack,
-  Heading,
   Text,
-  Button,
-  Center,
+  SimpleGrid,
+  Divider,
+  Select,
 } from "@chakra-ui/react";
-import TD1 from "../../components/common/typography/TD1";
-import { useTranslation } from "react-i18next";
+import StatBox from "../../components/common/widget/StatBox"; // Reusing StatBox
+import TD2 from "../../components/common/typography/TD2";
+import {
+  applicantData,
+  popularBenefits,
+} from "../../components/common/widget/StatData";
 import TT1 from "../../components/common/typography/TT1";
-import TT3 from "../../components/common/typography/TT3";
-// Define the props for StatBox
-interface StatBoxProps {
-  number: number;
-  label: string;
-  isRupee?: boolean;
-}
 
-// Stateless functional component for the StatBox
-const StatBox: React.FC<StatBoxProps> = ({ number, label, isRupee }) => (
-  <VStack
-    border="1px solid"
-    borderColor="gray.200"
-    p={4}
-    borderRadius="md"
-    w="full"
-    align="center"
-  >
-    <Heading size="lg">{isRupee ? `₹${number}` : number}</Heading>
-    <Text>{label}</Text>
-  </VStack>
-);
-
-const KeyMatrics: React.FC = () => {
-  const { t } = useTranslation();
+const KeyMetrics: React.FC = () => {
   return (
-    <Stack p={8} maxW="1200px" mx="auto">
-      {/* Key Metrics Heading */}
-      <VStack spacing={4} marginBottom={"20px"} align="start" w="full">
-        <TD1 color="#2F3036">{t("DASHBOARD_KEY_MATRICS")}</TD1>
-        <TT1 color="#2F3036">{t("DASHBOARD_APPLICANT_OVERVIEW")}</TT1>
-      </VStack>
+    <VStack align="stretch" spacing="40px" width="100%">
+      <Box
+        width="1100px"
+        height="52px"
+        gap="60px"
+        paddingTop={"60px"}
+        paddingLeft={"170px"}
+      >
+        <HStack justify="space-between" align="center" width="100%">
+          {/* Key Metrics Heading */}
+          <TD2 color="#06164B">Key Metrics</TD2>
 
-      {/* Stat Boxes for Applicant Overview */}
-      <HStack spacing={8} w="full" justify="space-between">
-        <StatBox number={54321} label="Total Applicants" />
-        <StatBox number={12345} label="New Applicants" />
-        <StatBox number={67890} label="Accepted Applicants" />
-        <StatBox number={98765} label="Rejected Applicants" />
-      </HStack>
+          {/* This Month Dropdown */}
+          <Select
+            placeholder="This Month"
+            width="200px"
+            borderColor="gray.300"
+            bg="white"
+            _hover={{ borderColor: "gray.400" }}
+            _focus={{ borderColor: "blue.500", boxShadow: "outline" }}
+          ></Select>
+        </HStack>
+      </Box>
 
-      {/* Financial Overview Heading */}
-      <VStack spacing={4} align="start" w="full" marginBottom={"20px"}>
-        <TT1 color="#2F3036">{t("DASHBOARD_FINANCIAL_OVERVIEW")}</TT1>
-      </VStack>
-
-      {/* Stat Boxes for Financial Overview */}
-      <HStack spacing={8} w="full" justify="space-between">
-        <StatBox number={50000} label="Total Budget" isRupee={true} />
-        <StatBox number={30000} label="Spent Budget" isRupee={true} />
-        <StatBox number={15000} label="Remaining Budget" isRupee={true} />
-        <StatBox number={5000} label="Pending Payments" isRupee={true} />
-      </HStack>
-      <Center>
-        <Button
-          colorScheme={"blue"}
-          variant={"solid"}
-          w={"494px"}
-          marginTop={"20px"}
-          borderRadius={"100px"}
-        >
-          <TT3>{t("DASHBOARD_KEY_MATRICS_BUTTON")}</TT3>
-        </Button>
-      </Center>
-    </Stack>
+      <Box
+        width="1100px"
+        height="532"
+        paddingTop="60px"
+        paddingLeft="170px"
+        gap="60px"
+      >
+        <HStack spacing="60px" justify="flex-start" align="start">
+          <Box width="340px" height="auto" gap="20px">
+            <VStack spacing={4} align="start">
+              <TT1 color={"#2F3036"}>Applicant Overview</TT1>
+              <VStack spacing={4}>
+                {applicantData.map((item) => (
+                  <StatBox
+                    key={item.id}
+                    number={item.number}
+                    label={item.label}
+                  />
+                ))}
+              </VStack>
+            </VStack>
+          </Box>
+          <Box width="340px" height="auto" gap="20px">
+            <VStack spacing={4} align={"start"}>
+              <TT1 color={"#2F3036"}>Financial Overview</TT1>
+              <VStack spacing={4}>
+                {applicantData.map((item) => (
+                  <StatBox
+                    key={item.id}
+                    number={item.number}
+                    label={item.label}
+                  />
+                ))}
+              </VStack>
+            </VStack>
+          </Box>
+        </HStack>
+      </Box>
+    </VStack>
   );
 };
 
-export default KeyMatrics;
+export default KeyMetrics;

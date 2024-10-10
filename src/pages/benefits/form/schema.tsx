@@ -1,8 +1,14 @@
 import { JSONSchema7 } from "json-schema"; // Use this for the schema type
 export const generalInfoSchema: JSONSchema7 = {
-  title: "General Information",
+  title: "",
   type: "object",
-  required: ["firstName", "lastName", "age"],
+  required: [
+    "benefitName",
+    "benefitProvider",
+    "benefitSponsor1",
+    "sponsor1Entity",
+    "sponsor1Share",
+  ],
   properties: {
     benefitName: { type: "string", title: "Benefit Name" },
     benefitProvider: { type: "string", title: "Benefit Provider" },
@@ -26,9 +32,10 @@ export const generalInfoSchema: JSONSchema7 = {
   },
 };
 export const eligibilityCriteriaSchema: JSONSchema7 = {
-  title: "Eligibility Criteria",
+  title: "",
   type: "object",
-  required: ["gender", "annualIncome", "caste"],
+
+  required: ["gender", "disability", "domicile"],
   properties: {
     gender: { type: "boolean", title: "Gender" },
     class: { type: "string", title: "Class", enum: ["10th", "12th", "Other"] },
@@ -59,7 +66,15 @@ export const eligibilityCriteriaSchema: JSONSchema7 = {
       title: "Annual Income",
       enum: ["Below 1,00,000/-", "Below 5,00,000/-", "Other"],
     },
-    caste: { type: "boolean", title: "Caste" },
+    caste: {
+      type: "array",
+      title: "Caste",
+      items: {
+        type: "string",
+        enum: ["General", "SC", "ST", "OBC"],
+      },
+      uniqueItems: true, // Prevents duplicate selections
+    },
     disability: { type: "boolean", title: "Disability" },
     domicile: {
       type: "string",
@@ -81,9 +96,9 @@ export const eligibilityCriteriaSchema: JSONSchema7 = {
 };
 
 export const financialInformationSchema: JSONSchema7 = {
-  title: "Financial Information",
+  title: "",
   type: "object",
-  required: ["gender", "annualIncome", "caste"],
+  required: ["maxBeneficiariesLimit"],
   properties: {
     parentOccupation: {
       type: "string",
@@ -154,9 +169,9 @@ export const financialInformationSchema: JSONSchema7 = {
 };
 
 export const termsAndConditionSchema: JSONSchema7 = {
-  title: "Other Terms and Conditions",
+  title: "",
   type: "object",
-  required: ["firstName", "lastName", "age"],
+  required: ["applicationDeadlineDate", "validDate", "renewalApplicable"],
   properties: {
     academicYear: {
       type: "boolean",

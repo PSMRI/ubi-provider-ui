@@ -1,0 +1,15 @@
+.column-left {
+  width: 45%;
+  float: left; /* Align left */
+  margin-right: 5%; /* Add space between columns */
+}
+
+.column-right {
+  width: 45%;
+  float: left; /* Align right */
+}
+
+.column-full {
+  width: 100%;
+  clear: both; /* Clear floats */
+}
