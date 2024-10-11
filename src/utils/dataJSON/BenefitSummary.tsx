@@ -11,39 +11,24 @@ export const tableHeader = [
 ];
 
 // Sample data in JSON format
-export const tableData = [
-  {
-    id: 1,
-    name: "Pre-Matric Scholarship-SC Active",
-    applicants: 980,
-    approved: 512,
-    rejected: 468,
-    disbursalPending: 13,
-    deadline: "28 Dec 2024",
-    status: "Active",
-  },
-  {
-    id: 2,
-    name: "Pre-Matric Scholarship-SC Closed",
-    applicants: 980,
-    approved: 512,
-    rejected: 468,
-    disbursalPending: 13,
-    deadline: "28 Dec 2024",
-    status: "Closed",
-  },
-  {
-    id: 3,
-    name: "Pre-Matric Scholarship-SC Drafts",
-    applicants: 980,
-    approved: 512,
-    rejected: 468,
-    disbursalPending: 13,
-    deadline: "28 Dec 2024",
-    status: "Drafts",
-  },
-  // Add more data entries for demonstration...
-];
+export const tableData = Array.from({ length: 30 }, (_, i) => {
+  const statusList = ["Active", "Closed", "Drafts"];
+  const status = statusList[Math.floor(i / 10)];
+  return {
+    id: Math.floor(Math.random() * 1000) + 1,
+    name: `Pre-Matric Scholarship-SC ${status} ${Math.floor(
+      Math.random() * 1000
+    )}`,
+    applicants: Math.floor(Math.random() * 1000),
+    approved: Math.floor(Math.random() * 1000),
+    rejected: Math.floor(Math.random() * 1000),
+    disbursalPending: Math.floor(Math.random() * 1000),
+    deadline: `${Math.floor(Math.random() * 12) + 1} ${
+      Math.floor(Math.random() * 28) + 1
+    }, ${Math.floor(Math.random() * 2025) + 2020}`,
+    status,
+  };
+});
 
 // sample data for card on dashboard
 export const cardData = [
