@@ -17,8 +17,11 @@ import {
   popularBenefits,
 } from "../../components/common/widget/StatData";
 import TT1 from "../../components/common/typography/TT1";
-
+import { useTranslation } from "react-i18next";
+import { cardData } from "../../utils/dataJSON/BenefitSummary";
+import CommonCard from "../../components/common/card/CommonCard";
 const KeyMetrics: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <VStack align="stretch" spacing="40px" width="100%">
       <Box
@@ -30,7 +33,7 @@ const KeyMetrics: React.FC = () => {
       >
         <HStack justify="space-between" align="center" width="100%">
           {/* Key Metrics Heading */}
-          <TD2 color="#06164B">Key Metrics</TD2>
+          <TD2 color="#06164B">{t("DASHBOARD_KEY_MATRICS")}</TD2>
 
           {/* This Month Dropdown */}
           <Select
@@ -54,7 +57,7 @@ const KeyMetrics: React.FC = () => {
         <HStack spacing="60px" justify="flex-start" align="start">
           <Box width="340px" height="auto" gap="20px">
             <VStack spacing={4} align="start">
-              <TT1 color={"#2F3036"}>Applicant Overview</TT1>
+              <TT1 color={"#2F3036"}>{t("DASHBOARD_APPLICANT_OVERVIEW")}</TT1>
               <VStack spacing={4}>
                 {applicantData.map((item) => (
                   <StatBox
@@ -68,13 +71,27 @@ const KeyMetrics: React.FC = () => {
           </Box>
           <Box width="340px" height="auto" gap="20px">
             <VStack spacing={4} align={"start"}>
-              <TT1 color={"#2F3036"}>Financial Overview</TT1>
+              <TT1 color={"#2F3036"}>{t("DASHBOARD_FINANCIAL_OVERVIEW")}</TT1>
               <VStack spacing={4}>
                 {applicantData.map((item) => (
                   <StatBox
                     key={item.id}
                     number={item.number}
                     label={item.label}
+                  />
+                ))}
+              </VStack>
+            </VStack>
+          </Box>
+          <Box width="340px" height="auto" gap="20px">
+            <VStack spacing={4} align={"start"}>
+              <TT1 color={"#2F3036"}>{t("DASHBOARD_POPULAR_BENEFITS")}</TT1>
+              <VStack spacing={4}>
+                {cardData?.map((item) => (
+                  <CommonCard
+                    title="Pre-Matric Scholarship-General"
+                    totalApplications={4325}
+                    totalDisbursed="1,00,000"
                   />
                 ))}
               </VStack>

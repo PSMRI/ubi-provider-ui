@@ -1,0 +1,9 @@
+.charts-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.chart-column {
+  flex: 1;
+  padding: 10px;
+}

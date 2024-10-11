@@ -18,7 +18,7 @@ export const tableData = [
     applicants: 980,
     approved: 512,
     rejected: 468,
-    disbursal: 13,
+    disbursalPending: 13,
     deadline: "28 Dec 2024",
     status: "Active",
   },
@@ -28,7 +28,7 @@ export const tableData = [
     applicants: 980,
     approved: 512,
     rejected: 468,
-    disbursal: 13,
+    disbursalPending: 13,
     deadline: "28 Dec 2024",
     status: "Closed",
   },
@@ -38,9 +38,31 @@ export const tableData = [
     applicants: 980,
     approved: 512,
     rejected: 468,
-    disbursal: 13,
+    disbursalPending: 13,
     deadline: "28 Dec 2024",
     status: "Drafts",
   },
   // Add more data entries for demonstration...
+];
+
+// sample data for card on dashboard
+export const cardData = [
+  {
+    id: 1,
+    title: "Pre-Matric Scholarship-General",
+    totalApplicants: 4325,
+    totalAmount: "1,00,000",
+  },
+  {
+    id: 2,
+    title: "Pre-Matric Scholarship-ST",
+    totalApplicants: 4325,
+    totalAmount: "1,00,000",
+  },
+  {
+    id: 3,
+    title: "Pre-Matric Scholarship-SC",
+    totalApplicants: 4325,
+    totalAmount: "1,00,000",
+  },
 ];

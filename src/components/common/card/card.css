@@ -1,0 +1,24 @@
+.common-card {
+  width: 340px;
+  height: 120px;
+  padding: 20px 0px 0px 0px;
+  gap: 12px;
+  border-radius: 6px 0px 0px 0px;
+  border: 1px solid transparent; /* Adjust as needed */
+  opacity: 1;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: white; /* Or any other background color you need */
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0 0 8px 0;
+}
+
+.card-subtitle {
+  font-size: 14px;
+  font-weight: normal;
+  margin: 0;
+  color: #555; /* Subtle gray for the subtitle */
+}

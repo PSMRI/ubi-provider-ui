@@ -33,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const { t } = useTranslation();
   // Array of menu names
-  const menuNames = ["Dashboard", "About", "Quick Actions", "Contact Us"];
+  const menuNames = ["Dashboard", "Quick Actions", "Contact Us"];
 
   // Submenu for the 'Quick Actions' menu item
   const quickActionsSubmenu = [
@@ -98,7 +98,7 @@ const Header: React.FC<HeaderProps> = ({
             <HStack align="center">
               <InputGroup>
                 {/* Input Field */}
-                <Input borderRadius="50" placeholder="Search..." />
+                <Input borderRadius="50" placeholder="Search for benefit" />
 
                 {/* Icon Button inside Input */}
                 <InputRightElement>
