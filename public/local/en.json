@@ -19,5 +19,6 @@
   "DASHBOARD_APPLICANT_OVERVIEW": "Applicant Overview",
   "DASHBOARD_FINANCIAL_OVERVIEW": "Financial Overview",
   "DASHBOARD_POPULAR_BENEFITS": "Top 3 Popular Benefits",
-  "DASHBOARD_KEY_MATRICS_BUTTON": "View Details"
+  "DASHBOARD_KEY_MATRICS_BUTTON": "View Details",
+  "DASHBOARD_ALL_BENEFITS_SUMMARY": "All Benefits Summary"
 }

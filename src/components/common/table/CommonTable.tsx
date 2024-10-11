@@ -1,11 +1,18 @@
 import "ka-table/style.css";
 
 import React from "react";
-
+import {
+  Input,
+  InputGroup,
+  InputRightElement,
+  VStack,
+  HStack,
+  Button,
+} from "@chakra-ui/react";
+import { SearchIcon } from "@chakra-ui/icons";
 import { Table } from "ka-table";
 import { DataType, EditingMode, SortingMode } from "ka-table/enums";
 import { tableData } from "../../../utils/dataJSON/BenefitSummary";
-import { Box } from "@chakra-ui/react";
 
 const columns = [
   { key: "name", title: "Name", dataType: DataType.String },
@@ -29,20 +36,41 @@ const CommonTable = () => {
     setActiveTab(tab);
   };
   return (
-    <Box>
-      <div className="tabs">
-        <button onClick={() => handleTabClick("Active")}>Active</button>
-        <button onClick={() => handleTabClick("Closed")}>Closed</button>
-        <button onClick={() => handleTabClick("Drafts")}>Drafts</button>
-      </div>
+    <VStack spacing="20px" align="stretch">
+      <HStack justifyContent="space-between">
+        <HStack spacing="15px" className="tabs">
+          <Button
+            variant={activeTab === "Active" ? "solid" : "outline"}
+            onClick={() => handleTabClick("Active")}
+          >
+            Active
+          </Button>
+          <Button
+            variant={activeTab === "Closed" ? "solid" : "outline"}
+            onClick={() => handleTabClick("Closed")}
+          >
+            Closed
+          </Button>
+          <Button
+            variant={activeTab === "Drafts" ? "solid" : "outline"}
+            onClick={() => handleTabClick("Drafts")}
+          >
+            Drafts
+          </Button>
+        </HStack>
+        <InputGroup maxWidth="300px">
+          <Input placeholder="Search" />
+          <InputRightElement children={<SearchIcon color="gray.500" />} />
+        </InputGroup>
+      </HStack>
       <Table
         columns={columns}
         data={filteredData}
         editingMode={EditingMode.Cell}
-        rowKeyField={"id"}
+        rowKeyField={"name"}
         sortingMode={SortingMode.Single}
       />
-    </Box>
+    </VStack>
   );
 };
 

@@ -50,19 +50,19 @@ export const cardData = [
   {
     id: 1,
     title: "Pre-Matric Scholarship-General",
-    totalApplicants: 4325,
-    totalAmount: "1,00,000",
+    totalApplications: 4325,
+    totalDisbursed: "1,00,000",
   },
   {
     id: 2,
     title: "Pre-Matric Scholarship-ST",
-    totalApplicants: 4325,
-    totalAmount: "1,00,000",
+    totalApplications: 4325,
+    totalDisbursed: "1,00,000",
   },
   {
     id: 3,
     title: "Pre-Matric Scholarship-SC",
-    totalApplicants: 4325,
-    totalAmount: "1,00,000",
+    totalApplications: 4325,
+    totalDisbursed: "1,00,000",
   },
 ];

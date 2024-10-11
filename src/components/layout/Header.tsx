@@ -1,26 +1,24 @@
-import React from "react";
+import { AddIcon, EditIcon, SearchIcon, ViewIcon } from "@chakra-ui/icons";
 import {
   Box,
   HStack,
-  Stack,
-  Select,
-  Text,
-  InputRightElement,
+  IconButton,
+  Input,
   InputGroup,
+  InputRightElement,
   Menu,
   MenuButton,
-  Input,
-  IconButton,
-  MenuList,
   MenuItem,
+  MenuList,
+  Select,
+  Text,
 } from "@chakra-ui/react";
-import Logo from "../../assets/Images/Logo.png";
-import { SearchIcon } from "@chakra-ui/icons";
+import React from "react";
 import { useTranslation } from "react-i18next";
+import Logo from "../../assets/Images/Logo.png";
 import TH1 from "../common/typography/TH1";
 import TT2 from "../common/typography/TT2";
 
-import { AddIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 interface HeaderProps {
   showMenu?: boolean;
   showSearchBar?: boolean;
@@ -46,9 +44,8 @@ const Header: React.FC<HeaderProps> = ({
       w="100%"
       p={4}
       boxShadow="md"
-      position="fixed"
+      position="sticky"
       top={0}
-      right="0"
       zIndex="11"
       bg="white"
     >
