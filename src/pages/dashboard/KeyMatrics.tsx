@@ -15,7 +15,7 @@ import Chart from "react-apexcharts";
 // Pie chart data
 const pieChartOptions = {
   labels: ["Remaining", "Utilised"],
-  colors: ["#DDE1FF", "#06164B"],
+  colors: ["#06164B", "#DDE1FF"],
   dataLabels: {
     enabled: true,
   },
@@ -23,8 +23,9 @@ const pieChartOptions = {
     position: "bottom",
     horizontalAlign: "left",
   },
+  plotOptions: { pie: { startAngle: 45 } },
 };
-const pieChartSeries = [1432000, 358000];
+const pieChartSeries = [358000, 1074000];
 
 const KeyMetrics: React.FC = () => {
   const { t } = useTranslation();
@@ -34,10 +35,10 @@ const KeyMetrics: React.FC = () => {
         {/* Key Metrics Heading */}
         <TD2 color="#06164B">{t("DASHBOARD_KEY_MATRICS")}</TD2>
 
-        {/* This Month Dropdown */}
+        {/* October 2024 Dropdown */}
         <Select
-          w="150px"
-          placeholder="This Month"
+          w="175px"
+          placeholder="October 2024"
           borderColor="gray.300"
           bg="white"
           _hover={{ borderColor: "gray.400" }}
@@ -54,9 +55,9 @@ const KeyMetrics: React.FC = () => {
             ))}
           </VStack>
         </VStack>
-        <VStack spacing={"60px"} align={"start"}>
+        <VStack spacing={"60px"} align="start">
           <TT1 color={"#2F3036"}>{t("DASHBOARD_FINANCIAL_OVERVIEW")}</TT1>
-          <VStack bg="#F8F8F8" p="5" align="stretch">
+          <VStack bg="#F8F8F8" p="5" align="stretch" flex="1">
             <TT2>
               Total Budget: <b>₹ 15,00,000</b>
             </TT2>
@@ -67,15 +68,15 @@ const KeyMetrics: React.FC = () => {
               options={pieChartOptions}
               series={pieChartSeries}
               type="pie"
-              width="400"
+              width="300"
             />
           </VStack>
         </VStack>
-        <VStack spacing={"60px"} align={"start"}>
+        <VStack spacing={"60px"} align="start">
           <TT1 color={"#2F3036"}>{t("DASHBOARD_POPULAR_BENEFITS")}</TT1>
           <VStack spacing={"35px"}>
             {cardData?.map((item, index) => (
-              <CommonCard key={item?.id || index} {...(item || {})} />
+              <CommonCard key={item?.id || index} {...(item || {})} flex="1" />
             ))}
           </VStack>
         </VStack>

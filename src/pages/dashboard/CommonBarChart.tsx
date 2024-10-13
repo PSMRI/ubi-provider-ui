@@ -19,24 +19,26 @@ const data = [
         "#06164B",
         "#06164B",
       ],
-      chart: {
-        id: "basic-bar",
-      },
       xaxis: {
-        categories: Array.from({ length: 7 }, (_, i) =>
-          new Date(Date.now() + i * 24 * 60 * 60 * 1000).toLocaleString(
-            "en-us",
-            {
-              weekday: "short",
-            }
-          )
+        categories: Array.from(
+          { length: 7 },
+          (_, i) =>
+            new Date(Date.now() + i * 24 * 60 * 60 * 1000)
+              .toLocaleString("en-us", { weekday: "short" })
+              .slice(0, 2) // Extract the first 2 letters
         ),
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: function (val) {
+          return val + "%";
+        },
       },
     },
     series: [
       {
         name: "Percentage",
-        data: [30, 40, 45, 50, 49, 60],
+        data: ["30%", "40%", "45%", "50%", "49%", "60%", "100%"],
       },
     ],
   },
@@ -46,17 +48,18 @@ const data = [
     type: "pie",
     footerText: "Gender",
     options: {
-      labels: ["Remaining", "Utilised"],
-      colors: ["#DDE1FF", "#06164B"],
+      labels: ["Male", "Female", "other"],
+      colors: ["#867fa5", "#06164B", "#DDE1FF"],
+      tooltip: { enabled: false },
       dataLabels: {
-        enabled: true,
+        enabled: false,
       },
       legend: {
         position: "bottom",
         horizontalAlign: "left",
       },
     },
-    series: [1432000, 358000],
+    series: [13, 27, 60],
   },
   {
     title: "Breakdown by Caste",
@@ -64,17 +67,18 @@ const data = [
     footerText: "Caste",
     type: "pie",
     options: {
-      labels: ["Remaining", "Utilised"],
-      colors: ["#DDE1FF", "#06164B"],
+      labels: ["SC", "ST", "OBC"],
+      colors: ["#867fa5", "#06164B", "#DDE1FF"],
+      tooltip: { enabled: false },
       dataLabels: {
-        enabled: true,
+        enabled: false,
       },
       legend: {
         position: "bottom",
         horizontalAlign: "left",
       },
     },
-    series: [1432000, 358000],
+    series: [13, 27, 60],
   },
   {
     title: "Breakdown by Level of Study",
@@ -83,34 +87,36 @@ const data = [
     type: "pie",
     options: {
       labels: ["Remaining", "Utilised"],
-      colors: ["#DDE1FF", "#06164B"],
+      colors: ["#867fa5", "#06164B", "#DDE1FF"],
+      tooltip: { enabled: false },
       dataLabels: {
-        enabled: true,
+        enabled: false,
       },
       legend: {
         position: "bottom",
         horizontalAlign: "left",
       },
     },
-    series: [1432000, 358000],
+    series: [13, 27, 60],
   },
   {
-    title: "Day Scholar/Hostler Ratio",
+    title: "Day Scholar / Hostler Ratio",
     count: "47",
     footerText: "Ratio",
     type: "pie",
     options: {
       labels: ["Remaining", "Utilised"],
-      colors: ["#DDE1FF", "#06164B"],
+      colors: ["#867fa5", "#06164B", "#DDE1FF"],
+      tooltip: { enabled: false },
       dataLabels: {
-        enabled: true,
+        enabled: false,
       },
       legend: {
         position: "bottom",
         horizontalAlign: "left",
       },
     },
-    series: [1432000, 358000],
+    series: [13, 27, 60],
   },
 ];
 
@@ -120,34 +126,35 @@ const CommonBarChart: React.FC = () => {
   useEffect(() => {
     setChartData(data);
   }, []);
+
   return (
     <VStack spacing="60px" align="stretch" px="170px" pb="60px">
       <HStack justify="space-between">
         {/* Key Metrics Heading */}
         <TD2 color="#06164B">{t("DASHBOARD_VISUAL_REPRESENTATION")}</TD2>
 
-        {/* This Month Dropdown */}
+        {/* October 2024 Dropdown */}
         <Select
-          w="150px"
-          placeholder="This Month"
+          w="175px"
+          placeholder="October 2024"
           borderColor="gray.300"
           bg="white"
           _hover={{ borderColor: "gray.400" }}
           _focus={{ borderColor: "blue.500", boxShadow: "outline" }}
         />
       </HStack>
-      <HStack align="stretch" spacing={"40px"}>
+      <HStack align="stretch" spacing={"35px"}>
         {chartData?.map((chartItem) => (
           <VStack
             boxShadow="0px 2px 6px 2px #00000026"
-            p="5"
+            p="4"
             align="stretch"
             key={chartItem}
           >
-            <TT2>{chartItem?.title}</TT2>
+            <TT1>{chartItem?.title}</TT1>
             <TT2>{chartItem?.count}</TT2>
-            <HStack>
-              <Chart type="pie" width="200px" height="313px" {...chartItem} />
+            <HStack minH="313px">
+              <Chart type="pie" height="313px" {...chartItem} />
             </HStack>
             {chartItem?.footerText && <TT2>{chartItem?.footerText}</TT2>}
           </VStack>
