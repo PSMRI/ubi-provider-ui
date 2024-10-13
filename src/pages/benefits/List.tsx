@@ -1,13 +1,16 @@
-import { SearchIcon } from "@chakra-ui/icons";
+import { ChevronRightIcon, EditIcon, SearchIcon } from "@chakra-ui/icons";
 import {
   HStack,
+  IconButton,
   Input,
   InputGroup,
   InputRightElement,
   VStack,
 } from "@chakra-ui/react";
-import { Tab, Table } from "@common";
+import { Tab, Table, TT2 } from "@common";
+import { useTableInstance } from "ka-table";
 import { DataType } from "ka-table/enums";
+import { ICellTextProps } from "ka-table/props";
 import React, { memo, useEffect, useState } from "react";
 import benefits from "../../services/benefits";
 
@@ -22,8 +25,41 @@ const columns = [
     dataType: DataType.Number,
   },
   { key: "deadline", title: "Deadline", dataType: DataType.String },
-  { key: "actions", title: "Actions", dataType: DataType.String },
+  {
+    key: "actions",
+    title: "Actions",
+  },
 ];
+
+const ActionCell = (prop: ICellTextProps) => {
+  return (
+    <HStack>
+      <IconButton aria-label="Edit" icon={<EditIcon />} size="lg" />
+      <IconButton
+        aria-label="Go to details"
+        icon={<ChevronRightIcon />}
+        size="lg"
+      />
+    </HStack>
+  );
+};
+
+const DeadLineCell = (prop: ICellTextProps) => {
+  return (
+    <HStack>
+      <TT2>
+        {prop?.value
+          ? new Date(prop.value).toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+          : ""}
+        <sup style={{ color: "blue" }}>+3</sup>
+      </TT2>
+    </HStack>
+  );
+};
 
 const BenefitsList: React.FC<{ _vstack?: object }> = memo(({ _vstack }) => {
   const [activeTab, setActiveTab] = useState("1");
@@ -66,7 +102,22 @@ const BenefitsList: React.FC<{ _vstack?: object }> = memo(({ _vstack }) => {
           </InputRightElement>
         </InputGroup>
       </HStack>
-      <Table columns={columns} data={data} />
+      <Table
+        columns={columns}
+        data={data}
+        childComponents={{
+          cellText: {
+            content: (props) => {
+              switch (props.column.key) {
+                case "deadline":
+                  return <DeadLineCell {...props} />;
+                case "actions":
+                  return <ActionCell {...props} />;
+              }
+            },
+          },
+        }}
+      />
     </VStack>
   );
 });
