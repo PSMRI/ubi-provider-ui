@@ -17,7 +17,6 @@ import TB3 from "./common/typography/TB3";
 import CommonCard from "./common/card/CommonCard";
 import StatBox from "./common/widget/StatBox";
 import PrimaryButton from "./common/buttons/PrimaryButton";
-import CommonBarChart from "./common/charts/CommonBarChart";
 import MultiStepForm from "./common/MultiStepForm";
 import TitleBar from "./common/TitleBar";
 import Layout from "./layout/Layout";
@@ -42,7 +41,6 @@ export {
   CommonCard,
   StatBox,
   PrimaryButton,
-  CommonBarChart,
   MultiStepForm,
   TitleBar,
   Layout,

@@ -9,7 +9,6 @@ import {
 import { Tab, Table } from "@common";
 import { DataType } from "ka-table/enums";
 import React, { memo, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import benefits from "../../services/benefits";
 
 const columns = [
@@ -27,7 +26,7 @@ const columns = [
 ];
 
 const BenefitsList: React.FC<{ _vstack?: object }> = memo(({ _vstack }) => {
-  const [activeTab, setActiveTab] = useState(1);
+  const [activeTab, setActiveTab] = useState("1");
   const [data, setData] = useState([]);
 
   useEffect(() => {
@@ -36,9 +35,9 @@ const BenefitsList: React.FC<{ _vstack?: object }> = memo(({ _vstack }) => {
       const tableData = await benefits.getAll();
       setData(
         tableData?.filter((item) =>
-          activeTab === 1
+          activeTab == 1
             ? item.status === "Active"
-            : activeTab === 2
+            : activeTab == 2
             ? item.status === "Closed"
             : item.status === "Drafts"
         )
@@ -60,8 +59,8 @@ const BenefitsList: React.FC<{ _vstack?: object }> = memo(({ _vstack }) => {
           tabs={[{ label: "Active" }, { label: "Closed" }, { label: "Drafts" }]}
         />
 
-        <InputGroup maxWidth="300px">
-          <Input placeholder="Search" />
+        <InputGroup maxWidth="300px" rounded={"full"} size="lg">
+          <Input placeholder="Search by name.." rounded={"full"} bg="#E9E7EF" />
           <InputRightElement>
             <SearchIcon color="gray.500" />
           </InputRightElement>

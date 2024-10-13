@@ -1,5 +1,5 @@
 import { VStack } from "@chakra-ui/react";
-import CommonBarChart from "../../components/common/charts/CommonBarChart";
+import CommonBarChart from "./CommonBarChart";
 import Layout from "../../components/layout/Layout";
 import BenefitSummary from "./BenefitSummary";
 import KeyMatrics from "./KeyMatrics";
@@ -12,7 +12,7 @@ function Dashboard() {
       showSearchBar={true}
       showLanguage={false}
     >
-      <VStack gap="60px" pt="60px">
+      <VStack gap="60px" py="60px">
         <KeyMatrics />
         <BenefitSummary />
         <CommonBarChart />
