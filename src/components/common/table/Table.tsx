@@ -1,17 +1,8 @@
 import "ka-table/style.css";
 
-import React, { memo } from "react";
-import {
-  Input,
-  InputGroup,
-  InputRightElement,
-  VStack,
-  HStack,
-  Button,
-} from "@chakra-ui/react";
-import { SearchIcon } from "@chakra-ui/icons";
 import { Table } from "ka-table";
-import { DataType, EditingMode, SortingMode } from "ka-table/enums";
+import { EditingMode, SortingMode } from "ka-table/enums";
+import { memo } from "react";
 
 const App = (props) => {
   return (

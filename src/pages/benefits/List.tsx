@@ -1,17 +1,16 @@
-import React, { memo, useState, useEffect } from "react";
-import {
-  VStack,
-  HStack,
-  Button,
-  InputGroup,
-  Input,
-  InputRightElement,
-} from "@chakra-ui/react";
-import { Table, TD2 } from "@common";
-import benefits from "../../services/benefits";
-import { DataType, EditingMode, SortingMode } from "ka-table/enums";
-import { useTranslation } from "react-i18next";
 import { SearchIcon } from "@chakra-ui/icons";
+import {
+  HStack,
+  Input,
+  InputGroup,
+  InputRightElement,
+  VStack,
+} from "@chakra-ui/react";
+import { Tab, Table } from "@common";
+import { DataType } from "ka-table/enums";
+import React, { memo, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import benefits from "../../services/benefits";
 
 const columns = [
   { key: "name", title: "Name", dataType: DataType.String },
@@ -27,58 +26,48 @@ const columns = [
   { key: "actions", title: "Actions", dataType: DataType.String },
 ];
 
-const BenefitsList: React.FC = memo(() => {
-  const [activeTab, setActiveTab] = useState("Active");
-  const [data, setData] = useState("Active");
-  const { t } = useTranslation();
+const BenefitsList: React.FC<{ _vstack?: object }> = memo(({ _vstack }) => {
+  const [activeTab, setActiveTab] = useState(1);
+  const [data, setData] = useState([]);
 
   useEffect(() => {
     const init = async () => {
       // Filtering data based on the selected tab (Active, Closed, Drafts)
       const tableData = await benefits.getAll();
-      console.log(tableData);
-      setData(tableData?.filter((item) => item.status === activeTab));
+      setData(
+        tableData?.filter((item) =>
+          activeTab === 1
+            ? item.status === "Active"
+            : activeTab === 2
+            ? item.status === "Closed"
+            : item.status === "Drafts"
+        )
+      );
     };
     init();
   }, []);
+
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
   };
 
   return (
-    <VStack spacing="60px" align="stretch">
-      <TD2 color={"#2F3036"} px="170px">
-        {t("DASHBOARD_ALL_BENEFITS_SUMMARY")}
-      </TD2>
-      <VStack spacing="20px" align="stretch">
-        <HStack justifyContent="space-between">
-          <HStack spacing="15px" className="tabs">
-            <Button
-              variant={activeTab === "Active" ? "solid" : "outline"}
-              onClick={() => handleTabClick("Active")}
-            >
-              Active
-            </Button>
-            <Button
-              variant={activeTab === "Closed" ? "solid" : "outline"}
-              onClick={() => handleTabClick("Closed")}
-            >
-              Closed
-            </Button>
-            <Button
-              variant={activeTab === "Drafts" ? "solid" : "outline"}
-              onClick={() => handleTabClick("Drafts")}
-            >
-              Drafts
-            </Button>
-          </HStack>
-          <InputGroup maxWidth="300px">
-            <Input placeholder="Search" />
-            <InputRightElement children={<SearchIcon color="gray.500" />} />
-          </InputGroup>
-        </HStack>
-        <Table columns={columns} data={data} />
-      </VStack>
+    <VStack spacing="20px" align="stretch" {..._vstack}>
+      <HStack justifyContent="space-between">
+        <Tab
+          activeIndex={activeTab}
+          handleTabClick={handleTabClick}
+          tabs={[{ label: "Active" }, { label: "Closed" }, { label: "Drafts" }]}
+        />
+
+        <InputGroup maxWidth="300px">
+          <Input placeholder="Search" />
+          <InputRightElement>
+            <SearchIcon color="gray.500" />
+          </InputRightElement>
+        </InputGroup>
+      </HStack>
+      <Table columns={columns} data={data} />
     </VStack>
   );
 });
