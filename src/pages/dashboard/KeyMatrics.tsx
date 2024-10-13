@@ -74,7 +74,7 @@ const KeyMetrics: React.FC = () => {
         </VStack>
         <VStack spacing={"60px"} align="start">
           <TT1 color={"#2F3036"}>{t("DASHBOARD_POPULAR_BENEFITS")}</TT1>
-          <VStack spacing={"35px"}>
+          <VStack spacing={"35px"} align="stretch">
             {cardData?.map((item, index) => (
               <CommonCard key={item?.id || index} {...(item || {})} flex="1" />
             ))}

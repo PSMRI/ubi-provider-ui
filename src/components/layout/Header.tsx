@@ -1,4 +1,10 @@
-import { AddIcon, EditIcon, SearchIcon, ViewIcon } from "@chakra-ui/icons";
+import React from "react";
+import {
+  AddIcon,
+  EditIcon,
+  SearchIcon,
+  ChevronDownIcon,
+} from "@chakra-ui/icons";
 import {
   Box,
   HStack,
@@ -13,7 +19,6 @@ import {
   Select,
   Text,
 } from "@chakra-ui/react";
-import React from "react";
 import { useTranslation } from "react-i18next";
 import Logo from "../../assets/Images/Logo.png";
 import TH1 from "../common/typography/TH1";
@@ -31,14 +36,18 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const { t } = useTranslation();
   // Array of menu names
-  const menuNames = ["Dashboard", "Quick Actions", "Contact Us"];
-
-  // Submenu for the 'Quick Actions' menu item
-  const quickActionsSubmenu = [
-    { name: "Create", icon: <AddIcon /> },
-    { name: "Edit", icon: <EditIcon /> },
-    { name: "Reports", icon: <ViewIcon /> },
+  const menuNames = [
+    { label: "Dashboard" },
+    {
+      label: "Quick Actions",
+      option: [
+        { name: "Create", icon: <AddIcon /> },
+        { name: "Edit", icon: <EditIcon /> },
+      ],
+    },
+    { label: "Contact Us" },
   ];
+
   return (
     <Box
       w="100%"
@@ -61,51 +70,48 @@ const Header: React.FC<HeaderProps> = ({
         </HStack>
 
         {/* Right Section: Menu, Search Bar, and Language Dropdown */}
-        <HStack align="center" gap={2}>
+        <HStack align="center" spacing={10}>
           {/* Menu 1 */}
           {showMenu &&
-            menuNames.map((menuName, index) => (
-              <Menu key={index}>
-                <MenuButton
-                  as={Text}
-                  fontWeight="bold"
-                  cursor="pointer"
-                  marginRight="20px"
-                >
-                  <TT2>{menuName}</TT2>
-                </MenuButton>
-                <MenuList>
-                  {menuName === "Quick Actions" ? (
-                    quickActionsSubmenu.map((submenuItem, subIndex) => (
-                      <MenuItem key={subIndex} icon={submenuItem.icon}>
-                        {submenuItem.name}
-                      </MenuItem>
-                    ))
-                  ) : (
-                    <MenuItem>
-                      <TT2>{menuName}</TT2>
-                    </MenuItem>
-                  )}
-                </MenuList>
-              </Menu>
+            menuNames.map((menu, index) => (
+              <HStack key={menu?.label || index} align="center">
+                {menu?.option ? (
+                  <Menu>
+                    <MenuButton as={Text} fontWeight="bold" cursor="pointer">
+                      <HStack align="center" spasing="2">
+                        <TT2>{menu?.label}</TT2>
+                        <ChevronDownIcon />
+                      </HStack>
+                    </MenuButton>
+                    <MenuList>
+                      {menu?.option.map((submenuItem, subIndex) => (
+                        <MenuItem
+                          key={subIndex}
+                          icon={submenuItem.icon}
+                          onHover={{ border: "0" }}
+                        >
+                          {submenuItem.name}
+                        </MenuItem>
+                      ))}
+                    </MenuList>
+                  </Menu>
+                ) : (
+                  <TT2 cursor="pointer">{menu?.label}</TT2>
+                )}
+              </HStack>
             ))}
 
           {/* Search Bar */}
           {showSearchBar && (
             <HStack align="center">
-              <InputGroup>
-                {/* Input Field */}
-                <Input borderRadius="50" placeholder="Search for benefit" />
-
-                {/* Icon Button inside Input */}
+              <InputGroup maxWidth="300px" rounded={"full"} size="lg">
+                <Input
+                  placeholder="Search For Benefit"
+                  rounded={"full"}
+                  bg="#E9E7EF"
+                />
                 <InputRightElement>
-                  <IconButton
-                    borderRadius="50"
-                    aria-label="Search"
-                    icon={<SearchIcon />}
-                    size="sm"
-                    onClick={() => console.log("Search clicked")}
-                  />
+                  <SearchIcon color="gray.500" />
                 </InputRightElement>
               </InputGroup>
             </HStack>
