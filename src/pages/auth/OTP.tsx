@@ -1,25 +1,20 @@
-import React from "react";
 import {
   Button,
-  Center,
-  Checkbox,
   FormControl,
-  FormLabel,
   HStack,
-  Heading,
   Image,
   Input,
   Stack,
-  Text,
   VStack,
 } from "@chakra-ui/react";
-import Logo from "../../assets/Images/GOM.png";
-import Layout from "../../components/layout/Layout";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import Logo from "../../assets/Images/GOM.png";
 import TH3 from "../../components/common/typography/TH3";
 import TT2 from "../../components/common/typography/TT2";
 import TT3 from "../../components/common/typography/TT3";
+import Layout from "../../components/layout/Layout";
 export default function OTP() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -28,7 +23,7 @@ export default function OTP() {
   // Handle OTP input change
   const handleChange = (element: any, index: number) => {
     const value = element.target.value;
-    if (!/^[0-9]$/.test(value) && value !== "") return; // Only allow numbers
+    if (!/^\d$/.test(value) && value !== "") return; // Only allow numbers
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -86,7 +81,7 @@ export default function OTP() {
               <HStack spacing={2}>
                 {otp.map((data, index) => (
                   <Input
-                    key={index}
+                    key={data + index}
                     type="text"
                     maxLength={1} // Limit input to 1 character
                     value={data}

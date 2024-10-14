@@ -22,6 +22,7 @@ import { useTranslation } from "react-i18next";
 import Logo from "../../assets/Images/Logo.png";
 import TH1 from "../common/typography/TH1";
 import TT2 from "../common/typography/TT2";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   showMenu?: boolean;
@@ -34,13 +35,26 @@ const Header: React.FC<HeaderProps> = ({
   showLanguage,
 }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
   // Array of menu names
   const menuNames = [
-    { label: "Dashboard" },
+    {
+      label: "Dashboard",
+      onClick: () => {
+        navigate("/");
+      },
+    },
     {
       label: "Quick Actions",
       option: [
-        { name: "Create", icon: <AddIcon /> },
+        {
+          name: "Create",
+          icon: <AddIcon />,
+          onClick: () => {
+            navigate("/benefits/form");
+          },
+        },
         { name: "Edit", icon: <EditIcon /> },
       ],
     },
@@ -85,9 +99,10 @@ const Header: React.FC<HeaderProps> = ({
                     <MenuList>
                       {menu?.option.map((submenuItem, subIndex) => (
                         <MenuItem
-                          key={subIndex}
+                          key={subIndex.name || subIndex}
                           icon={submenuItem.icon}
-                          onHover={{ border: "0" }}
+                          cursor="pointer"
+                          onClick={submenuItem.onClick}
                         >
                           {submenuItem.name}
                         </MenuItem>
@@ -95,7 +110,9 @@ const Header: React.FC<HeaderProps> = ({
                     </MenuList>
                   </Menu>
                 ) : (
-                  <TT2 cursor="pointer">{menu?.label}</TT2>
+                  <TT2 cursor="pointer" onClick={menu?.onClick}>
+                    {menu?.label}
+                  </TT2>
                 )}
               </HStack>
             ))}

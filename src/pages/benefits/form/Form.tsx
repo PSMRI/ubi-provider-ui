@@ -128,6 +128,7 @@ export default function CreateBenefitForm() {
         </Button>
       </Box> */}
       <MultiStepForm
+        steps={steps}
         items={fixedStep}
         formData={formData}
         onChange={(e) => setFormData(e.formData)}

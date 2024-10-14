@@ -1,24 +1,20 @@
 import {
   Button,
-  Center,
   Checkbox,
   FormControl,
-  FormLabel,
   HStack,
-  Heading,
   Image,
   Input,
   Stack,
-  Text,
   VStack,
 } from "@chakra-ui/react";
-import Logo from "../../assets/Images/GOM.png";
-import Layout from "../../components/layout/Layout";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import Logo from "../../assets/Images/GOM.png";
 import TH3 from "../../components/common/typography/TH3";
 import TT2 from "../../components/common/typography/TT2";
 import TT3 from "../../components/common/typography/TT3";
+import Layout from "../../components/layout/Layout";
 export default function Login() {
   const navigate = useNavigate();
   const { t } = useTranslation();

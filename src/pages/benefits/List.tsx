@@ -7,8 +7,7 @@ import {
   InputRightElement,
   VStack,
 } from "@chakra-ui/react";
-import { Tab, Table, TT2 } from "@common";
-import { useTableInstance } from "ka-table";
+import { TT2, Tab, Table } from "@common";
 import { DataType } from "ka-table/enums";
 import { ICellTextProps } from "ka-table/props";
 import React, { memo, useEffect, useState } from "react";
@@ -71,13 +70,17 @@ const BenefitsList: React.FC<{ _vstack?: object }> = memo(({ _vstack }) => {
       // Filtering data based on the selected tab (Active, Closed, Drafts)
       const tableData = await benefits.getAll();
       setData(
-        tableData?.filter((item) =>
-          activeTab == 1
-            ? item.status === "Active"
-            : activeTab == 2
-            ? item.status === "Closed"
-            : item.status === "Drafts"
-        )
+        const filteredTableData = tableData?.filter((item) => {
+          switch (activeTab) {
+            case 1:
+              return item.status === "Active";
+            case 2:
+              return item.status === "Closed";
+            default:
+              return item.status === "Drafts";
+          }
+        });
+        setData(filteredTableData);
       );
     };
     init();
