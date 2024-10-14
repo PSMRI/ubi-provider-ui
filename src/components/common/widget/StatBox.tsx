@@ -1,6 +1,6 @@
 // src/components/StatBox.tsx
+import { Box, VStack } from "@chakra-ui/react";
 import React from "react";
-import { Box, Text, VStack } from "@chakra-ui/react";
 import TT1 from "../typography/TT1";
 import TT2 from "../typography/TT2";
 

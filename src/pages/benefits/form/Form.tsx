@@ -3,21 +3,21 @@ import Layout from "../../../components/layout/Layout";
 
 import validator from "@rjsf/validator-ajv6";
 import {
-  generalInfoSchema,
   eligibilityCriteriaSchema,
   financialInformationSchema,
+  generalInfoSchema,
   termsAndConditionSchema,
 } from "./schema";
 import {
-  generalInformationUiSchema,
   eligibilityUiSchema,
   financialInformaionUiSchema,
+  generalInformationUiSchema,
   termsAndConditionUiSchema,
 } from "./uiSchema";
 
 import { useNavigate, useParams } from "react-router-dom";
-import TitleBar from "../../../components/common/TitleBar";
 import MultiStepForm from "../../../components/common/MultiStepForm";
+import TitleBar from "../../../components/common/TitleBar";
 const fixedStep = [
   {
     step: 1,

@@ -13,7 +13,7 @@ import {
 import { Theme as ChakraUITheme } from "@rjsf/chakra-ui";
 import { withTheme } from "@rjsf/core";
 import { JSONSchema7 } from "json-schema"; // Use this for the schema type
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 const Form = withTheme(ChakraUITheme);
 const stepsData = [
   {
@@ -61,6 +61,9 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
   validatorForm,
 }) => {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  useEffect(() => {
+    setCompletedSteps([]);
+  }, []);
 
   return (
     <Box p={5} mx="auto">
