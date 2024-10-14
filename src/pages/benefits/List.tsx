@@ -69,19 +69,17 @@ const BenefitsList: React.FC<{ _vstack?: object }> = memo(({ _vstack }) => {
     const init = async () => {
       // Filtering data based on the selected tab (Active, Closed, Drafts)
       const tableData = await benefits.getAll();
-      setData(
-        const filteredTableData = tableData?.filter((item) => {
-          switch (activeTab) {
-            case 1:
-              return item.status === "Active";
-            case 2:
-              return item.status === "Closed";
-            default:
-              return item.status === "Drafts";
-          }
-        });
-        setData(filteredTableData);
-      );
+      const filteredTableData = tableData?.filter((item) => {
+        switch (activeTab) {
+          case 1:
+            return item.status === "Active";
+          case 2:
+            return item.status === "Closed";
+          default:
+            return item.status === "Drafts";
+        }
+      });
+      setData(filteredTableData);
     };
     init();
   }, []);

@@ -3,6 +3,7 @@ import Chart from "react-apexcharts";
 import { TT1, TT2, TD2 } from "@common";
 import { useTranslation } from "react-i18next";
 import { HStack, VStack, Select } from "@chakra-ui/react";
+import { visualRepresentation } from "../../utils/dataJSON/BenefitSummary";
 
 // Pie chart data
 const data = [
@@ -20,12 +21,8 @@ const data = [
         "#06164B",
       ],
       xaxis: {
-        categories: Array.from(
-          { length: 7 },
-          (_, i) =>
-            new Date(Date.now() + i * 24 * 60 * 60 * 1000)
-              .toLocaleString("en-us", { weekday: "short" })
-              .slice(0, 2) // Extract the first 2 letters
+        categories: visualRepresentation?.applicantsDisbursals?.map(
+          (e) => e.label
         ),
       },
       dataLabels: {
@@ -38,7 +35,7 @@ const data = [
     series: [
       {
         name: "Percentage",
-        data: ["50%", "40%", "55%", "45%", "58%", "50%", "62%"],
+        data: visualRepresentation?.applicantsDisbursals?.map((e) => e.count),
       },
     ],
   },
@@ -48,45 +45,8 @@ const data = [
     type: "pie",
     footerText: "Gender",
     options: {
-      labels: ["Male", "Female", "other"],
+      labels: visualRepresentation?.gender?.map((e) => e.label),
       colors: ["#867fa5", "#06164B", "#DDE1FF"],
-      tooltip: { enabled: false },
-      dataLabels: {
-        enabled: false,
-      },
-      legend: {
-        show: false,
-      },
-    },
-    series: [13, 27, 60],
-  },
-  {
-    title: "Breakdown by Caste",
-    count: "204",
-    footerText: "Caste",
-    type: "pie",
-    options: {
-      labels: ["SC", "ST", "OBC"],
-      colors: ["#867fa5", "#06164B", "#DDE1FF"],
-      tooltip: { enabled: false },
-      dataLabels: {
-        enabled: false,
-      },
-      legend: {
-        show: false,
-      },
-    },
-    series: [13, 27, 60],
-  },
-  {
-    title: "Breakdown by Level of Study",
-    count: "547",
-    footerText: "Age Group",
-    type: "pie",
-    options: {
-      labels: ["Remaining", "Utilised"],
-      colors: ["#867fa5", "#06164B", "#DDE1FF"],
-      tooltip: { enabled: false },
       dataLabels: {
         enabled: false,
       },
@@ -101,7 +61,55 @@ const data = [
         },
       },
     },
-    series: [13, 27, 60],
+    series: visualRepresentation?.gender?.map((e) => e.count),
+  },
+  {
+    title: "Breakdown by Caste",
+    count: "204",
+    footerText: "Caste",
+    type: "pie",
+    options: {
+      labels: visualRepresentation?.caste?.map((e) => e.label),
+      colors: ["#867fa5", "#06164B", "#DDE1FF"],
+      dataLabels: {
+        enabled: false,
+      },
+      legend: {
+        show: false,
+      },
+      states: {
+        hover: {
+          filter: {
+            type: "none", // Disable hover effect
+          },
+        },
+      },
+    },
+    series: visualRepresentation?.caste?.map((e) => e.count),
+  },
+  {
+    title: "Breakdown by Level of Study",
+    count: "547",
+    footerText: "Age Group",
+    type: "pie",
+    options: {
+      labels: visualRepresentation?.age?.map((e) => e.label),
+      colors: ["#867fa5", "#06164B", "#DDE1FF"],
+      dataLabels: {
+        enabled: false,
+      },
+      legend: {
+        show: false,
+      },
+      states: {
+        hover: {
+          filter: {
+            type: "none", // Disable hover effect
+          },
+        },
+      },
+    },
+    series: visualRepresentation?.age?.map((e) => e.count),
   },
   {
     title: "Day Scholar / Hostler Ratio",
@@ -116,14 +124,8 @@ const data = [
           },
         },
       },
-      plotOptions: {
-        pie: {
-          expandOnClick: false, // Disable slice expansion on click
-        },
-      },
-      labels: ["Remaining", "Utilised"],
+      labels: visualRepresentation?.ratio?.map((e) => e.label),
       colors: ["#867fa5", "#06164B", "#DDE1FF"],
-      tooltip: { enabled: false },
       dataLabels: {
         enabled: false,
       },
@@ -131,7 +133,7 @@ const data = [
         show: false,
       },
     },
-    series: [13, 27, 60],
+    series: visualRepresentation?.ratio?.map((e) => e.count),
   },
 ];
 

@@ -1,8 +1,12 @@
 export const applicantData = [
-  { id: 1, label: "Total Applicants", number: 15000 },
-  { id: 2, label: "New Applicants", number: 8000 },
-  { id: 3, label: "Accepted Applicants", number: 7882 },
-  { id: 4, label: "Rejected Applicants", number: 7600 },
+  { id: 1, label: "Total Applicants", count: 15000 },
+  { id: 2, label: "New Applicants", count: 8000 },
+  { id: 3, label: "Accepted Applicants", count: 7882 },
+  { id: 4, label: "Rejected Applicants", count: 7600 },
+];
+export const financialData = [
+  { id: 1, label: "Remaining", count: 358000, sponsorCount: 2 },
+  { id: 2, label: "Utilised", count: 1074000, sponsorCount: 1 },
 ];
 
 export const popularBenefits = [

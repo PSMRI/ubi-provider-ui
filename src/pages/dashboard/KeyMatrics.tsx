@@ -8,13 +8,16 @@ import TT1 from "../../components/common/typography/TT1";
 import TT2 from "../../components/common/typography/TT2";
 import PrimaryButton from "../../components/common/buttons/PrimaryButton";
 import StatBox from "../../components/common/widget/StatBox"; // Reusing StatBox
-import { applicantData } from "../../components/common/widget/StatData";
+import {
+  applicantData,
+  financialData,
+} from "../../components/common/widget/StatData";
 import { cardData } from "../../utils/dataJSON/BenefitSummary";
 import Chart from "react-apexcharts";
 
 // Pie chart data
 const pieChartOptions = {
-  labels: ["Remaining", "Utilised"],
+  labels: financialData.map((e) => e.label),
   colors: ["#06164B", "#DDE1FF"],
   dataLabels: {
     enabled: true,
@@ -25,7 +28,7 @@ const pieChartOptions = {
   },
   plotOptions: { pie: { startAngle: 45 } },
 };
-const pieChartSeries = [358000, 1074000];
+const pieChartSeries = financialData.map((e) => e.count);
 
 const KeyMetrics: React.FC = () => {
   const { t } = useTranslation();
@@ -51,7 +54,7 @@ const KeyMetrics: React.FC = () => {
           <TT1 color={"#2F3036"}>{t("DASHBOARD_APPLICANT_OVERVIEW")}</TT1>
           <VStack spacing={4}>
             {applicantData.map((item) => (
-              <StatBox key={item.id} number={item.number} label={item.label} />
+              <StatBox key={item.id} number={item.count} label={item.label} />
             ))}
           </VStack>
         </VStack>
@@ -59,10 +62,19 @@ const KeyMetrics: React.FC = () => {
           <TT1 color={"#2F3036"}>{t("DASHBOARD_FINANCIAL_OVERVIEW")}</TT1>
           <VStack bg="#F8F8F8" p="5" align="stretch" flex="1">
             <TT2>
-              Total Budget: <b>₹ 15,00,000</b>
+              Total Budget:{" "}
+              <b>
+                ₹ {financialData.reduce((acc, curr) => acc + curr.count, 0)}
+              </b>
             </TT2>
             <TT2>
-              Number of Sponsors: <b>12</b>
+              Number of Sponsors:
+              <b>
+                {financialData.reduce(
+                  (acc, curr) => acc + curr.sponsorCount,
+                  0
+                )}
+              </b>
             </TT2>
             <Chart
               options={pieChartOptions}
