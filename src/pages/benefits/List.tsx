@@ -109,14 +109,7 @@ const BenefitsList: React.FC<{ _vstack?: object }> = memo(({ _vstack }) => {
         data={data}
         childComponents={{
           cellText: {
-            content: (props) => {
-              switch (props.column.key) {
-                case "deadline":
-                  return <DeadLineCell {...props} />;
-                case "actions":
-                  return <ActionCell {...props} />;
-              }
-            },
+            content: CustomCellText,
           },
         }}
       />
@@ -125,3 +118,12 @@ const BenefitsList: React.FC<{ _vstack?: object }> = memo(({ _vstack }) => {
 });
 
 export default BenefitsList;
+
+const CustomCellText = (props) => {
+  switch (props.column.key) {
+    case "deadline":
+      return <DeadLineCell {...props} />;
+    case "actions":
+      return <ActionCell {...props} />;
+  }
+};

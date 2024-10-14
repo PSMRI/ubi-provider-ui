@@ -68,7 +68,7 @@ const KeyMetrics: React.FC = () => {
               </b>
             </TT2>
             <TT2>
-              Number of Sponsors:
+              {"Number of Sponsors: "}
               <b>
                 {financialData.reduce(
                   (acc, curr) => acc + curr.sponsorCount,
