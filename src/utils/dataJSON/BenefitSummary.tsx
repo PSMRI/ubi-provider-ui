@@ -25,7 +25,7 @@ export const tableData = Array.from({ length: 30 }, (_, i) => {
     disbursalPending: Math.floor(Math.random() * 1000),
     deadline: `${Math.floor(Math.random() * 12) + 1} ${
       Math.floor(Math.random() * 28) + 1
-    }, ${Math.floor(Math.random() * 2025) + 2020}`,
+    }, ${Math.floor(Math.random() * 3) + 2021}`,
     status,
   };
 });

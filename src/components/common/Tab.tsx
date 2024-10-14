@@ -46,7 +46,7 @@ const CustomTab: React.FC<CustomTabProps> = ({
                   w={2}
                   h={2}
                   borderRadius="full"
-                  bg={index === activeIndex ? "#30713D" : "white"}
+                  bg={index == activeIndex ? "#30713D" : "white"}
                 />
                 <TT2>{label}</TT2>
               </HStack>

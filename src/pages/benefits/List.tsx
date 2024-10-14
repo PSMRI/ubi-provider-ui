@@ -28,6 +28,7 @@ const columns = [
   {
     key: "actions",
     title: "Actions",
+    dataType: DataType.String,
   },
 ];
 
@@ -62,7 +63,7 @@ const DeadLineCell = (prop: ICellTextProps) => {
 };
 
 const BenefitsList: React.FC<{ _vstack?: object }> = memo(({ _vstack }) => {
-  const [activeTab, setActiveTab] = useState("1");
+  const [activeTab, setActiveTab] = useState(0);
   const [data, setData] = useState([]);
 
   useEffect(() => {

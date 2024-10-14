@@ -8,7 +8,6 @@ import {
 import {
   Box,
   HStack,
-  IconButton,
   Input,
   InputGroup,
   InputRightElement,

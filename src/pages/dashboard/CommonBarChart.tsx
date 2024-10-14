@@ -38,7 +38,7 @@ const data = [
     series: [
       {
         name: "Percentage",
-        data: ["30%", "40%", "45%", "50%", "49%", "60%", "100%"],
+        data: ["50%", "40%", "55%", "45%", "58%", "50%", "62%"],
       },
     ],
   },
@@ -55,8 +55,7 @@ const data = [
         enabled: false,
       },
       legend: {
-        position: "bottom",
-        horizontalAlign: "left",
+        show: false,
       },
     },
     series: [13, 27, 60],
@@ -74,8 +73,7 @@ const data = [
         enabled: false,
       },
       legend: {
-        position: "bottom",
-        horizontalAlign: "left",
+        show: false,
       },
     },
     series: [13, 27, 60],
@@ -93,8 +91,14 @@ const data = [
         enabled: false,
       },
       legend: {
-        position: "bottom",
-        horizontalAlign: "left",
+        show: false,
+      },
+      states: {
+        hover: {
+          filter: {
+            type: "none", // Disable hover effect
+          },
+        },
       },
     },
     series: [13, 27, 60],
@@ -105,6 +109,18 @@ const data = [
     footerText: "Ratio",
     type: "pie",
     options: {
+      states: {
+        hover: {
+          filter: {
+            type: "none", // Disable hover effect
+          },
+        },
+      },
+      plotOptions: {
+        pie: {
+          expandOnClick: false, // Disable slice expansion on click
+        },
+      },
       labels: ["Remaining", "Utilised"],
       colors: ["#867fa5", "#06164B", "#DDE1FF"],
       tooltip: { enabled: false },
@@ -112,8 +128,7 @@ const data = [
         enabled: false,
       },
       legend: {
-        position: "bottom",
-        horizontalAlign: "left",
+        show: false,
       },
     },
     series: [13, 27, 60],
@@ -153,8 +168,8 @@ const CommonBarChart: React.FC = () => {
           >
             <TT1>{chartItem?.title}</TT1>
             <TT2>{chartItem?.count}</TT2>
-            <HStack minH="313px">
-              <Chart type="pie" height="313px" {...chartItem} />
+            <HStack minH="313px" align="stretch">
+              <Chart type="pie" height="300px" width="191px" {...chartItem} />
             </HStack>
             {chartItem?.footerText && <TT2>{chartItem?.footerText}</TT2>}
           </VStack>
