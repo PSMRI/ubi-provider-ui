@@ -1,0 +1,12 @@
+.link {
+  color: #0037b9;
+  text-decoration: "#0037b9";
+}
+.link:hover {
+  color: #0037b9;
+  text-decoration: "#0037b9";
+}
+.custom-link {
+  color: #0037b9;
+  text-decoration: underline;
+}

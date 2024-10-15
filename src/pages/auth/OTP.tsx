@@ -20,11 +20,29 @@ import { useTranslation } from "react-i18next";
 import TH3 from "../../components/common/typography/TH3";
 import TT2 from "../../components/common/typography/TT2";
 import TT3 from "../../components/common/typography/TT3";
+import { Link } from "react-router-dom";
 export default function OTP() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [otp, setOtp] = React.useState(Array(6).fill(""));
-
+  const [isOTPResendEnabled, setIsOTPResendEnabled] = React.useState(false);
+  const [timeRemaining, setTimeRemaining] = React.useState(300);
+  React.useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (!isOTPResendEnabled) {
+      timer = setInterval(() => {
+        setTimeRemaining((prevTime) => {
+          if (prevTime <= 1) {
+            setIsOTPResendEnabled(true);
+            clearInterval(timer);
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isOTPResendEnabled]);
   // Handle OTP input change
   const handleChange = (element: any, index: number) => {
     const value = element.target.value;
@@ -101,11 +119,23 @@ export default function OTP() {
               </HStack>
             </FormControl>
             <Stack spacing={6}>
-              <TT2>{t("OTP_RESEND")}</TT2>
+              <HStack>
+                <TT2>{t("OTP_REQUEST")}</TT2>
+                <Link to="#" className="custom-link">
+                  <TT2 color={"#7A7A83"}>{t("OTP_RESEND")}</TT2>
+                </Link>
+                <TT2>{t("OTP_IN")}</TT2>
+                <TT2 color={"#7A7A83"}>
+                  {Math.floor(timeRemaining / 60)}:
+                  {(timeRemaining % 60).toString().padStart(2, "0")}
+                </TT2>
+              </HStack>
+
               <Button
                 colorScheme={"blue"}
                 variant={"solid"}
                 borderRadius={"100px"}
+                isDisabled={!isOTPResendEnabled}
                 onClick={() => {
                   localStorage.setItem("token", "true");
                   navigate(0);
