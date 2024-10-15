@@ -58,7 +58,14 @@ const Header: React.FC<HeaderProps> = ({
         { name: "Edit", icon: <EditIcon /> },
       ],
     },
-    { label: "Contact Us" },
+    {
+      label: "Log out",
+      onClick: () => {
+        localStorage.removeItem("token");
+        navigate("/");
+        window.location.reload();
+      },
+    },
   ];
 
   return (
@@ -132,6 +139,7 @@ const Header: React.FC<HeaderProps> = ({
               </InputGroup>
             </HStack>
           )}
+
           {/* Language Dropdown */}
           {showLanguage && (
             <Select borderRadius="8" size="sm" width="100px">

@@ -1,9 +1,5 @@
 import React from "react";
-<<<<<<< HEAD
-import { Box, Text } from "@chakra-ui/react";
-=======
 import { VStack, Text } from "@chakra-ui/react";
->>>>>>> c0caff62d24c1c03ec471d0bdf592146c283b794
 
 interface CommonCardProps {
   title: string;
