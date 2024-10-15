@@ -1,22 +1,20 @@
-import React, { useState } from "react";
-import { withTheme } from "@rjsf/core";
-import { Theme as ChakraUITheme } from "@rjsf/chakra-ui";
-const Form = withTheme(ChakraUITheme);
-import { JSONSchema7 } from "json-schema"; // Use this for the schema type
-import validator from "@rjsf/validator-ajv6";
+import { CheckCircleIcon, WarningIcon } from "@chakra-ui/icons";
 import {
   Accordion,
-  AccordionItem,
   AccordionButton,
+  AccordionItem,
   AccordionPanel,
   Box,
-  Icon,
-  Text,
   Divider,
-  VStack,
   HStack,
+  Icon,
+  VStack,
 } from "@chakra-ui/react";
-import { CheckCircleIcon, WarningIcon } from "@chakra-ui/icons";
+import { Theme as ChakraUITheme } from "@rjsf/chakra-ui";
+import { withTheme } from "@rjsf/core";
+import { JSONSchema7 } from "json-schema"; // Use this for the schema type
+import React, { useEffect, useState } from "react";
+const Form = withTheme(ChakraUITheme);
 const stepsData = [
   {
     step: 1,
@@ -63,12 +61,9 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
   validatorForm,
 }) => {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const [openIndex, setOpenIndex] = useState<number>(0); // Open the first accordion by default
-  const handleStepCompletion = (step: number) => {
-    if (!completedSteps.includes(step)) {
-      setCompletedSteps([...completedSteps, step]);
-    }
-  };
+  useEffect(() => {
+    setCompletedSteps([]);
+  }, []);
 
   return (
     <Box p={5} mx="auto">
@@ -112,7 +107,6 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
 
                 <Box flex="1">
                   <AccordionButton
-                    onClick={() => setOpenIndex(index)}
                     _focus={{ boxShadow: "none" }}
                     _hover={{ bg: "none" }}
                     _expanded={{ bg: "none" }}

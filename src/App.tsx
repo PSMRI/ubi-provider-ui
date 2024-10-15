@@ -1,10 +1,13 @@
 import { Suspense, useState, useEffect } from "react";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { initializeI18n } from "./i18n";
 import authRoutes from "./routes/authRoutes";
 import guestRoutes from "./routes/guestRoutes";
 import Loading from "./components/common/Loading";
+import customTheme from "./components/theme/theme";
+
+const theme = extendTheme(customTheme);
 
 initializeI18n("local"); // Initialize i18n with default language
 function App() {
@@ -22,7 +25,7 @@ function App() {
   }, []);
 
   return (
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
       <Suspense fallback={<Loading />}>
         <Router>
           <Routes>

@@ -1,8 +1,9 @@
 // src/components/Layout.tsx
 
 import React from "react";
-import { VStack } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import Header from "./Header";
+import TitleBar from "../common/TitleBar";
 
 // Define the props for the layout
 interface LayoutProps {
@@ -10,6 +11,7 @@ interface LayoutProps {
   showMenu?: boolean;
   showSearchBar?: boolean;
   showLanguage?: boolean;
+  _titleBar: object;
 }
 
 // Layout Component
@@ -18,19 +20,21 @@ const Layout: React.FC<LayoutProps> = ({
   showMenu,
   showSearchBar,
   showLanguage,
+  _titleBar,
 }) => {
   return (
-    <VStack w={"100vw"} h={"100vh"} align={"stretch"} pt="80px">
+    <Box w="100%">
       {/* Header */}
       <Header
         showMenu={showMenu}
         showSearchBar={showSearchBar}
         showLanguage={showLanguage}
       />
+      {_titleBar && <TitleBar title="" {..._titleBar} />}
 
       {/* Content */}
       {children}
-    </VStack>
+    </Box>
   );
 };
 

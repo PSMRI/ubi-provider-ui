@@ -1,106 +1,103 @@
 // src/components/KeyMetrics.tsx
-import React from "react";
-import {
-  Box,
-  Heading,
-  VStack,
-  HStack,
-  Text,
-  SimpleGrid,
-  Divider,
-  Select,
-} from "@chakra-ui/react";
-import StatBox from "../../components/common/widget/StatBox"; // Reusing StatBox
+import { HStack, Select, VStack } from "@chakra-ui/react";
+import React, { memo } from "react";
+import { useTranslation } from "react-i18next";
+import CommonCard from "../../components/common/card/CommonCard";
 import TD2 from "../../components/common/typography/TD2";
+import TT1 from "../../components/common/typography/TT1";
+import TT2 from "../../components/common/typography/TT2";
+import PrimaryButton from "../../components/common/buttons/PrimaryButton";
+import StatBox from "../../components/common/widget/StatBox"; // Reusing StatBox
 import {
   applicantData,
-  popularBenefits,
+  financialData,
 } from "../../components/common/widget/StatData";
-import TT1 from "../../components/common/typography/TT1";
-import { useTranslation } from "react-i18next";
 import { cardData } from "../../utils/dataJSON/BenefitSummary";
-import CommonCard from "../../components/common/card/CommonCard";
+import Chart from "react-apexcharts";
+
+// Pie chart data
+const pieChartOptions = {
+  labels: financialData.map((e) => e.label),
+  colors: ["#06164B", "#DDE1FF"],
+  dataLabels: {
+    enabled: true,
+  },
+  legend: {
+    position: "bottom",
+    horizontalAlign: "left",
+  },
+  plotOptions: { pie: { startAngle: 45 } },
+};
+const pieChartSeries = financialData.map((e) => e.count);
+
 const KeyMetrics: React.FC = () => {
   const { t } = useTranslation();
   return (
-    <VStack align="stretch" spacing="40px" width="100%">
-      <Box
-        width="1100px"
-        height="52px"
-        gap="60px"
-        paddingTop={"60px"}
-        paddingLeft={"170px"}
-      >
-        <HStack justify="space-between" align="center" width="100%">
-          {/* Key Metrics Heading */}
-          <TD2 color="#06164B">{t("DASHBOARD_KEY_MATRICS")}</TD2>
+    <VStack spacing="60px" align="stretch">
+      <HStack justify="space-between">
+        {/* Key Metrics Heading */}
+        <TD2 color="#06164B">{t("DASHBOARD_KEY_MATRICS")}</TD2>
 
-          {/* This Month Dropdown */}
-          <Select
-            placeholder="This Month"
-            width="200px"
-            borderColor="gray.300"
-            bg="white"
-            _hover={{ borderColor: "gray.400" }}
-            _focus={{ borderColor: "blue.500", boxShadow: "outline" }}
-          ></Select>
-        </HStack>
-      </Box>
+        {/* October 2024 Dropdown */}
+        <Select
+          w="175px"
+          placeholder="October 2024"
+          borderColor="gray.300"
+          bg="white"
+          _hover={{ borderColor: "gray.400" }}
+          _focus={{ borderColor: "blue.500", boxShadow: "outline" }}
+        />
+      </HStack>
 
-      <Box
-        width="1100px"
-        height="532"
-        paddingTop="60px"
-        paddingLeft="170px"
-        gap="60px"
-      >
-        <HStack spacing="60px" justify="flex-start" align="start">
-          <Box width="340px" height="auto" gap="20px">
-            <VStack spacing={4} align="start">
-              <TT1 color={"#2F3036"}>{t("DASHBOARD_APPLICANT_OVERVIEW")}</TT1>
-              <VStack spacing={4}>
-                {applicantData.map((item) => (
-                  <StatBox
-                    key={item.id}
-                    number={item.number}
-                    label={item.label}
-                  />
-                ))}
-              </VStack>
-            </VStack>
-          </Box>
-          <Box width="340px" height="auto" gap="20px">
-            <VStack spacing={4} align={"start"}>
-              <TT1 color={"#2F3036"}>{t("DASHBOARD_FINANCIAL_OVERVIEW")}</TT1>
-              <VStack spacing={4}>
-                {applicantData.map((item) => (
-                  <StatBox
-                    key={item.id}
-                    number={item.number}
-                    label={item.label}
-                  />
-                ))}
-              </VStack>
-            </VStack>
-          </Box>
-          <Box width="340px" height="auto" gap="20px">
-            <VStack spacing={4} align={"start"}>
-              <TT1 color={"#2F3036"}>{t("DASHBOARD_POPULAR_BENEFITS")}</TT1>
-              <VStack spacing={4}>
-                {cardData?.map((item) => (
-                  <CommonCard
-                    title="Pre-Matric Scholarship-General"
-                    totalApplications={4325}
-                    totalDisbursed="1,00,000"
-                  />
-                ))}
-              </VStack>
-            </VStack>
-          </Box>
-        </HStack>
-      </Box>
+      <HStack align="stretch" spacing={"60px"}>
+        <VStack spacing={"60px"} align="start">
+          <TT1 color={"#2F3036"}>{t("DASHBOARD_APPLICANT_OVERVIEW")}</TT1>
+          <VStack spacing={4}>
+            {applicantData.map((item) => (
+              <StatBox key={item.id} number={item.count} label={item.label} />
+            ))}
+          </VStack>
+        </VStack>
+        <VStack spacing={"60px"} align="start">
+          <TT1 color={"#2F3036"}>{t("DASHBOARD_FINANCIAL_OVERVIEW")}</TT1>
+          <VStack bg="#F8F8F8" p="5" align="stretch" flex="1">
+            <TT2>
+              Total Budget:{" "}
+              <b>
+                ₹ {financialData.reduce((acc, curr) => acc + curr.count, 0)}
+              </b>
+            </TT2>
+            <TT2>
+              {"Number of Sponsors: "}
+              <b>
+                {financialData.reduce(
+                  (acc, curr) => acc + curr.sponsorCount,
+                  0
+                )}
+              </b>
+            </TT2>
+            <Chart
+              options={pieChartOptions}
+              series={pieChartSeries}
+              type="pie"
+              width="300"
+            />
+          </VStack>
+        </VStack>
+        <VStack spacing={"60px"} align="start">
+          <TT1 color={"#2F3036"}>{t("DASHBOARD_POPULAR_BENEFITS")}</TT1>
+          <VStack spacing={"35px"} align="stretch">
+            {cardData?.map((item, index) => (
+              <CommonCard key={item?.id || index} {...(item || {})} flex="1" />
+            ))}
+          </VStack>
+        </VStack>
+      </HStack>
+      <PrimaryButton alignSelf="center" w="500px">
+        View Details
+      </PrimaryButton>
     </VStack>
   );
 };
 
-export default KeyMetrics;
+export default memo(KeyMetrics);

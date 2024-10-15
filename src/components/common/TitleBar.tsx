@@ -1,22 +1,13 @@
 // src/components/TitleBar.tsx
 import React from "react";
-import { Box, Text } from "@chakra-ui/react";
+import { HStack } from "@chakra-ui/react";
 import TH3 from "./typography/TH3";
 
 const TitleBar: React.FC<{ title: string }> = ({ title }) => {
   return (
-    <Box
-      bg="#06164B"
-      height="106px"
-      display="flex"
-      alignItems="center"
-      paddingTop={"60px"}
-      paddingRight={"170px"}
-      paddingBottom={"60px"}
-      paddingLeft={"40px"}
-    >
+    <HStack bg="#06164B" pt="35px" pb={"35px"} pl={"23px"}>
       <TH3 color="white">{title}</TH3>
-    </Box>
+    </HStack>
   );
 };
 

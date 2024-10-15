@@ -1,17 +1,22 @@
-import React from "react";
-import KeyMatrics from "./KeyMatrics";
-import BenefitSummary from "./BenefitSummary";
+import { VStack } from "@chakra-ui/react";
+import CommonBarChart from "./CommonBarChart";
 import Layout from "../../components/layout/Layout";
-import TitleBar from "../../components/common/TitleBar";
-import CommonTable from "../../components/common/table/CommonTable";
-import CommonBarChart from "../../components/common/charts/CommonBarChart";
+import BenefitSummary from "./BenefitSummary";
+import KeyMatrics from "./KeyMatrics";
+
 function Dashboard() {
   return (
-    <Layout showMenu={true} showSearchBar={true} showLanguage={false}>
-      <TitleBar title="Welcome back!" />
-      <KeyMatrics />
-      <CommonTable />
-      <CommonBarChart />
+    <Layout
+      _titleBar={{ title: "Welcome back!" }}
+      showMenu={true}
+      showSearchBar={true}
+      showLanguage={false}
+    >
+      <VStack gap="60px" py="60px">
+        <KeyMatrics />
+        <BenefitSummary />
+        <CommonBarChart />
+      </VStack>
     </Layout>
   );
 }
