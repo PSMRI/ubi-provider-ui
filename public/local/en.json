@@ -8,6 +8,7 @@
   "LOGIN_TERMS_ACCEPT": "Read and accept the",
   "LOGIN_TERMS_ACCEPT_PROCEED": "before you proceed.",
   "LOGIN_AGREE": "Agree and proceed *",
+  "LOGIN_REGISTER_TITLE": "User Registration",
   "LOGIN_REGISTER": "Don’t Have An Account? Register Now",
   "LOGIN_LOGIN": "Log in",
   "OTP_LOGIN": "User Log In",

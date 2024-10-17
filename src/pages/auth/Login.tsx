@@ -23,9 +23,7 @@ export default function Login() {
   const [email, setEmail] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [open, setOpen] = React.useState(false);
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsChecked(event.target.checked);
-  };
+
   const handleLogin = async () => {
     setIsLoading(true);
     localStorage.setItem("Email", email);
@@ -96,7 +94,7 @@ export default function Login() {
                   </HStack>
                   <Checkbox
                     isChecked={isChecked}
-                    onChange={handleCheckboxChange}
+                    // onChange={handleCheckboxChange}
                   >
                     <Text fontSize={"16px"} fontWeight={400}>
                       {t("LOGIN_AGREE")}

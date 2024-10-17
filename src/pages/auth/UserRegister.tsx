@@ -15,6 +15,7 @@ import Layout from "../../components/layout/Layout";
 import LeftSideBar from "../../components/common/login/LeftSideBar";
 import { registerProvider } from "../../services/auth";
 import Loading from "../../components/common_components/Loading";
+import ModalShow from "../../components/common/modal/ModalShow";
 export default function UserRegister() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -22,10 +23,7 @@ export default function UserRegister() {
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
-
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsChecked(event.target.checked);
-  };
+  const [open, setOpen] = React.useState(false);
 
   const handleRegister = async () => {
     localStorage.setItem("Email", email);
@@ -35,6 +33,10 @@ export default function UserRegister() {
     if (registerResponse) {
       navigate("/otp", { state: { fromPage: "registration" } });
     }
+  };
+  const handleCloseModal = () => {
+    setOpen(false);
+    setIsChecked(true);
   };
   return (
     <Layout showMenu={false} showSearchBar={false} showLanguage={true}>
@@ -46,7 +48,7 @@ export default function UserRegister() {
           <VStack p={8} flex={1} align={"center"} justify={"center"} w={"full"}>
             <Stack spacing={4} w={"full"}>
               <Text fontSize={"24px"} fontWeight={400}>
-                {t("LOGIN_TITLE")}
+                {t("LOGIN_REGISTER_TITLE")}
               </Text>
               <FormControl id="email">
                 <Text fontSize={"16px"} fontWeight={400}>
@@ -85,7 +87,11 @@ export default function UserRegister() {
                       color={"#0037b9"}
                       textUnderlineOffset={"1px"}
                     >
-                      <Link to="#" className="custom-link">
+                      <Link
+                        to="#"
+                        className="custom-link"
+                        onClick={() => setOpen(true)}
+                      >
                         {t("LOGIN_TERMS")}
                       </Link>{" "}
                     </Text>
@@ -95,7 +101,7 @@ export default function UserRegister() {
                   </HStack>
                   <Checkbox
                     isChecked={isChecked}
-                    onChange={handleCheckboxChange}
+                    // onChange={handleCheckboxChange}
                   >
                     <Text fontSize={"16px"} fontWeight={400}>
                       {t("LOGIN_AGREE")}
@@ -123,6 +129,7 @@ export default function UserRegister() {
           </VStack>
         </HStack>
       )}
+      {open && <ModalShow show={open} close={handleCloseModal} />}
     </Layout>
   );
 }

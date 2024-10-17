@@ -83,7 +83,9 @@ export default function OTP() {
           <VStack p={8} flex={1} align={"center"} justify={"center"}>
             <Stack spacing={4} w={"full"}>
               <Text fontSize={"24px"} fontWeight={400}>
-                {t("OTP_LOGIN")}
+                {fromPage === "registration"
+                  ? t("LOGIN_REGISTER_TITLE")
+                  : t("OTP_LOGIN")}
               </Text>
               <Text fontSize={"16px"} fontWeight={400}>
                 {t("OTP_WELCOME")}

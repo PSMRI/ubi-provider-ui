@@ -115,19 +115,11 @@ const Header: React.FC<HeaderProps> = ({
   );
 };
 
-const HeaderLeftSection: React.FC<{ t: any }> = ({ t }) => (
-  // @ts-ignore
-  <HStack>
-    <img src={Logo} alt="Logo" style={{ width: "40px", marginRight: "8px" }} />
-    <Text color="#484848">{t("HEADER_COMPANY_NAME")}</Text>
-  </HStack>
-);
-
 interface HeaderRightSectionProps {
   showMenu?: boolean;
   showSearchBar?: boolean;
   showLanguage?: boolean;
-  menuNames: Array<any>;
+  menuNames: MenuItem[];
 }
 
 const HeaderRightSection: React.FC<HeaderRightSectionProps> = ({
@@ -137,6 +129,7 @@ const HeaderRightSection: React.FC<HeaderRightSectionProps> = ({
   menuNames,
 }) => {
   return (
+    //@ts-ignore
     <HStack align="center" spacing={6}>
       {/* Menu */}
       {showMenu &&
@@ -146,7 +139,7 @@ const HeaderRightSection: React.FC<HeaderRightSectionProps> = ({
               <DropdownMenu menu={menu} />
             ) : (
               <Text
-                fontSize={"16px"}
+                fontSize="16px"
                 fontWeight={400}
                 cursor="pointer"
                 onClick={menu?.onClick}
