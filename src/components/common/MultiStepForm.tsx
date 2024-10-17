@@ -14,7 +14,11 @@ import { Theme as ChakraUITheme } from "@rjsf/chakra-ui";
 import { withTheme } from "@rjsf/core";
 import { JSONSchema7 } from "json-schema"; // Use this for the schema type
 import React, { useEffect, useState } from "react";
+import validator from "@rjsf/validator-ajv6";
 const Form = withTheme(ChakraUITheme);
+interface UiSchema {
+  [key: string]: any; // This provides flexibility for your UI schema
+}
 const stepsData = [
   {
     step: 1,
@@ -42,6 +46,7 @@ interface StepItem {
   step: number;
   title: string;
   schema: JSONSchema7; // Use the appropriate type for your schema
+  uiSchema: UiSchema;
   isOpen: boolean;
 }
 
@@ -50,7 +55,6 @@ interface MultiStepFormProps {
   formData: Record<string, any>; // Adjust this type as per your form data structure
   onChange: (data: Record<string, any>) => void; // Function to handle form data changes
   onSubmit: () => void; // Function to handle form submission
-  validatorForm?: (data: Record<string, any>) => boolean; // Optional validator function
 }
 
 const MultiStepForm: React.FC<MultiStepFormProps> = ({
@@ -58,13 +62,11 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
   formData,
   onChange,
   onSubmit,
-  validatorForm,
 }) => {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   useEffect(() => {
     setCompletedSteps([]);
   }, []);
-
   return (
     <Box p={5} mx="auto">
       <Accordion allowToggle>
@@ -81,7 +83,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
                 >
                   <Icon
                     as={
-                      completedSteps.includes(stepItem.step)
+                      completedSteps.includes(stepItem?.step)
                         ? CheckCircleIcon
                         : WarningIcon
                     }
@@ -121,11 +123,11 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
                     {stepItem?.schema && (
                       <Form
                         schema={stepItem?.schema}
-                        formData={formData} //prps
+                        formData={formData}
                         onChange={onChange}
                         onSubmit={onSubmit}
                         uiSchema={stepItem?.uiSchema}
-                        validator={validatorForm}
+                        validator={validator}
                       />
                     )}
                   </AccordionPanel>

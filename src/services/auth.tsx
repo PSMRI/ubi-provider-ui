@@ -12,7 +12,7 @@ export const registerProvider = async (name: string, email: string) => {
       `${apiUrl}/provider/sendOtpForReg`,
       payload
     );
-    return response.data.success;
+    return response?.data?.success;
   } catch (error) {
     console.log(error);
   }
@@ -27,7 +27,8 @@ export const LoginProvider = async (email: string) => {
       `${apiUrl}/provider/sendOtpForLog`,
       payload
     );
-    return response.data.success;
+    console.log(response?.data?.success);
+    return response?.data?.success;
   } catch (error) {
     console.log(error);
   }
@@ -40,6 +41,19 @@ export const sendOTP = async (otp: number, email: string) => {
       otp: otp,
     };
     const response = await axios.post(`${apiUrl}/provider/login`, payload);
+    return response.data.result;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const userRegister = async (otp: number, email: string) => {
+  try {
+    const payload = {
+      email: email,
+      otp: otp,
+    };
+    const response = await axios.post(`${apiUrl}/provider/register`, payload);
     return response.data.result;
   } catch (error) {
     console.log(error);

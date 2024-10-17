@@ -5,9 +5,11 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Text,
   VStack,
 } from "@chakra-ui/react";
-import { TT2, Tab, Table } from "@common";
+import Tab from "../../components/common/Tab";
+import Table from "../../components/common/table/Table";
 import { DataType } from "ka-table/enums";
 import { ICellTextProps } from "ka-table/props";
 import React, { memo, useEffect, useState } from "react";
@@ -31,7 +33,7 @@ const columns = [
   },
 ];
 
-const ActionCell = (prop: ICellTextProps) => {
+const ActionCell = () => {
   return (
     <HStack>
       <IconButton aria-label="Edit" icon={<EditIcon />} size="lg" />
@@ -47,7 +49,7 @@ const ActionCell = (prop: ICellTextProps) => {
 const DeadLineCell = (prop: ICellTextProps) => {
   return (
     <HStack>
-      <TT2>
+      <Text fontSize="16px" fontWeight="400">
         {prop?.value
           ? new Date(prop.value).toLocaleString("en-GB", {
               day: "2-digit",
@@ -56,7 +58,7 @@ const DeadLineCell = (prop: ICellTextProps) => {
             })
           : ""}
         <sup style={{ color: "blue" }}>+3</sup>
-      </TT2>
+      </Text>
     </HStack>
   );
 };
@@ -79,13 +81,13 @@ const BenefitsList: React.FC<{ _vstack?: object }> = memo(({ _vstack }) => {
             return item.status === "Drafts";
         }
       });
-      setData(filteredTableData);
+      setData(filteredTableData as any);
     };
     init();
   }, []);
 
   const handleTabClick = (tab: string) => {
-    setActiveTab(tab);
+    setActiveTab(parseInt(tab, 10));
   };
 
   return (
@@ -93,8 +95,12 @@ const BenefitsList: React.FC<{ _vstack?: object }> = memo(({ _vstack }) => {
       <HStack justifyContent="space-between">
         <Tab
           activeIndex={activeTab}
-          handleTabClick={handleTabClick}
-          tabs={[{ label: "Active" }, { label: "Closed" }, { label: "Drafts" }]}
+          handleTabClick={(index: number) => handleTabClick(index.toString())}
+          tabs={[
+            { label: "Active", value: "Active" },
+            { label: "Closed", value: "Closed" },
+            { label: "Drafts", value: "Drafts" },
+          ]}
         />
 
         <InputGroup maxWidth="300px" rounded={"full"} size="lg">
@@ -119,11 +125,11 @@ const BenefitsList: React.FC<{ _vstack?: object }> = memo(({ _vstack }) => {
 
 export default BenefitsList;
 
-const CustomCellText = (props) => {
+const CustomCellText = (props: ICellTextProps) => {
   switch (props.column.key) {
     case "deadline":
       return <DeadLineCell {...props} />;
     case "actions":
-      return <ActionCell {...props} />;
+      return <ActionCell {...(props as any)} />;
   }
 };

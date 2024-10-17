@@ -1,11 +1,8 @@
 // src/components/KeyMetrics.tsx
-import { HStack, Select, VStack } from "@chakra-ui/react";
-import React, { memo } from "react";
+import { HStack, Select, Text, VStack } from "@chakra-ui/react";
+import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import CommonCard from "../../components/common/card/CommonCard";
-import TD2 from "../../components/common/typography/TD2";
-import TT1 from "../../components/common/typography/TT1";
-import TT2 from "../../components/common/typography/TT2";
 import PrimaryButton from "../../components/common/buttons/PrimaryButton";
 import StatBox from "../../components/common/widget/StatBox"; // Reusing StatBox
 import {
@@ -30,13 +27,15 @@ const pieChartOptions = {
 };
 const pieChartSeries = financialData.map((e) => e.count);
 
-const KeyMetrics: React.FC = () => {
+const KeyMetrics = () => {
   const { t } = useTranslation();
   return (
     <VStack spacing="60px" align="stretch">
       <HStack justify="space-between">
         {/* Key Metrics Heading */}
-        <TD2 color="#06164B">{t("DASHBOARD_KEY_MATRICS")}</TD2>
+        <Text fontSize="36px" fontWeight="400" color="#06164B">
+          {t("DASHBOARD_KEY_MATRICS")}
+        </Text>
 
         {/* October 2024 Dropdown */}
         <Select
@@ -51,23 +50,27 @@ const KeyMetrics: React.FC = () => {
 
       <HStack align="stretch" spacing={"60px"}>
         <VStack spacing={"60px"} align="start">
-          <TT1 color={"#2F3036"}>{t("DASHBOARD_APPLICANT_OVERVIEW")}</TT1>
+          <Text fontSize="22px" fontWeight="400" color={"#2F3036"}>
+            {t("DASHBOARD_APPLICANT_OVERVIEW")}
+          </Text>
           <VStack spacing={4}>
-            {applicantData.map((item) => (
+            {applicantData?.map((item) => (
               <StatBox key={item.id} number={item.count} label={item.label} />
             ))}
           </VStack>
         </VStack>
         <VStack spacing={"60px"} align="start">
-          <TT1 color={"#2F3036"}>{t("DASHBOARD_FINANCIAL_OVERVIEW")}</TT1>
+          <Text fontSize="22px" fontWeight="400" color={"#2F3036"}>
+            {t("DASHBOARD_FINANCIAL_OVERVIEW")}
+          </Text>
           <VStack bg="#F8F8F8" p="5" align="stretch" flex="1">
-            <TT2>
+            <Text fontSize="16px" fontWeight="400">
               Total Budget:{" "}
               <b>
                 ₹ {financialData.reduce((acc, curr) => acc + curr.count, 0)}
               </b>
-            </TT2>
-            <TT2>
+            </Text>
+            <Text fontSize="16px" fontWeight="400">
               {"Number of Sponsors: "}
               <b>
                 {financialData.reduce(
@@ -75,9 +78,9 @@ const KeyMetrics: React.FC = () => {
                   0
                 )}
               </b>
-            </TT2>
+            </Text>
             <Chart
-              options={pieChartOptions}
+              options={pieChartOptions as any}
               series={pieChartSeries}
               type="pie"
               width="300"
@@ -85,10 +88,12 @@ const KeyMetrics: React.FC = () => {
           </VStack>
         </VStack>
         <VStack spacing={"60px"} align="start">
-          <TT1 color={"#2F3036"}>{t("DASHBOARD_POPULAR_BENEFITS")}</TT1>
+          <Text fontSize="22px" fontWeight="400" color={"#2F3036"}>
+            {t("DASHBOARD_POPULAR_BENEFITS")}
+          </Text>
           <VStack spacing={"35px"} align="stretch">
             {cardData?.map((item, index) => (
-              <CommonCard key={item?.id || index} {...(item || {})} flex="1" />
+              <CommonCard key={item?.id || index} {...(item || {})} />
             ))}
           </VStack>
         </VStack>

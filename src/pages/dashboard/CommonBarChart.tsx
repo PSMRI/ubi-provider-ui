@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Chart from "react-apexcharts";
-import { TT1, TT2, TD2 } from "@common";
 import { useTranslation } from "react-i18next";
-import { HStack, VStack, Select } from "@chakra-ui/react";
+import { HStack, VStack, Select, Text } from "@chakra-ui/react";
 import { visualRepresentation } from "../../utils/dataJSON/BenefitSummary";
 
 // Pie chart data
@@ -27,7 +26,7 @@ const data = [
       },
       dataLabels: {
         enabled: true,
-        formatter: function (val) {
+        formatter: function (val: any) {
           return val + "%";
         },
       },
@@ -139,16 +138,14 @@ const data = [
 
 const CommonBarChart: React.FC = () => {
   const { t } = useTranslation();
-  const [chartData, setChartData] = useState([]);
-  useEffect(() => {
-    setChartData(data);
-  }, []);
 
   return (
     <VStack spacing="60px" align="stretch" px="170px" pb="60px">
       <HStack justify="space-between">
         {/* Key Metrics Heading */}
-        <TD2 color="#06164B">{t("DASHBOARD_VISUAL_REPRESENTATION")}</TD2>
+        <Text fontSize="36px" fontWeight="400" color="#06164B">
+          {t("DASHBOARD_VISUAL_REPRESENTATION")}
+        </Text>
 
         {/* October 2024 Dropdown */}
         <Select
@@ -161,19 +158,33 @@ const CommonBarChart: React.FC = () => {
         />
       </HStack>
       <HStack align="stretch" spacing={"35px"}>
-        {chartData?.map((chartItem) => (
+        {data?.map((chartItem) => (
           <VStack
             boxShadow="0px 2px 6px 2px #00000026"
             p="4"
             align="stretch"
-            key={chartItem}
+            key={chartItem?.title}
           >
-            <TT1>{chartItem?.title}</TT1>
-            <TT2>{chartItem?.count}</TT2>
+            <Text fontSize="22px" fontWeight="400">
+              {chartItem?.title}
+            </Text>
+            <Text fontSize="16px" fontWeight="400">
+              {chartItem?.count}
+            </Text>
             <HStack minH="313px" align="stretch">
-              <Chart type="pie" height="300px" width="191px" {...chartItem} />
+              <Chart
+                options={chartItem?.options}
+                series={chartItem?.series}
+                type="pie"
+                height="300px"
+                width="191px"
+              />
             </HStack>
-            {chartItem?.footerText && <TT2>{chartItem?.footerText}</TT2>}
+            {chartItem?.footerText && (
+              <Text fontSize="16px" fontWeight="400">
+                {chartItem?.footerText}
+              </Text>
+            )}
           </VStack>
         ))}
       </HStack>

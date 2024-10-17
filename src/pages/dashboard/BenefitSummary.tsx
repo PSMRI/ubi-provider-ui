@@ -1,5 +1,5 @@
-import { VStack } from "@chakra-ui/react";
-import { TD2, TT2, PrimaryButton } from "@common";
+import { Text, VStack } from "@chakra-ui/react";
+import PrimaryButton from "../../components/common/buttons/PrimaryButton";
 import { useTranslation } from "react-i18next";
 import BenefitsList from "../benefits/List";
 
@@ -8,9 +8,9 @@ const BenefitSummary = () => {
 
   return (
     <VStack spacing="60px" align="stretch" px="28px">
-      <TD2 color={"#2F3036"} px="170px">
+      <Text fontSize="36px" fontWeight="400" color={"#2F3036"} px="170px">
         {t("DASHBOARD_ALL_BENEFITS_SUMMARY")}
-      </TD2>
+      </Text>
       {/* Tabs for Active, Closed, and Drafts */}
       <VStack spacing="35px" align="stretch">
         <BenefitsList
@@ -21,9 +21,14 @@ const BenefitSummary = () => {
           }}
         />
         <VStack spacing="21px" align="stretch">
-          <TT2 color={"#2F3036"} textAlign="center">
+          <Text
+            fontSize="16px"
+            fontWeight="400"
+            color={"#2F3036"}
+            textAlign="center"
+          >
             {"Showing 10 out of 50"}
-          </TT2>
+          </Text>
 
           <PrimaryButton alignSelf="center" w="500px">
             {t("DASHBOARD_VIEW_DETAILS")}

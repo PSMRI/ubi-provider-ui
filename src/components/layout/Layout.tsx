@@ -11,7 +11,7 @@ interface LayoutProps {
   showMenu?: boolean;
   showSearchBar?: boolean;
   showLanguage?: boolean;
-  _titleBar: object;
+  _titleBar?: object;
 }
 
 // Layout Component
@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({
   _titleBar,
 }) => {
   return (
-    <Box w="100%">
+    <Box>
       {/* Header */}
       <Header
         showMenu={showMenu}

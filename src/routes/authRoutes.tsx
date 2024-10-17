@@ -1,6 +1,5 @@
 import { lazy } from "react";
 const BenefitsForm = lazy(() => import("../pages/benefits/form/Form"));
-const BenefitSummary = lazy(() => import("../pages/dashboard/BenefitSummary"));
 const Dashboard = lazy(() => import("../pages/dashboard/Dashboard"));
 
 //lazy loading

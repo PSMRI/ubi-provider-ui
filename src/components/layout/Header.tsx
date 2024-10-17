@@ -20,8 +20,6 @@ import {
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import Logo from "../../assets/Images/Logo.png";
-import TH1 from "../common/typography/TH1";
-import TT2 from "../common/typography/TT2";
 import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
@@ -29,6 +27,18 @@ interface HeaderProps {
   showSearchBar?: boolean;
   showLanguage?: boolean;
 }
+interface MenuOption {
+  name: string;
+  icon?: React.ReactElement; // icon can be a React node
+  onClick?: () => void; // optional click handler
+}
+
+interface MenuItem {
+  label: string;
+  option?: MenuOption[];
+  onClick?: () => void;
+}
+
 const Header: React.FC<HeaderProps> = ({
   showMenu,
   showSearchBar,
@@ -78,77 +88,133 @@ const Header: React.FC<HeaderProps> = ({
       zIndex="11"
       bg="white"
     >
-      <HStack align="center" justify="space-between" flex="1">
+      <HStack
+        align="center"
+        justify="space-between" // Keeps left and right sections apart
+        w="100%"
+      >
         {/* Left Section: Logo and Company Name */}
-        <HStack align="center">
+        <HStack>
           <img
             src={Logo}
             alt="Logo"
             style={{ width: "40px", marginRight: "8px" }}
           />
-          <TH1 color="#484848">{t("HEADER_COMPANY_NAME")}</TH1>
+          <Text color="#484848">{t("HEADER_COMPANY_NAME")}</Text>
         </HStack>
 
-        {/* Right Section: Menu, Search Bar, and Language Dropdown */}
-        <HStack align="center" spacing={10}>
-          {/* Menu 1 */}
-          {showMenu &&
-            menuNames.map((menu, index) => (
-              <HStack key={menu?.label || index} align="center">
-                {menu?.option ? (
-                  <Menu>
-                    <MenuButton as={Text} fontWeight="bold" cursor="pointer">
-                      <HStack align="center" spasing="2">
-                        <TT2>{menu?.label}</TT2>
-                        <ChevronDownIcon />
-                      </HStack>
-                    </MenuButton>
-                    <MenuList>
-                      {menu?.option.map((submenuItem, subIndex) => (
-                        <MenuItem
-                          key={subIndex.name || subIndex}
-                          icon={submenuItem.icon}
-                          cursor="pointer"
-                          onClick={submenuItem.onClick}
-                        >
-                          {submenuItem.name}
-                        </MenuItem>
-                      ))}
-                    </MenuList>
-                  </Menu>
-                ) : (
-                  <TT2 cursor="pointer" onClick={menu?.onClick}>
-                    {menu?.label}
-                  </TT2>
-                )}
-              </HStack>
-            ))}
-
-          {/* Search Bar */}
-          {showSearchBar && (
-            <HStack align="center">
-              <InputGroup maxWidth="300px" rounded={"full"} size="lg">
-                <Input
-                  placeholder="Search For Benefit"
-                  rounded={"full"}
-                  bg="#E9E7EF"
-                />
-                <InputRightElement>
-                  <SearchIcon color="gray.500" />
-                </InputRightElement>
-              </InputGroup>
-            </HStack>
-          )}
-
-          {/* Language Dropdown */}
-          {showLanguage && (
-            <Select borderRadius="8" size="sm" width="100px">
-              <option value="en">English</option>
-            </Select>
-          )}
-        </HStack>
+        {/* Right Section: Menu, Search Bar, and Language Bar */}
+        <HeaderRightSection
+          showMenu={showMenu}
+          showSearchBar={showSearchBar}
+          showLanguage={showLanguage}
+          menuNames={menuNames}
+        />
       </HStack>
     </Box>
   );
 };
+
+const HeaderLeftSection: React.FC<{ t: any }> = ({ t }) => (
+  // @ts-ignore
+  <HStack>
+    <img src={Logo} alt="Logo" style={{ width: "40px", marginRight: "8px" }} />
+    <Text color="#484848">{t("HEADER_COMPANY_NAME")}</Text>
+  </HStack>
+);
+
+interface HeaderRightSectionProps {
+  showMenu?: boolean;
+  showSearchBar?: boolean;
+  showLanguage?: boolean;
+  menuNames: Array<any>;
+}
+
+const HeaderRightSection: React.FC<HeaderRightSectionProps> = ({
+  showMenu,
+  showSearchBar,
+  showLanguage,
+  menuNames,
+}) => {
+  return (
+    <HStack align="center" spacing={6}>
+      {/* Menu */}
+      {showMenu &&
+        menuNames.map((menu, index) => (
+          <HStack key={menu?.label || index} align="center">
+            {menu?.option ? (
+              <DropdownMenu menu={menu} />
+            ) : (
+              <Text
+                fontSize={"16px"}
+                fontWeight={400}
+                cursor="pointer"
+                onClick={menu?.onClick}
+              >
+                {menu?.label}
+              </Text>
+            )}
+          </HStack>
+        ))}
+
+      {/* Search Bar */}
+      {showSearchBar && <SearchBar />}
+
+      {/* Language Dropdown */}
+      {showLanguage && <LanguageDropdown />}
+    </HStack>
+  );
+};
+
+const DropdownMenu: React.FC<{ menu: any }> = ({ menu }) => (
+  <Menu>
+    <MenuButton
+      as={Text as any}
+      fontWeight="bold"
+      cursor="pointer"
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+    >
+      <HStack spacing={1}>
+        {menu?.label && (
+          <Text fontSize={"16px"} fontWeight={400}>
+            {menu?.label}
+          </Text>
+        )}
+        <ChevronDownIcon />
+      </HStack>
+    </MenuButton>
+    <MenuList>
+      {menu?.option.map((submenuItem: MenuOption, subIndex: number) => (
+        <MenuItem
+          key={submenuItem.name || subIndex}
+          icon={submenuItem.icon}
+          cursor="pointer"
+          onClick={submenuItem.onClick}
+        >
+          {submenuItem.name}
+        </MenuItem>
+      ))}
+    </MenuList>
+  </Menu>
+);
+
+const SearchBar: React.FC = () => (
+  <HStack align="center">
+    <InputGroup maxWidth="300px" rounded={"full"} size="lg">
+      <Input placeholder="Search For Benefit" rounded={"full"} bg="#E9E7EF" />
+      <InputRightElement>
+        <SearchIcon color="gray.500" />
+      </InputRightElement>
+    </InputGroup>
+  </HStack>
+);
+
+const LanguageDropdown: React.FC = () => (
+  <Select borderRadius="8" size="sm" width="100px">
+    <option value="en">English</option>
+  </Select>
+);
+
 export default Header;

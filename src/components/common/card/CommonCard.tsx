@@ -19,7 +19,7 @@ const CommonCard: React.FC<CommonCardProps> = ({
       rounded="6"
       boxShadow="md"
       bg="#f8f8f8"
-      spasing="3"
+      spacing="3"
     >
       <Text fontSize="16px" fontWeight="bold">
         {title}

@@ -1,8 +1,6 @@
 // src/components/StatBox.tsx
-import { Box, VStack } from "@chakra-ui/react";
+import { Box, Text, VStack } from "@chakra-ui/react";
 import React from "react";
-import TT1 from "../typography/TT1";
-import TT2 from "../typography/TT2";
 
 interface StatBoxProps {
   number: number;
@@ -23,10 +21,12 @@ const StatBox: React.FC<StatBoxProps> = ({ number, label, currency }) => {
       bg={"#F8F8F8"}
     >
       <VStack spacing="5px">
-        <TT1 color={"#2F3036"}>
+        <Text fontSize={"22px"} fontWeight={400} color={"#2F3036"}>
           {currency ? `${currency} ${number}` : number}
-        </TT1>
-        <TT2 color={"#00000080"}>{label}</TT2>
+        </Text>
+        <Text fontSize={"16px"} fontWeight={400} color={"#00000080"}>
+          {label}
+        </Text>
       </VStack>
     </Box>
   );

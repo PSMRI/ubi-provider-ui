@@ -6,7 +6,7 @@ const CommonBarChart: React.FC = () => {
   // Bar chart data
   const barChartOptions = {
     chart: {
-      id: "basic-bar",
+      type: "bar",
     },
     xaxis: {
       categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
@@ -25,6 +25,9 @@ const CommonBarChart: React.FC = () => {
 
   // Pie chart data
   const pieChartOptions = {
+    chart: {
+      type: "pie",
+    },
     labels: ["Product A", "Product B", "Product C", "Product D"],
     title: {
       text: "Sales Distribution",
@@ -37,7 +40,7 @@ const CommonBarChart: React.FC = () => {
     <div className="charts-container">
       <div className="chart-column">
         <Chart
-          options={barChartOptions}
+          options={barChartOptions as ApexCharts.ApexOptions}
           series={barChartSeries}
           type="bar"
           width="400"
@@ -46,7 +49,7 @@ const CommonBarChart: React.FC = () => {
 
       <div className="chart-column">
         <Chart
-          options={pieChartOptions}
+          options={pieChartOptions as ApexCharts.ApexOptions}
           series={pieChartSeries}
           type="pie"
           width="400"

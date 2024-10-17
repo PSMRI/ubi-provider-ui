@@ -1,14 +1,16 @@
 import React from "react";
-import { Button } from "@chakra-ui/react";
-import TT3 from "../typography/TT3";
+import { Button, Text } from "@chakra-ui/react";
 
 interface PrimaryButtonProps {
   children: React.ReactNode;
+  alignSelf?: string;
+  w?: string;
 }
 
 const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   children,
-  ...props
+  alignSelf,
+  w,
 }) => {
   return (
     <Button
@@ -16,9 +18,12 @@ const PrimaryButton: React.FC<PrimaryButtonProps> = ({
       bg="#0037B9"
       variant={"solid"}
       borderRadius={"100px"}
-      {...props}
+      alignSelf={alignSelf}
+      w={w}
     >
-      <TT3>{children}</TT3>
+      <Text fontSize="14px" fontWeight="400">
+        {children}
+      </Text>
     </Button>
   );
 };

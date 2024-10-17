@@ -6,8 +6,8 @@ import {
   TabIndicator,
   HStack,
   Box,
+  Text,
 } from "@chakra-ui/react";
-import { TT2 } from "@common";
 
 interface TabItem {
   label: string;
@@ -48,7 +48,9 @@ const CustomTab: React.FC<CustomTabProps> = ({
                   borderRadius="full"
                   bg={index == activeIndex ? "#30713D" : "white"}
                 />
-                <TT2>{label}</TT2>
+                <Text fontSize={"16px"} fontWeight={400}>
+                  {label}
+                </Text>
               </HStack>
             </Tab>
           ))}

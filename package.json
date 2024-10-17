@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "clean:vite": "rm -rf node_modules/.vite",
+    "build": "yarn clean:vite && tsc -b &&  vite build"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.2.1",
