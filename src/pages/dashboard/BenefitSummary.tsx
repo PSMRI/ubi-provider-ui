@@ -3,9 +3,25 @@ import PrimaryButton from "../../components/common/buttons/PrimaryButton";
 import { useTranslation } from "react-i18next";
 import BenefitsList from "../benefits/List";
 
-const BenefitSummary = () => {
-  const { t } = useTranslation();
+interface BenefitSummaryProps {
+  tableData: {
+    benefit_summary: {
+      id: number;
+      name: string;
+      applicants: number;
+      approved: number;
+      rejected: number;
+      disbursalPending: number;
+      deadline: string;
+      status: string;
+    }[];
+  };
+}
 
+const BenefitSummary: React.FC<BenefitSummaryProps> = ({ tableData }) => {
+  const { t } = useTranslation();
+  // Check if benefit_summary is defined and is an array
+  const benefits = tableData?.benefit_summary || [];
   return (
     <VStack spacing="60px" align="stretch" px="28px">
       <Text fontSize="36px" fontWeight="400" color={"#2F3036"} px="170px">
@@ -19,6 +35,7 @@ const BenefitSummary = () => {
             pt: "10",
             boxShadow: "0px 2px 6px 2px #00000026",
           }}
+          benefitData={benefits}
         />
         <VStack spacing="21px" align="stretch">
           <Text

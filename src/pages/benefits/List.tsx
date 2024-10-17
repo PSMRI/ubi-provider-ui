@@ -13,7 +13,6 @@ import Table from "../../components/common/table/Table";
 import { DataType } from "ka-table/enums";
 import { ICellTextProps } from "ka-table/props";
 import React, { memo, useEffect, useState } from "react";
-import benefits from "../../services/benefits";
 
 const columns = [
   { key: "name", title: "Name", dataType: DataType.String },
@@ -32,7 +31,6 @@ const columns = [
     dataType: DataType.String,
   },
 ];
-
 const ActionCell = () => {
   return (
     <HStack>
@@ -63,28 +61,31 @@ const DeadLineCell = (prop: ICellTextProps) => {
   );
 };
 
-const BenefitsList: React.FC<{ _vstack?: object }> = memo(({ _vstack }) => {
+const BenefitsList: React.FC<{
+  _vstack?: object;
+  benefitData?: { benefit_summary: { status: string }[] };
+}> = memo(({ _vstack, benefitData }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [data, setData] = useState([]);
-
   useEffect(() => {
     const init = async () => {
       // Filtering data based on the selected tab (Active, Closed, Drafts)
-      const tableData = await benefits.getAll();
-      const filteredTableData = tableData?.filter((item) => {
+      const filteredTableData = benefitData?.benefit_summary?.filter((item) => {
         switch (activeTab) {
+          case 0:
+            return item?.status === "active";
           case 1:
-            return item.status === "Active";
+            return item.status === "closed";
           case 2:
-            return item.status === "Closed";
+            return item.status === "draft";
           default:
-            return item.status === "Drafts";
+            return "No data found";
         }
       });
       setData(filteredTableData as any);
     };
     init();
-  }, []);
+  }, [activeTab, benefitData]);
 
   const handleTabClick = (tab: string) => {
     setActiveTab(parseInt(tab, 10));
@@ -95,11 +96,13 @@ const BenefitsList: React.FC<{ _vstack?: object }> = memo(({ _vstack }) => {
       <HStack justifyContent="space-between">
         <Tab
           activeIndex={activeTab}
-          handleTabClick={(index: number) => handleTabClick(index.toString())}
+          handleTabClick={(index: number) =>
+            handleTabClick(index.toString() as "0" | "1" | "2")
+          }
           tabs={[
-            { label: "Active", value: "Active" },
-            { label: "Closed", value: "Closed" },
-            { label: "Drafts", value: "Drafts" },
+            { label: "Active", value: "0" },
+            { label: "Closed", value: "1" },
+            { label: "Drafts", value: "2" },
           ]}
         />
 

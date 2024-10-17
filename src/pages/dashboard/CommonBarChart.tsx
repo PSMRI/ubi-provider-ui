@@ -4,141 +4,158 @@ import { useTranslation } from "react-i18next";
 import { HStack, VStack, Select, Text } from "@chakra-ui/react";
 import { visualRepresentation } from "../../utils/dataJSON/BenefitSummary";
 
-// Pie chart data
-const data = [
-  {
-    title: "Applicants vs. Disbursals",
-    count: "89%",
-    type: "bar",
-    options: {
-      colors: [
-        "#06164B",
-        "#06164B",
-        "#06164B",
-        "#06164B",
-        "#06164B",
-        "#06164B",
-      ],
-      xaxis: {
-        categories: visualRepresentation?.applicantsDisbursals?.map(
-          (e) => e.label
-        ),
-      },
-      dataLabels: {
-        enabled: true,
-        formatter: function (val: any) {
-          return val + "%";
-        },
-      },
-    },
-    series: [
-      {
-        name: "Percentage",
-        data: visualRepresentation?.applicantsDisbursals?.map((e) => e.count),
-      },
-    ],
-  },
-  {
-    title: "Breakdown by Gender",
-    count: "104",
-    type: "pie",
-    footerText: "Gender",
-    options: {
-      labels: visualRepresentation?.gender?.map((e) => e.label),
-      colors: ["#867fa5", "#06164B", "#DDE1FF"],
-      dataLabels: {
-        enabled: false,
-      },
-      legend: {
-        show: false,
-      },
-      states: {
-        hover: {
-          filter: {
-            type: "none", // Disable hover effect
-          },
-        },
-      },
-    },
-    series: visualRepresentation?.gender?.map((e) => e.count),
-  },
-  {
-    title: "Breakdown by Caste",
-    count: "204",
-    footerText: "Caste",
-    type: "pie",
-    options: {
-      labels: visualRepresentation?.caste?.map((e) => e.label),
-      colors: ["#867fa5", "#06164B", "#DDE1FF"],
-      dataLabels: {
-        enabled: false,
-      },
-      legend: {
-        show: false,
-      },
-      states: {
-        hover: {
-          filter: {
-            type: "none", // Disable hover effect
-          },
-        },
-      },
-    },
-    series: visualRepresentation?.caste?.map((e) => e.count),
-  },
-  {
-    title: "Breakdown by Level of Study",
-    count: "547",
-    footerText: "Age Group",
-    type: "pie",
-    options: {
-      labels: visualRepresentation?.age?.map((e) => e.label),
-      colors: ["#867fa5", "#06164B", "#DDE1FF"],
-      dataLabels: {
-        enabled: false,
-      },
-      legend: {
-        show: false,
-      },
-      states: {
-        hover: {
-          filter: {
-            type: "none", // Disable hover effect
-          },
-        },
-      },
-    },
-    series: visualRepresentation?.age?.map((e) => e.count),
-  },
-  {
-    title: "Day Scholar / Hostler Ratio",
-    count: "47",
-    footerText: "Ratio",
-    type: "pie",
-    options: {
-      states: {
-        hover: {
-          filter: {
-            type: "none", // Disable hover effect
-          },
-        },
-      },
-      labels: visualRepresentation?.ratio?.map((e) => e.label),
-      colors: ["#867fa5", "#06164B", "#DDE1FF"],
-      dataLabels: {
-        enabled: false,
-      },
-      legend: {
-        show: false,
-      },
-    },
-    series: visualRepresentation?.ratio?.map((e) => e.count),
-  },
-];
+// Define the structure for the props and visualData
+interface DataItem {
+  label: string;
+  count: number;
+}
 
-const CommonBarChart: React.FC = () => {
+interface VisualData {
+  gender: DataItem[];
+  caste: DataItem[];
+  ratio: DataItem[];
+}
+
+interface ChartData {
+  chartData: {
+    visualData: VisualData;
+  };
+}
+
+const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
   const { t } = useTranslation();
-
+  const visualdata = chartData?.visualData;
+  // Pie chart data
+  const data = [
+    {
+      title: "Applicants vs. Disbursals",
+      count: "89%",
+      type: "bar",
+      options: {
+        colors: [
+          "#06164B",
+          "#06164B",
+          "#06164B",
+          "#06164B",
+          "#06164B",
+          "#06164B",
+        ],
+        xaxis: {
+          categories: visualRepresentation?.applicantsDisbursals?.map(
+            (e) => e.label
+          ),
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function (val: any) {
+            return val + "%";
+          },
+        },
+      },
+      series: [
+        {
+          name: "Percentage",
+          data: visualRepresentation?.applicantsDisbursals?.map((e) => e.count),
+        },
+      ],
+    },
+    {
+      title: "Breakdown by Gender",
+      count: visualdata?.gender?.reduce((acc, item) => acc + item.count, 0),
+      type: "pie",
+      footerText: "Gender",
+      options: {
+        labels: visualdata?.gender?.map((e) => e.label),
+        colors: ["#867fa5", "#06164B", "#DDE1FF"],
+        dataLabels: {
+          enabled: false,
+        },
+        legend: {
+          show: false,
+        },
+        states: {
+          hover: {
+            filter: {
+              type: "none", // Disable hover effect
+            },
+          },
+        },
+      },
+      series: visualdata?.gender?.map((e) => e.count),
+    },
+    {
+      title: "Breakdown by Caste",
+      count: visualdata?.caste?.reduce((acc, item) => acc + item.count, 0),
+      footerText: "Caste",
+      type: "pie",
+      options: {
+        labels: visualdata?.caste?.map((e) => e.label),
+        colors: ["#867fa5", "#06164B", "#DDE1FF"],
+        dataLabels: {
+          enabled: false,
+        },
+        legend: {
+          show: false,
+        },
+        states: {
+          hover: {
+            filter: {
+              type: "none", // Disable hover effect
+            },
+          },
+        },
+      },
+      series: visualdata?.caste?.map((e) => e.count),
+    },
+    {
+      title: "Breakdown by Level of Study",
+      count: "547",
+      footerText: "Age Group",
+      type: "pie",
+      options: {
+        labels: visualRepresentation?.age?.map((e) => e.label),
+        colors: ["#867fa5", "#06164B", "#DDE1FF"],
+        dataLabels: {
+          enabled: false,
+        },
+        legend: {
+          show: false,
+        },
+        states: {
+          hover: {
+            filter: {
+              type: "none", // Disable hover effect
+            },
+          },
+        },
+      },
+      series: visualRepresentation?.age?.map((e) => e.count),
+    },
+    {
+      title: "Day Scholar / Hostler Ratio",
+      count: visualdata?.ratio.reduce((acc, item) => acc + item.count, 0),
+      footerText: "Ratio",
+      type: "pie",
+      options: {
+        states: {
+          hover: {
+            filter: {
+              type: "none", // Disable hover effect
+            },
+          },
+        },
+        labels: visualdata?.ratio?.map((e) => e.label),
+        colors: ["#867fa5", "#06164B", "#DDE1FF"],
+        dataLabels: {
+          enabled: false,
+        },
+        legend: {
+          show: false,
+        },
+      },
+      series: visualdata?.ratio?.map((e) => e.count),
+    },
+  ];
   return (
     <VStack spacing="60px" align="stretch" px="170px" pb="60px">
       <HStack justify="space-between">
@@ -172,13 +189,15 @@ const CommonBarChart: React.FC = () => {
               {chartItem?.count}
             </Text>
             <HStack minH="313px" align="stretch">
-              <Chart
-                options={chartItem?.options}
-                series={chartItem?.series}
-                type="pie"
-                height="300px"
-                width="191px"
-              />
+              {chartItem?.type === "bar" || chartItem?.type === "pie" ? (
+                <Chart
+                  options={chartItem?.options}
+                  series={chartItem?.series}
+                  type={chartItem?.type}
+                  height="300px"
+                  width="191px"
+                />
+              ) : null}
             </HStack>
             {chartItem?.footerText && (
               <Text fontSize="16px" fontWeight="400">

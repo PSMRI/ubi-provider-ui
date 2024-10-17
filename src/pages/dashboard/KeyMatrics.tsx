@@ -5,13 +5,25 @@ import { useTranslation } from "react-i18next";
 import CommonCard from "../../components/common/card/CommonCard";
 import PrimaryButton from "../../components/common/buttons/PrimaryButton";
 import StatBox from "../../components/common/widget/StatBox"; // Reusing StatBox
-import {
-  applicantData,
-  financialData,
-} from "../../components/common/widget/StatData";
-import { cardData } from "../../utils/dataJSON/BenefitSummary";
+import { financialData } from "../../components/common/widget/StatData";
 import Chart from "react-apexcharts";
+interface ApplicationOverview {
+  [key: string]: {
+    id: number;
+    count: number;
+    label: string;
+  };
+}
 
+interface MatricsData {
+  application_overview: ApplicationOverview;
+  top_3_benefits?: Array<{
+    id: number;
+    title: string;
+    totalApplications: number;
+    totalDisbursed: number;
+  }>;
+}
 // Pie chart data
 const pieChartOptions = {
   labels: financialData.map((e) => e.label),
@@ -27,8 +39,11 @@ const pieChartOptions = {
 };
 const pieChartSeries = financialData.map((e) => e.count);
 
-const KeyMetrics = () => {
+const KeyMetrics: React.FC<{ matricsData: MatricsData }> = ({
+  matricsData,
+}) => {
   const { t } = useTranslation();
+  console.log("MatricsData===", matricsData);
   return (
     <VStack spacing="60px" align="stretch">
       <HStack justify="space-between">
@@ -54,9 +69,12 @@ const KeyMetrics = () => {
             {t("DASHBOARD_APPLICANT_OVERVIEW")}
           </Text>
           <VStack spacing={4}>
-            {applicantData?.map((item) => (
-              <StatBox key={item.id} number={item.count} label={item.label} />
-            ))}
+            {matricsData?.application_overview &&
+              Object.entries(matricsData.application_overview).map(
+                ([key, item]) => (
+                  <StatBox key={key} number={item?.count} label={item?.label} />
+                )
+              )}
           </VStack>
         </VStack>
         <VStack spacing={"60px"} align="start">
@@ -92,7 +110,7 @@ const KeyMetrics = () => {
             {t("DASHBOARD_POPULAR_BENEFITS")}
           </Text>
           <VStack spacing={"35px"} align="stretch">
-            {cardData?.map((item, index) => (
+            {matricsData?.top_3_benefits?.map((item, index) => (
               <CommonCard key={item?.id || index} {...(item || {})} />
             ))}
           </VStack>
