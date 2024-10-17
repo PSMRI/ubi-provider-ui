@@ -119,7 +119,7 @@ interface HeaderRightSectionProps {
   showMenu?: boolean;
   showSearchBar?: boolean;
   showLanguage?: boolean;
-  menuNames: MenuItem[];
+  menuNames: MenuItem[]; // add new
 }
 
 const HeaderRightSection: React.FC<HeaderRightSectionProps> = ({

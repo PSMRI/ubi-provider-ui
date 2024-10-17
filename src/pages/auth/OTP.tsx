@@ -73,6 +73,7 @@ export default function OTP() {
       }
     }
   };
+  //conflict solve
   return (
     <Layout showMenu={false} showSearchBar={false} showLanguage={true}>
       {isLoading ? (

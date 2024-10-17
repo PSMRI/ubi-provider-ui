@@ -38,6 +38,7 @@ export default function UserRegister() {
     setOpen(false);
     setIsChecked(true);
   };
+  //conflict solve
   return (
     <Layout showMenu={false} showSearchBar={false} showLanguage={true}>
       {isLoading ? (
@@ -99,10 +100,7 @@ export default function UserRegister() {
                       {t("LOGIN_TERMS_ACCEPT_PROCEED")}
                     </Text>
                   </HStack>
-                  <Checkbox
-                    isChecked={isChecked}
-                    // onChange={handleCheckboxChange}
-                  >
+                  <Checkbox isChecked={isChecked}>
                     <Text fontSize={"16px"} fontWeight={400}>
                       {t("LOGIN_AGREE")}
                     </Text>
