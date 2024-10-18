@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "en-US"
+early_access: false
+enable_free_tier: true
+
+reviews:
+  request_changes_workflow: true
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: true
+  path_filters:
+    - "!**/.xml"
+  path_instructions:
+    - path: "**/*.css"
+      instructions: |
+        "Review the CSS code against the google css style guide and point out any mismatches. Ensure that:
+        - The code adheres to best practices associated with CSS.
+        - The code adheres to best practices recommended by lighthouse or similar tools for performance.
+        - The code adheres to similar naming conventions for classes, ids."
+    - path: "**/*.html"
+      instructions: |
+        "Review the HTML code against the google html style guide and point out any mismatches. Ensure that:
+        - The code adheres to best practices recommended by lighthouse or similar tools for performance."
+    - path: "**/*.js,**/*.ts,**/*.jsx,**/*.tsx"
+      instructions: |
+        "Review the JAVASCRIPT code against the google javascript style guide and point out any mismatches. Ensure that:
+        - The code adheres to best practices associated with React.
+        - The code adheres to best practices associated with React + Vite based PWA.
+        - The code adheres to best practices recommended by lighthouse or similar tools for performance.
+        - The code adheres to similar naming conventions for assets, components, views, screens, services, methods."        
+  auto_review:
+    enabled: true
+    ignore_title_keywords:
+      - "WIP"
+      - "DO NOT MERGE"
+    drafts: false
+    base_branches:
+    - "master"
+    - "dev"
+    - "feat/*"
+    - "feat-*"
+    - "release-*"
+
+chat:
+  auto_reply: true
+  
+knowledge_base:
+  opt_out: true
