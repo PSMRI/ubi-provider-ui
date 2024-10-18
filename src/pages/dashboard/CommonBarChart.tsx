@@ -64,14 +64,14 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
       count:
         visualdata?.gender?.length > 0
           ? visualdata?.gender?.reduce((acc, item) => acc + item.count, 0)
-          : undefined,
+          : 0,
       type: "pie",
       footerText: "Gender",
       options: {
         labels:
           visualdata?.gender?.length > 0
             ? visualdata?.gender?.map((e) => e.label)
-            : undefined,
+            : [],
         colors: ["#867fa5", "#06164B", "#DDE1FF"],
         dataLabels: {
           enabled: false,
@@ -90,21 +90,21 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
       series:
         visualdata?.gender?.length > 0
           ? visualdata?.gender?.map((e) => e.count)
-          : undefined,
+          : [],
     },
     {
       title: "Breakdown by Caste",
       count:
         visualdata?.caste?.length > 0
           ? visualdata?.caste?.reduce((acc, item) => acc + item.count, 0)
-          : undefined,
+          : 0,
       footerText: "Caste",
       type: "pie",
       options: {
         labels:
           visualdata?.caste?.length > 0
             ? visualdata?.caste?.map((e) => e.label)
-            : undefined,
+            : [],
         colors: ["#867fa5", "#06164B", "#DDE1FF"],
         dataLabels: {
           enabled: false,
@@ -123,7 +123,7 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
       series:
         visualdata?.caste?.length > 0
           ? visualdata?.caste?.map((e) => e.count)
-          : undefined,
+          : [],
     },
     {
       title: "Breakdown by Level of Study",
@@ -154,7 +154,7 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
       count:
         visualdata?.ratio?.length > 0
           ? visualdata?.ratio.reduce((acc, item) => acc + item.count, 0)
-          : undefined,
+          : 0,
       footerText: "Ratio",
       type: "pie",
       options: {
@@ -168,7 +168,7 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
         labels:
           visualdata?.ratio?.length > 0
             ? visualdata?.ratio?.map((e) => e.label)
-            : undefined,
+            : [],
         colors: ["#867fa5", "#06164B", "#DDE1FF"],
         dataLabels: {
           enabled: false,
@@ -180,7 +180,7 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
       series:
         visualdata?.ratio?.length > 0
           ? visualdata?.ratio?.map((e) => e.count)
-          : undefined,
+          : [],
     },
   ];
 
