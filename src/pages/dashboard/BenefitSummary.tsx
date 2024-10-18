@@ -1,5 +1,4 @@
 import { Text, VStack } from "@chakra-ui/react";
-import PrimaryButton from "../../components/common/buttons/PrimaryButton";
 import { useTranslation } from "react-i18next";
 import BenefitsList from "../benefits/List";
 
@@ -37,20 +36,6 @@ const BenefitSummary: React.FC<BenefitSummaryProps> = ({ tableData }) => {
           }}
           benefitData={{ benefit_summary: benefits }}
         />
-        <VStack spacing="21px" align="stretch">
-          <Text
-            fontSize="16px"
-            fontWeight="400"
-            color={"#2F3036"}
-            textAlign="center"
-          >
-            {"Showing 10 out of 50"}
-          </Text>
-
-          <PrimaryButton alignSelf="center" w="500px">
-            {t("DASHBOARD_VIEW_DETAILS")}
-          </PrimaryButton>
-        </VStack>
       </VStack>
     </VStack>
   );

@@ -3,7 +3,6 @@ import { HStack, Select, Text, VStack } from "@chakra-ui/react";
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import CommonCard from "../../components/common/card/CommonCard";
-import PrimaryButton from "../../components/common/buttons/PrimaryButton";
 import StatBox from "../../components/common/widget/StatBox"; // Reusing StatBox
 import { financialData } from "../../components/common/widget/StatData";
 import Chart from "react-apexcharts";
@@ -115,9 +114,6 @@ const KeyMetrics: React.FC<{ matricsData: MatricsData }> = ({
           </VStack>
         </VStack>
       </HStack>
-      <PrimaryButton alignSelf="center" w="500px">
-        {t("DASHBOARD_VIEW_DETAILS")}
-      </PrimaryButton>
     </VStack>
   );
 };

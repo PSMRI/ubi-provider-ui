@@ -28,7 +28,7 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
   // Pie chart data
   const data = [
     {
-      title: "Applicants vs. Disbursals",
+      title: "Disbursal Rate",
       count: "89%",
       type: "bar",
       options: {
@@ -128,7 +128,7 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
     {
       title: "Breakdown by Level of Study",
       count: "547",
-      footerText: "Age Group",
+      footerText: "Standard",
       type: "pie",
       options: {
         labels: visualRepresentation?.age?.map((e) => e.label),
