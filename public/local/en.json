@@ -24,5 +24,14 @@
   "DASHBOARD_POPULAR_BENEFITS": "Top 3 Popular Benefits",
   "DASHBOARD_VIEW_DETAILS": "View Details",
   "DASHBOARD_ALL_BENEFITS_SUMMARY": "All Benefits Summary",
-  "DASHBOARD_VISUAL_REPRESENTATION": "Visual Representation"
+  "DASHBOARD_VISUAL_REPRESENTATION": "Visual Representation",
+  "ACCEPT_AND_TERMS_1": "We confirm that all details provided regarding the benefit program, including eligibility criteria, deadlines, and disbursement processes, are accurate and up to date. Our organization acknowledges the responsibility to ensure the information remains accurate throughout the duration of the benefit program.",
+  "ACCEPT_AND_TERMS_2": "We certify that the benefit program complies with all applicable laws and regulations. We understand that failure to comply with legal requirements may result in the withdrawal of the benefit program and potential legal action.",
+  "ACCEPT_AND_TERMS_3": "We confirm that sufficient funds have been allocated for the benefit program, and we will ensure that these funds are disbursed in a timely manner to eligible beneficiaries. Our organization recognizes that the availability of funds is crucial for the success of the program, and we take full responsibility for managing the budget.",
+  "ACCEPT_AND_TERMS_4": "We agree to update the benefit details, deadlines, and disbursement schedules if any changes occur. We acknowledge that keeping the beneficiaries informed is essential for maintaining transparency and the success of the program.",
+  "ACCEPT_AND_TERMS_5": "We commit to providing timely and accurate responses to any queries from beneficiaries and to ensuring that the application process is clear and accessible. Our organization understands that failure to communicate effectively may result in misunderstandings or delays in the application process.",
+  "ACCEPT_AND_TERMS_6": "We certify that the benefit program does not discriminate based on race, gender, religion, or any other characteristic protected by law. We commit to ensuring that all eligible beneficiaries are treated fairly throughout the application and selection process.",
+  "ACCEPT_AND_TERMS_7": "We understand that any personal information collected from beneficiaries during the application process will be kept confidential and used solely for the purpose of evaluating and administering the benefit program. We agree to comply with all relevant data protection and privacy laws.",
+  "ACCEPT_AND_TERMS_8": "We acknowledge that amendments or updates to the benefit details may be required, and we agree to make such changes transparently and promptly. We understand that any significant changes will be communicated to potential beneficiaries in a timely manner.",
+  "ACCEPT_AND_TERMS_9": "By publishing this benefit to the public domain, our organization agrees to abide by these terms and conditions and to ensure that the benefit program is managed in a transparent, fair, and lawful manner."
 }

@@ -61,11 +61,17 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
     },
     {
       title: "Breakdown by Gender",
-      count: visualdata?.gender?.reduce((acc, item) => acc + item.count, 0),
+      count:
+        visualdata?.gender?.length > 0
+          ? visualdata?.gender?.reduce((acc, item) => acc + item.count, 0)
+          : undefined,
       type: "pie",
       footerText: "Gender",
       options: {
-        labels: visualdata?.gender?.map((e) => e.label),
+        labels:
+          visualdata?.gender?.length > 0
+            ? visualdata?.gender?.map((e) => e.label)
+            : undefined,
         colors: ["#867fa5", "#06164B", "#DDE1FF"],
         dataLabels: {
           enabled: false,
@@ -81,15 +87,24 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
           },
         },
       },
-      series: visualdata?.gender?.map((e) => e.count),
+      series:
+        visualdata?.gender?.length > 0
+          ? visualdata?.gender?.map((e) => e.count)
+          : undefined,
     },
     {
       title: "Breakdown by Caste",
-      count: visualdata?.caste?.reduce((acc, item) => acc + item.count, 0),
+      count:
+        visualdata?.caste?.length > 0
+          ? visualdata?.caste?.reduce((acc, item) => acc + item.count, 0)
+          : undefined,
       footerText: "Caste",
       type: "pie",
       options: {
-        labels: visualdata?.caste?.map((e) => e.label),
+        labels:
+          visualdata?.caste?.length > 0
+            ? visualdata?.caste?.map((e) => e.label)
+            : undefined,
         colors: ["#867fa5", "#06164B", "#DDE1FF"],
         dataLabels: {
           enabled: false,
@@ -105,7 +120,10 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
           },
         },
       },
-      series: visualdata?.caste?.map((e) => e.count),
+      series:
+        visualdata?.caste?.length > 0
+          ? visualdata?.caste?.map((e) => e.count)
+          : undefined,
     },
     {
       title: "Breakdown by Level of Study",
@@ -133,7 +151,10 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
     },
     {
       title: "Day Scholar / Hostler Ratio",
-      count: visualdata?.ratio.reduce((acc, item) => acc + item.count, 0),
+      count:
+        visualdata?.ratio?.length > 0
+          ? visualdata?.ratio.reduce((acc, item) => acc + item.count, 0)
+          : undefined,
       footerText: "Ratio",
       type: "pie",
       options: {
@@ -144,7 +165,10 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
             },
           },
         },
-        labels: visualdata?.ratio?.map((e) => e.label),
+        labels:
+          visualdata?.ratio?.length > 0
+            ? visualdata?.ratio?.map((e) => e.label)
+            : undefined,
         colors: ["#867fa5", "#06164B", "#DDE1FF"],
         dataLabels: {
           enabled: false,
@@ -153,9 +177,13 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
           show: false,
         },
       },
-      series: visualdata?.ratio?.map((e) => e.count),
+      series:
+        visualdata?.ratio?.length > 0
+          ? visualdata?.ratio?.map((e) => e.count)
+          : undefined,
     },
   ];
+
   return (
     <VStack spacing="60px" align="stretch" px="170px" pb="60px">
       <HStack justify="space-between">
@@ -175,37 +203,39 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
         />
       </HStack>
       <HStack align="stretch" spacing={"35px"}>
-        {data?.map((chartItem) => (
-          <VStack
-            boxShadow="0px 2px 6px 2px #00000026"
-            p="4"
-            align="stretch"
-            key={chartItem?.title}
-          >
-            <Text fontSize="22px" fontWeight="400">
-              {chartItem?.title}
-            </Text>
-            <Text fontSize="16px" fontWeight="400">
-              {chartItem?.count}
-            </Text>
-            <HStack minH="313px" align="stretch">
-              {chartItem?.type === "bar" || chartItem?.type === "pie" ? (
-                <Chart
-                  options={chartItem?.options}
-                  series={chartItem?.series}
-                  type={chartItem?.type}
-                  height="300px"
-                  width="191px"
-                />
-              ) : null}
-            </HStack>
-            {chartItem?.footerText && (
-              <Text fontSize="16px" fontWeight="400">
-                {chartItem?.footerText}
+        {data?.length > 0 &&
+          data?.map((chartItem) => (
+            <VStack
+              boxShadow="0px 2px 6px 2px #00000026"
+              p="4"
+              align="stretch"
+              key={chartItem?.title}
+            >
+              <Text fontSize="22px" fontWeight="400">
+                {chartItem?.title}
               </Text>
-            )}
-          </VStack>
-        ))}
+              <Text fontSize="16px" fontWeight="400">
+                {chartItem?.count}
+              </Text>
+              <HStack minH="313px" align="stretch">
+                {(chartItem && chartItem?.type === "bar") ||
+                chartItem?.type === "pie" ? (
+                  <Chart
+                    options={chartItem?.options}
+                    series={chartItem?.series}
+                    type={chartItem?.type}
+                    height="300px"
+                    width="191px"
+                  />
+                ) : null}
+              </HStack>
+              {chartItem?.footerText && (
+                <Text fontSize="16px" fontWeight="400">
+                  {chartItem?.footerText}
+                </Text>
+              )}
+            </VStack>
+          ))}
       </HStack>
     </VStack>
   );

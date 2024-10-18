@@ -35,7 +35,7 @@ const BenefitSummary: React.FC<BenefitSummaryProps> = ({ tableData }) => {
             pt: "10",
             boxShadow: "0px 2px 6px 2px #00000026",
           }}
-          benefitData={benefits}
+          benefitData={{ benefit_summary: benefits }}
         />
         <VStack spacing="21px" align="stretch">
           <Text

@@ -70,19 +70,23 @@ const BenefitsList: React.FC<{
   useEffect(() => {
     const init = async () => {
       // Filtering data based on the selected tab (Active, Closed, Drafts)
-      const filteredTableData = benefitData?.benefit_summary?.filter((item) => {
-        switch (activeTab) {
-          case 0:
-            return item?.status === "active";
-          case 1:
-            return item.status === "closed";
-          case 2:
-            return item.status === "draft";
-          default:
-            return "No data found";
-        }
-      });
-      setData(filteredTableData as any);
+      if (benefitData?.benefit_summary) {
+        const filteredTableData = benefitData?.benefit_summary?.filter(
+          (item) => {
+            switch (activeTab) {
+              case 0:
+                return item?.status === "active";
+              case 1:
+                return item.status === "closed";
+              case 2:
+                return item.status === "draft";
+              default:
+                return "No data found";
+            }
+          }
+        );
+        setData(filteredTableData as any);
+      }
     };
     init();
   }, [activeTab, benefitData]);
@@ -115,7 +119,7 @@ const BenefitsList: React.FC<{
       </HStack>
       <Table
         columns={columns}
-        data={data}
+        data={data?.length > 0 ? data : []}
         childComponents={{
           cellText: {
             content: CustomCellText,

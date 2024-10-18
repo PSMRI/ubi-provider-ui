@@ -43,7 +43,6 @@ const KeyMetrics: React.FC<{ matricsData: MatricsData }> = ({
   matricsData,
 }) => {
   const { t } = useTranslation();
-  console.log("MatricsData===", matricsData);
   return (
     <VStack spacing="60px" align="stretch">
       <HStack justify="space-between">
