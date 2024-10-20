@@ -40,18 +40,49 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
           "#06164B",
           "#06164B",
         ],
+        chart: {
+          toolbar: {
+            show: false, // Disable the menu
+          },
+        },
         xaxis: {
           categories: visualRepresentation?.applicantsDisbursals?.map(
             (e) => e.label
           ),
+          labels: {
+            show: false, // Hide x-axis labels
+          },
+          title: {
+            text: "Weeks",
+          },
+        },
+        yaxis: {
+          labels: {
+            show: false, // Hide x-axis labels
+          },
+          title: {
+            text: "Percentage",
+          },
         },
         dataLabels: {
           enabled: true,
           formatter: function (val: any) {
             return val + "%";
           },
+          style: {
+            colors: ["#000"], // Set the color of the labels
+          },
+          offsetY: -20, // Adjust the position above the bar
+        },
+        plotOptions: {
+          bar: {
+            dataLabels: {
+              position: "top", // Show the data labels on top of the bars
+            },
+          },
         },
       },
+
       series: [
         {
           name: "Percentage",
@@ -205,12 +236,7 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
       <HStack align="stretch" spacing={"35px"}>
         {data?.length > 0 &&
           data?.map((chartItem) => (
-            <VStack
-              boxShadow="0px 2px 6px 2px #00000026"
-              p="4"
-              align="stretch"
-              key={chartItem?.title}
-            >
+            <VStack p="4" align="stretch" key={chartItem?.title}>
               <Text fontSize="22px" fontWeight="400">
                 {chartItem?.title}
               </Text>

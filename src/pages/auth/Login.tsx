@@ -17,6 +17,7 @@ import React from "react";
 import { LoginProvider } from "../../services/auth";
 import Loading from "../../components/common_components/Loading";
 import ModalShow from "../../components/common/modal/ModalShow";
+import AlertMessage from "../../components/common/modal/AlertMessage";
 export default function Login() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -24,16 +25,32 @@ export default function Login() {
   const [email, setEmail] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [open, setOpen] = React.useState(false);
+  const [showAlert, setShowAlert] = React.useState(false);
+  const [message, setMessage] = React.useState("");
+
   const handleLogin = async () => {
     setIsLoading(true);
     localStorage.setItem("Email", email);
-    const loginResponse = await LoginProvider(email);
-    if (loginResponse) {
+    try {
+      const loginResponse = await LoginProvider(email);
+      if (loginResponse) {
+        setIsLoading(false);
+        navigate("/otp", { state: { fromPage: "login" } });
+      } else {
+        setIsLoading(false);
+        setMessage("Please contact admin!");
+        setShowAlert(true);
+      }
+    } catch (err) {
       setIsLoading(false);
-      navigate("/otp", { state: { fromPage: "login" } });
+      setMessage(err as string);
+      setShowAlert(true);
     }
   };
 
+  const handleCloseAlertModal = () => {
+    setShowAlert(false);
+  };
   const handleCloseModal = () => {
     setOpen(false);
     setIsChecked(true);
@@ -158,6 +175,13 @@ export default function Login() {
       )}
 
       {open && <ModalShow show={open} close={handleCloseModal} />}
+      {showAlert && (
+        <AlertMessage
+          message={message}
+          show={showAlert}
+          close={handleCloseAlertModal}
+        />
+      )}
     </Layout>
   );
 }

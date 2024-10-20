@@ -6,9 +6,13 @@ import KeyMatrics from "./KeyMatrics";
 import React from "react";
 import { applicationOverview } from "../../services/dashboard";
 import Loading from "../../components/common_components/Loading";
+import AlertMessage from "../../components/common/modal/AlertMessage";
 function Dashboard() {
   const [data, setData] = React.useState<any>(null);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [showAlert, setShowAlert] = React.useState(false);
+  const [message, setMessage] = React.useState("");
+
   React.useEffect(() => {
     const userId = localStorage.getItem("user"); // Retrieve the user data from localStorage
     const fetchData = async () => {
@@ -23,15 +27,23 @@ function Dashboard() {
           setIsLoading(false);
           setData(response);
         } else {
-          console.log("No user data found.");
+          setIsLoading(false);
+          setMessage("No user data found!");
+          setShowAlert(true);
         }
       } catch (err) {
         console.log(err);
+        setIsLoading(false);
+        setMessage(err as string);
+        setShowAlert(true);
       }
     };
 
     fetchData();
   }, []);
+  const handleCloseAlertModal = () => {
+    setShowAlert(false);
+  };
 
   return (
     <Layout
@@ -46,6 +58,13 @@ function Dashboard() {
         <BenefitSummary tableData={data} />
         <CommonBarChart chartData={data} />
       </VStack>
+      {showAlert && (
+        <AlertMessage
+          message={message}
+          show={showAlert}
+          close={handleCloseAlertModal}
+        />
+      )}
     </Layout>
   );
 }

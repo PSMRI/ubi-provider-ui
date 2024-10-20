@@ -17,6 +17,7 @@ import LeftSideBar from "../../components/common/login/LeftSideBar";
 import { registerProvider } from "../../services/auth";
 import Loading from "../../components/common_components/Loading";
 import ModalShow from "../../components/common/modal/ModalShow";
+import AlertMessage from "../../components/common/modal/AlertMessage";
 export default function UserRegister() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -25,15 +26,29 @@ export default function UserRegister() {
   const [email, setEmail] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [open, setOpen] = React.useState(false);
-
+  const [showAlert, setShowAlert] = React.useState(false);
+  const [message, setMessage] = React.useState("");
   const handleRegister = async () => {
     localStorage.setItem("Email", email);
     setIsLoading(true);
-    const registerResponse = await registerProvider(name, email);
-    setIsLoading(false);
-    if (registerResponse) {
-      navigate("/otp", { state: { fromPage: "registration" } });
+    try {
+      const registerResponse = await registerProvider(name, email);
+      setIsLoading(false);
+      if (registerResponse) {
+        navigate("/otp", { state: { fromPage: "registration" } });
+      } else {
+        setIsLoading(false);
+        setMessage("Please contact admin!");
+        setShowAlert(true);
+      }
+    } catch (err) {
+      setIsLoading(false);
+      setMessage(err as string);
+      setShowAlert(true);
     }
+  };
+  const handleCloseAlertModal = () => {
+    setShowAlert(false);
   };
   const handleCloseModal = () => {
     setOpen(false);
@@ -138,6 +153,13 @@ export default function UserRegister() {
         </HStack>
       )}
       {open && <ModalShow show={open} close={handleCloseModal} />}
+      {showAlert && (
+        <AlertMessage
+          message={message}
+          show={showAlert}
+          close={handleCloseAlertModal}
+        />
+      )}
     </Layout>
   );
 }

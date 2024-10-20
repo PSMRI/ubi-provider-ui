@@ -13,14 +13,7 @@ const CommonCard: React.FC<CommonCardProps> = ({
   totalDisbursed,
 }) => {
   return (
-    <VStack
-      align="stretch"
-      p="5"
-      rounded="6"
-      boxShadow="md"
-      bg="#f8f8f8"
-      spacing="3"
-    >
+    <VStack align="stretch" p="5" rounded="6" bg="#f8f8f8" spacing="3">
       <Text fontSize="16px" fontWeight="bold">
         {title}
       </Text>
