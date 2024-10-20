@@ -100,7 +100,9 @@ const Header: React.FC<HeaderProps> = ({
             alt="Logo"
             style={{ width: "40px", marginRight: "8px" }}
           />
-          <Text color="#484848">{t("HEADER_COMPANY_NAME")}</Text>
+          <Text color="#484848" fontWeight={500} fontSize={"28px"}>
+            {t("HEADER_COMPANY_NAME")}
+          </Text>
         </HStack>
 
         {/* Right Section: Menu, Search Bar, and Language Bar */}

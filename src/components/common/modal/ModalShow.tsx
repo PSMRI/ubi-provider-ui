@@ -5,7 +5,6 @@ import {
   ModalHeader,
   ModalFooter,
   ModalBody,
-  ModalCloseButton,
   Button,
   OrderedList,
   ListItem,
@@ -19,7 +18,6 @@ const ModalShow = ({ show, close }: { show: boolean; close: () => void }) => {
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Terms & Conditions</ModalHeader>
-        <ModalCloseButton />
         <ModalBody>
           <OrderedList spacing={3}>
             <ListItem>

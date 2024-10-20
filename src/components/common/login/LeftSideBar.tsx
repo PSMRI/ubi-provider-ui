@@ -10,6 +10,8 @@ export default function LeftSideBar() {
       backgroundColor={"#121943"}
       align={"center"}
       justify={"center"}
+      h="100%" // Take full height
+      overflow="hidden" // Prevent overflows
     >
       <HStack>
         <Image src={Logo} />
@@ -25,8 +27,9 @@ export default function LeftSideBar() {
           <Text
             fontSize="16px"
             fontWeight="400"
-            color={"white"}
+            color={"#000000"}
             textAlign="left"
+            bg={"#D9D9D980"}
           >
             {t("LOGIN_RIGHT_TEXT_H2")}
           </Text>
