@@ -28,7 +28,7 @@ export default function UserRegister() {
   const [open, setOpen] = React.useState(false);
   const [showAlert, setShowAlert] = React.useState(false);
   const [message, setMessage] = React.useState("");
-  const [showTooltip, setTooltip] = React.useState(false);
+  const [showTooltip, setShowTooltip] = React.useState(false);
 
   const handleRegister = async () => {
     localStorage.setItem("Email", email);
@@ -124,14 +124,14 @@ export default function UserRegister() {
                   </HStack>
                   <Tooltip
                     isOpen={showTooltip}
-                    onClose={() => setTooltip(false)}
+                    onClose={() => setShowTooltip(false)}
                     label="Please click on Terms and Condition Link"
                     placement="top"
                   >
                     <Checkbox
                       isChecked={isChecked}
-                      onMouseEnter={() => setTooltip(true)}
-                      onMouseLeave={() => setTooltip(false)}
+                      onMouseEnter={() => setShowTooltip(true)}
+                      onMouseLeave={() => setShowTooltip(false)}
                     >
                       <Text fontSize={"16px"} fontWeight={400}>
                         {t("LOGIN_AGREE")}

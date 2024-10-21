@@ -77,7 +77,7 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
           },
           style: {
             colors: ["#000"], // Set the color of the labels
-            fontSize: "10px",
+            fontSize: "10px", // font size 10
           },
           offsetY: -20, // Adjust the position above the bar
         },

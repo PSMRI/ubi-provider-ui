@@ -65,8 +65,7 @@ export default function OTP() {
           setIsLoading(false);
           localStorage.setItem("token", "true");
           localStorage.setItem("user", JSON.stringify(registerResponse?.user));
-          window.location.reload();
-          navigate("/");
+          navigate("0");
         } else {
           setIsLoading(false);
           setMessage("Please contact admin!");
@@ -85,8 +84,7 @@ export default function OTP() {
           localStorage.setItem("token", "true");
           setIsLoading(false);
           localStorage.setItem("user", JSON.stringify(otpLoginResponse?.user));
-          window.location.reload();
-          navigate("/");
+          navigate("0");
         } else {
           setIsLoading(false);
           setMessage("Please contact admin!");

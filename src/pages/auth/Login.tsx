@@ -27,7 +27,7 @@ export default function Login() {
   const [open, setOpen] = React.useState(false);
   const [showAlert, setShowAlert] = React.useState(false);
   const [message, setMessage] = React.useState("");
-  const [showTooltip, setTooltip] = React.useState(false);
+  const [showTooltip, setTooltip] = React.useState(false); // conficts
   const handleLogin = async () => {
     setIsLoading(true);
     localStorage.setItem("Email", email);
