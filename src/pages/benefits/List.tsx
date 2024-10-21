@@ -28,6 +28,7 @@ interface Sponsor {
 }
 
 interface DetailData {
+  id: string;
   sponsors: Sponsor[];
   price: number;
   benefit: any[]; // Define this more specifically if you have a better shape
@@ -107,6 +108,7 @@ const DetailsRow = ({ detailData }: { detailData: any }) => {
             <b>{detailData?.sponsors.length}</b>
           </Text>
           <Chart
+            key={detailData?.id}
             options={(chartData?.options as any) || {}}
             series={chartData?.series || []}
             type="pie"
@@ -146,7 +148,7 @@ const ActionCell = ({
   const fetchRowDetails = async (id: string) => {
     try {
       const response = await detailViewRow(id);
-      setDetailData(response?.benefit || {});
+      setDetailData(response?.benefit || null);
       console.log("Fetched row details:", response);
       // Handle API response (update UI or state with the response)
     } catch (error) {
@@ -205,7 +207,7 @@ const BenefitsList: React.FC<{
 }> = memo(({ _vstack, benefitData }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [data, setData] = useState([]);
-  const [detailData, setDetailData] = useState<DetailData | null>(null);
+  const [detailData, setDetailData] = useState<DetailData[]>([]);
   useEffect(() => {
     const init = async () => {
       // Filtering data based on the selected tab (Active, Closed, Drafts)
@@ -233,7 +235,11 @@ const BenefitsList: React.FC<{
   const handleTabClick = (tab: string) => {
     setActiveTab(parseInt(tab, 10));
   };
-
+  const handelDetailData = (data: DetailData) => {
+    setDetailData(
+      detailData ? ([...detailData, data] as DetailData[]) : [data]
+    );
+  };
   const CustomCellText = (props: ICellTextProps) => {
     switch (props.column.key) {
       case "deadline":
@@ -243,7 +249,7 @@ const BenefitsList: React.FC<{
           <ActionCell
             {...(props as any)}
             rowData={props}
-            setDetailData={setDetailData}
+            setDetailData={handelDetailData}
           />
         );
     }
@@ -280,9 +286,17 @@ const BenefitsList: React.FC<{
             content: CustomCellText,
           },
           detailsRow: {
-            content: (props: any) => (
-              <DetailsRow {...props} detailData={detailData} />
-            ),
+            content: (props: any) => {
+              return (
+                <DetailsRow
+                  {...props}
+                  detailData={
+                    detailData.find((item) => item.id === props.rowData.id) ||
+                    null
+                  }
+                />
+              );
+            },
           },
         }}
       />
