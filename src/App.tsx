@@ -11,6 +11,7 @@ const theme = extendTheme(customTheme);
 
 initializeI18n("local"); // Initialize i18n with default language
 function App() {
+  const [loading, setLoading] = useState(true);
   const [routes, setRoutes] = useState<
     { path: string; component: React.ElementType }[]
   >([]);
@@ -22,7 +23,12 @@ function App() {
     } else {
       setRoutes(guestRoutes);
     }
+    setLoading(false);
   }, []);
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <ChakraProvider theme={theme}>

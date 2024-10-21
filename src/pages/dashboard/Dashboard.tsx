@@ -53,7 +53,7 @@ function Dashboard() {
       showLanguage={false}
     >
       {isLoading && <Loading />}
-      <VStack gap="60px" py="60px">
+      <VStack gap="60px" py="60px" overflowX={"hidden"}>
         <KeyMatrics matricsData={data} />
         <BenefitSummary tableData={data} />
         <CommonBarChart chartData={data} />

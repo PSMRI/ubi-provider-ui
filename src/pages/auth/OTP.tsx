@@ -65,8 +65,8 @@ export default function OTP() {
           setIsLoading(false);
           localStorage.setItem("token", "true");
           localStorage.setItem("user", JSON.stringify(registerResponse?.user));
-          navigate("/");
           window.location.reload();
+          navigate("/");
         } else {
           setIsLoading(false);
           setMessage("Please contact admin!");
@@ -85,8 +85,8 @@ export default function OTP() {
           localStorage.setItem("token", "true");
           setIsLoading(false);
           localStorage.setItem("user", JSON.stringify(otpLoginResponse?.user));
-          navigate("/");
           window.location.reload();
+          navigate("/");
         } else {
           setIsLoading(false);
           setMessage("Please contact admin!");
@@ -108,7 +108,7 @@ export default function OTP() {
       {isLoading ? (
         <Loading />
       ) : (
-        <HStack w="full" h="lg" spacing={8} align="stretch">
+        <HStack w="full" h="88vh" spacing={8} align="stretch">
           <LeftSideBar />
           <VStack p={8} flex={1} align={"center"} justify={"center"}>
             <Stack spacing={4} w={"full"}>

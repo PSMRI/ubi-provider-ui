@@ -27,7 +27,7 @@ export default function Login() {
   const [open, setOpen] = React.useState(false);
   const [showAlert, setShowAlert] = React.useState(false);
   const [message, setMessage] = React.useState("");
-
+  const [showTooltip, setTooltip] = React.useState(false);
   const handleLogin = async () => {
     setIsLoading(true);
     localStorage.setItem("Email", email);
@@ -129,9 +129,15 @@ export default function Login() {
                   <HStack marginLeft={"24px"}>
                     <Tooltip
                       label="Please click on Terms and Condition Link"
+                      isOpen={showTooltip}
+                      onClose={() => setTooltip(false)}
                       placement="top"
                     >
-                      <Checkbox isChecked={isChecked}>
+                      <Checkbox
+                        isChecked={isChecked}
+                        onMouseEnter={() => setTooltip(true)}
+                        onMouseLeave={() => setTooltip(false)}
+                      >
                         <Text
                           fontSize={"16px"}
                           fontWeight={400}

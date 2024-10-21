@@ -14,9 +14,10 @@ export const visualRepresentation = {
   applicantsDisbursals: Array.from(
     { length: 7 },
     (_, i) => ({
-      label: new Date(Date.now() + i * 24 * 60 * 60 * 1000)
-        .toLocaleString("en-us", { weekday: "short" })
-        .slice(0, 2),
+      label: new Date(Date.now() + i * 24 * 60 * 60 * 1000).toLocaleString(
+        "en-us",
+        { weekday: "long" }
+      ),
       count: Math.floor(Math.random() * 100),
     }) // Extract the first 2 letters
   ),

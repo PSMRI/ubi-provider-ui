@@ -14,6 +14,7 @@ interface VisualData {
   gender: DataItem[];
   caste: DataItem[];
   ratio: DataItem[];
+  standard: DataItem[];
 }
 
 interface ChartData {
@@ -25,6 +26,11 @@ interface ChartData {
 const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
   const { t } = useTranslation();
   const visualdata = chartData?.visualData;
+  console.log(
+    visualdata?.standard?.length > 0
+      ? visualdata?.standard?.reduce((acc, item) => acc + item.count, 0)
+      : 0
+  );
   // Pie chart data
   const data = [
     {
@@ -71,6 +77,7 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
           },
           style: {
             colors: ["#000"], // Set the color of the labels
+            fontSize: "10px",
           },
           offsetY: -20, // Adjust the position above the bar
         },
@@ -158,11 +165,17 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
     },
     {
       title: "Breakdown by Level of Study",
-      count: "547",
+      count:
+        visualdata?.standard?.length > 0
+          ? visualdata?.standard?.reduce((acc, item) => acc + item.count, 0)
+          : 0,
       footerText: "Standard",
       type: "pie",
       options: {
-        labels: visualRepresentation?.age?.map((e) => e.label),
+        labels:
+          visualdata?.standard?.length > 0
+            ? visualdata?.standard?.map((e) => e.label)
+            : [],
         colors: ["#867fa5", "#06164B", "#DDE1FF"],
         dataLabels: {
           enabled: false,
@@ -178,7 +191,10 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
           },
         },
       },
-      series: visualRepresentation?.age?.map((e) => e.count),
+      series:
+        visualdata?.standard?.length > 0
+          ? visualdata?.standard?.map((e) => e.count)
+          : [],
     },
     {
       title: "Day Scholar / Hostler Ratio",
