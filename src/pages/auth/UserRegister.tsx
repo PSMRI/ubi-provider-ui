@@ -29,7 +29,7 @@ export default function UserRegister() {
   const [showAlert, setShowAlert] = React.useState(false);
   const [message, setMessage] = React.useState("");
   const [showTooltip, setTooltip] = React.useState(false);
-
+  //resolve conflicts
   const handleRegister = async () => {
     localStorage.setItem("Email", email);
     setIsLoading(true);

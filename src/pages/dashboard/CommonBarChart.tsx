@@ -22,7 +22,7 @@ interface ChartData {
     visualData: VisualData;
   };
 }
-
+//resolve conflicts
 const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
   const { t } = useTranslation();
   const visualdata = chartData?.visualData;

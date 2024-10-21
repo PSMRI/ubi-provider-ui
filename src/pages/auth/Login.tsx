@@ -19,6 +19,7 @@ import Loading from "../../components/common_components/Loading";
 import ModalShow from "../../components/common/modal/ModalShow";
 import AlertMessage from "../../components/common/modal/AlertMessage";
 export default function Login() {
+  //resolve conflicts
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [isChecked, setIsChecked] = React.useState(false);
