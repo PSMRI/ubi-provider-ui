@@ -32,7 +32,7 @@ export default function Login() {
         navigate("/otp", { state: { fromPage: "login" } });
       } else {
         setIsLoading(false);
-        setMessage("Provider with this email does not exist, try registering");
+        setMessage(t("LOGIN_ERROR"));
         setShowAlert(true);
       }
     } catch (err) {

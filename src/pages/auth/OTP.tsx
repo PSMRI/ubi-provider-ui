@@ -67,7 +67,7 @@ export default function OTP() {
           navigate(0); //string to number
         } else {
           setIsLoading(false);
-          setMessage("Please enter correct OTP!");
+          setMessage(t("OTP_ERROR"));
           setShowAlert(true);
         }
       } catch (err) {
@@ -86,7 +86,7 @@ export default function OTP() {
           navigate(0); //string to number
         } else {
           setIsLoading(false);
-          setMessage("Please enter correct OTP!");
+          setMessage(t("OTP_ERROR"));
           setShowAlert(true);
         }
       } catch (err) {

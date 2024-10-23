@@ -150,10 +150,14 @@ const BenefitsList: React.FC<{
   const handleTabClick = (tab: string) => {
     setActiveTab(parseInt(tab, 10));
   };
-  const handelDetailData = (data: DetailData) => {
-    setDetailData(
-      detailData ? ([...detailData, data] as DetailData[]) : [data]
-    );
+  const handleDetailData = (data: DetailData) => {
+    setDetailData((prevData) => {
+      const exists = prevData.some((item) => item.id === data.id);
+      if (exists) {
+        return prevData.map((item) => (item.id === data.id ? data : item));
+      }
+      return [...prevData, data];
+    });
   };
   const detailRowdata = (props: any) =>
     detailData?.find((item) => item?.id === props?.rowData.id) || null;
@@ -186,7 +190,7 @@ const BenefitsList: React.FC<{
         childComponents={{
           cellText: {
             content: (props: ICellTextProps) =>
-              customCellText(props, handelDetailData),
+              customCellText(props, handleDetailData),
           },
           detailsRow: {
             content: (props: any) =>
@@ -202,7 +206,7 @@ export default BenefitsList;
 
 const customCellText = (
   props: ICellTextProps,
-  handelDetailData: (data: DetailData) => void
+  handleDetailData: (data: DetailData) => void
 ) => {
   switch (props.column.key) {
     case "deadline":
@@ -212,9 +216,11 @@ const customCellText = (
         <ActionCell
           {...(props as any)}
           rowData={props}
-          setDetailData={handelDetailData}
+          setDetailData={handleDetailData}
         />
       );
+    default:
+      return props.value;
   }
 };
 
