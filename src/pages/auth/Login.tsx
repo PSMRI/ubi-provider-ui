@@ -1,33 +1,27 @@
+import { useState } from "react";
 import {
   Button,
-  Checkbox,
   FormControl,
   HStack,
   Input,
   Stack,
   Text,
   VStack,
-  Tooltip,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Layout from "../../components/layout/Layout";
 import LeftSideBar from "../../components/common/login/LeftSideBar";
-import React from "react";
 import { LoginProvider } from "../../services/auth";
 import Loading from "../../components/common_components/Loading";
-import ModalShow from "../../components/common/modal/ModalShow";
 import AlertMessage from "../../components/common/modal/AlertMessage";
 export default function Login() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [isChecked, setIsChecked] = React.useState(false);
-  const [email, setEmail] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [open, setOpen] = React.useState(false);
-  const [showAlert, setShowAlert] = React.useState(false);
-  const [message, setMessage] = React.useState("");
-  const [showTooltip, setTooltip] = React.useState(false); // conficts
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [message, setMessage] = useState("");
   const handleLogin = async () => {
     setIsLoading(true);
     localStorage.setItem("Email", email);
@@ -38,7 +32,7 @@ export default function Login() {
         navigate("/otp", { state: { fromPage: "login" } });
       } else {
         setIsLoading(false);
-        setMessage("Please contact admin!");
+        setMessage("Provider with this email does not exist, try registering");
         setShowAlert(true);
       }
     } catch (err) {
@@ -51,10 +45,7 @@ export default function Login() {
   const handleCloseAlertModal = () => {
     setShowAlert(false);
   };
-  const handleCloseModal = () => {
-    setOpen(false);
-    setIsChecked(true);
-  };
+
   return (
     <Layout showMenu={false} showSearchBar={false} showLanguage={true}>
       {isLoading ? (
@@ -98,63 +89,11 @@ export default function Login() {
               </FormControl>
 
               <Stack spacing={6}>
-                <Stack
-                  direction={{ base: "column", sm: "column" }}
-                  align={"start"}
-                  justify={"space-between"}
-                  mt={6}
-                >
-                  <HStack marginBottom={"14px"}>
-                    <Text fontSize={"16px"} fontWeight={400}>
-                      {t("LOGIN_TERMS_ACCEPT")}
-                    </Text>
-                    <Text
-                      fontSize={"16px"}
-                      fontWeight={400}
-                      color={"#0037b9"}
-                      textUnderlineOffset={"1px"}
-                    >
-                      <Link
-                        to="#"
-                        className="custom-link"
-                        onClick={() => setOpen(true)}
-                      >
-                        {t("LOGIN_TERMS")}
-                      </Link>{" "}
-                    </Text>
-                    <Text fontSize={"16px"} fontWeight={400}>
-                      {t("LOGIN_TERMS_ACCEPT_PROCEED")}
-                    </Text>
-                  </HStack>
-                  <HStack marginLeft={"24px"}>
-                    <Tooltip
-                      label="Please click on Terms and Condition Link"
-                      isOpen={showTooltip}
-                      onClose={() => setTooltip(false)}
-                      placement="top"
-                    >
-                      <Checkbox
-                        isChecked={isChecked}
-                        onMouseEnter={() => setTooltip(true)}
-                        onMouseLeave={() => setTooltip(false)}
-                      >
-                        <Text
-                          fontSize={"16px"}
-                          fontWeight={400}
-                          //
-                          // marginLeft={"24px"}
-                        >
-                          {t("LOGIN_AGREE")}
-                        </Text>
-                      </Checkbox>
-                    </Tooltip>
-                  </HStack>
-                </Stack>
                 <Button
                   colorScheme={"blue"}
                   variant={"solid"}
                   borderRadius={"100px"}
-                  isDisabled={!isChecked || email === ""}
+                  isDisabled={email === ""}
                   onClick={handleLogin}
                 >
                   <Text fontSize={"14px"} fontWeight={400}>
@@ -180,7 +119,6 @@ export default function Login() {
         </HStack>
       )}
 
-      {open && <ModalShow show={open} close={handleCloseModal} />}
       {showAlert && (
         <AlertMessage
           message={message}

@@ -1,9 +1,4 @@
-import {
-  ChevronRightIcon,
-  EditIcon,
-  SearchIcon,
-  SmallAddIcon,
-} from "@chakra-ui/icons";
+import { ChevronRightIcon, EditIcon, SearchIcon } from "@chakra-ui/icons";
 import {
   HStack,
   IconButton,
@@ -19,8 +14,8 @@ import { DataType } from "ka-table/enums";
 import { ICellTextProps } from "ka-table/props";
 import React, { memo, useEffect, useState } from "react";
 import { useTableInstance } from "ka-table";
-import Chart from "react-apexcharts";
-import { detailViewRow, formatDate } from "../../services/dashboard";
+import { detailViewRow } from "../../services/dashboard";
+import DetailsRow from "./DetailsRow";
 
 interface Sponsor {
   sponsor_name: string;
@@ -28,6 +23,7 @@ interface Sponsor {
 }
 
 interface DetailData {
+  id: string;
   sponsors: Sponsor[];
   price: number;
   benefit: any[]; // Define this more specifically if you have a better shape
@@ -51,90 +47,6 @@ const columns = [
   },
 ];
 
-const DetailsRow = ({ detailData }: { detailData: any }) => {
-  interface ChartData {
-    options: {
-      labels: string[];
-      colors: string[];
-      dataLabels: {
-        enabled: boolean;
-      };
-      legend: {
-        position: string;
-        horizontalAlign: string;
-      };
-      plotOptions: {
-        pie: {
-          startAngle: number;
-        };
-      };
-    };
-    series: number[];
-  }
-
-  const [chartData, setChartData] = useState<ChartData | null>(null);
-
-  // Pie chart data
-  useEffect(() => {
-    if (detailData?.sponsors) {
-      setChartData({
-        options: {
-          labels: detailData?.sponsors?.map((e: Sponsor) => e.sponsor_name),
-          colors: ["#06164B", "#DDE1FF"],
-          dataLabels: {
-            enabled: true,
-          },
-          legend: {
-            position: "bottom",
-            horizontalAlign: "left",
-          },
-          plotOptions: { pie: { startAngle: 45 } },
-        },
-        series: detailData?.sponsors.map((e: Sponsor) => e.share_percent),
-      });
-    }
-  }, [detailData]);
-
-  return (
-    <HStack align="stretch" spacing={"60px"}>
-      <VStack spacing={"60px"} align="start">
-        <VStack bg="#F8F8F8" p="5" align="stretch" flex="1">
-          <Text fontSize="16px" fontWeight="400">
-            Total Budget: <b>₹ {detailData?.price}</b>
-          </Text>
-          <Text fontSize="16px" fontWeight="400">
-            {"Number of Sponsors: "}
-            <b>{detailData?.sponsors.length}</b>
-          </Text>
-          <Chart
-            options={(chartData?.options as any) || {}}
-            series={chartData?.series || []}
-            type="pie"
-            width="300"
-          />
-        </VStack>
-      </VStack>
-
-      <VStack spacing={"60px"} align="start">
-        <VStack bg="#F8F8F8" p="5" align="stretch" flex="1">
-          <Text fontSize={"14px"} fontWeight={"400px"}>
-            Deadines
-          </Text>
-          <Text fontSize={"12px"} fontWeight={"400px"}>
-            Current Deadline:
-            <p>{formatDate(detailData?.application_deadline)}</p>
-            <HStack spacing={2} alignItems="flex-start">
-              <Text fontSize={"14px"} fontWeight="500px" color={"#0037B9"}>
-                <SmallAddIcon color={"#0037B9"} /> Extend Deadline
-              </Text>
-            </HStack>
-          </Text>
-        </VStack>
-      </VStack>
-    </HStack>
-  );
-};
-
 const ActionCell = ({
   rowKeyValue,
   isDetailsRowShown,
@@ -146,7 +58,7 @@ const ActionCell = ({
   const fetchRowDetails = async (id: string) => {
     try {
       const response = await detailViewRow(id);
-      setDetailData(response?.benefit || {});
+      setDetailData(response?.benefit || null);
       console.log("Fetched row details:", response);
       // Handle API response (update UI or state with the response)
     } catch (error) {
@@ -205,7 +117,7 @@ const BenefitsList: React.FC<{
 }> = memo(({ _vstack, benefitData }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [data, setData] = useState([]);
-  const [detailData, setDetailData] = useState<DetailData | null>(null);
+  const [detailData, setDetailData] = useState<DetailData[]>([]);
   useEffect(() => {
     const init = async () => {
       // Filtering data based on the selected tab (Active, Closed, Drafts)
@@ -233,20 +145,10 @@ const BenefitsList: React.FC<{
   const handleTabClick = (tab: string) => {
     setActiveTab(parseInt(tab, 10));
   };
-
-  const CustomCellText = (props: ICellTextProps) => {
-    switch (props.column.key) {
-      case "deadline":
-        return <DeadLineCell {...props} />;
-      case "actions":
-        return (
-          <ActionCell
-            {...(props as any)}
-            rowData={props}
-            setDetailData={setDetailData}
-          />
-        );
-    }
+  const handelDetailData = (data: DetailData) => {
+    setDetailData(
+      detailData ? ([...detailData, data] as DetailData[]) : [data]
+    );
   };
 
   return (
@@ -277,12 +179,21 @@ const BenefitsList: React.FC<{
         rowKeyField={"id"}
         childComponents={{
           cellText: {
-            content: CustomCellText,
+            content: (props: ICellTextProps) =>
+              customCellText(props, handelDetailData),
           },
           detailsRow: {
-            content: (props: any) => (
-              <DetailsRow {...props} detailData={detailData} />
-            ),
+            content: (props: any) => {
+              return (
+                <DetailsRow
+                  {...props}
+                  detailData={
+                    detailData.find((item) => item.id === props.rowData.id) ||
+                    null
+                  }
+                />
+              );
+            },
           },
         }}
       />
@@ -291,3 +202,21 @@ const BenefitsList: React.FC<{
 });
 
 export default BenefitsList;
+
+const customCellText = (
+  props: ICellTextProps,
+  handelDetailData: (data: DetailData) => void
+) => {
+  switch (props.column.key) {
+    case "deadline":
+      return <DeadLineCell {...props} />;
+    case "actions":
+      return (
+        <ActionCell
+          {...(props as any)}
+          rowData={props}
+          setDetailData={handelDetailData}
+        />
+      );
+  }
+};

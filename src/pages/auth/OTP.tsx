@@ -10,13 +10,12 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 
 import Layout from "../../components/layout/Layout";
 import LeftSideBar from "../../components/common/login/LeftSideBar";
 import { sendOTP, userRegister } from "../../services/auth";
 import Loading from "../../components/common_components/Loading";
-import { Link } from "react-router-dom";
 import AlertMessage from "../../components/common/modal/AlertMessage";
 
 export default function OTP() {
@@ -68,7 +67,7 @@ export default function OTP() {
           navigate(0); //string to number
         } else {
           setIsLoading(false);
-          setMessage("Please contact admin!");
+          setMessage("Please enter correct OTP!");
           setShowAlert(true);
         }
       } catch (err) {
@@ -87,7 +86,7 @@ export default function OTP() {
           navigate(0); //string to number
         } else {
           setIsLoading(false);
-          setMessage("Please contact admin!");
+          setMessage("Please enter correct OTP!");
           setShowAlert(true);
         }
       } catch (err) {
