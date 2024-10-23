@@ -1,4 +1,9 @@
-import { ChevronRightIcon, EditIcon, SearchIcon } from "@chakra-ui/icons";
+import {
+  ChevronRightIcon,
+  EditIcon,
+  SearchIcon,
+  SmallAddIcon,
+} from "@chakra-ui/icons";
 import {
   HStack,
   IconButton,
@@ -14,8 +19,8 @@ import { DataType } from "ka-table/enums";
 import { ICellTextProps } from "ka-table/props";
 import React, { memo, useEffect, useState } from "react";
 import { useTableInstance } from "ka-table";
-import { detailViewRow } from "../../services/dashboard";
-import DetailsRow from "./DetailsRow";
+import { detailViewRow, formatDate } from "../../services/dashboard";
+import Chart from "react-apexcharts";
 
 interface Sponsor {
   sponsor_name: string;
@@ -150,7 +155,8 @@ const BenefitsList: React.FC<{
       detailData ? ([...detailData, data] as DetailData[]) : [data]
     );
   };
-
+  const detailRowdata = (props: any) =>
+    detailData?.find((item) => item?.id === props?.rowData.id) || null;
   return (
     <VStack spacing="20px" align="stretch" {..._vstack}>
       <HStack justifyContent="space-between">
@@ -183,17 +189,8 @@ const BenefitsList: React.FC<{
               customCellText(props, handelDetailData),
           },
           detailsRow: {
-            content: (props: any) => {
-              return (
-                <DetailsRow
-                  {...props}
-                  detailData={
-                    detailData.find((item) => item.id === props.rowData.id) ||
-                    null
-                  }
-                />
-              );
-            },
+            content: (props: any) =>
+              detailsRow({ detailData: detailRowdata(props) }),
           },
         }}
       />
@@ -219,4 +216,63 @@ const customCellText = (
         />
       );
   }
+};
+
+const detailsRow = ({ detailData }: { detailData: any }) => {
+  // Pie chart data
+
+  const chartData = {
+    options: {
+      labels: detailData?.sponsors?.map((e: Sponsor) => e.sponsor_name),
+      colors: ["#06164B", "#DDE1FF"],
+      dataLabels: {
+        enabled: true,
+      },
+      legend: {
+        position: "bottom",
+        horizontalAlign: "left",
+      },
+      plotOptions: { pie: { startAngle: 45 } },
+    },
+    series: detailData?.sponsors.map((e: Sponsor) => e.share_percent),
+  };
+
+  return (
+    <HStack align="stretch" spacing={"60px"}>
+      <VStack spacing={"60px"} align="start">
+        <VStack bg="#F8F8F8" p="5" align="stretch" flex="1">
+          <Text fontSize="16px" fontWeight="400">
+            Total Budget: <b>₹ {detailData?.price}</b>
+          </Text>
+          <Text fontSize="16px" fontWeight="400">
+            {"Number of Sponsors: "}
+            <b>{detailData?.sponsors.length}</b>
+          </Text>
+          <Chart
+            options={(chartData?.options as any) || {}}
+            series={chartData?.series || []}
+            type="pie"
+            width="300"
+          />
+        </VStack>
+      </VStack>
+
+      <VStack spacing={"60px"} align="start">
+        <VStack bg="#F8F8F8" p="5" align="stretch" flex="1">
+          <Text fontSize={"14px"} fontWeight={"400px"}>
+            Deadines
+          </Text>
+          <Text fontSize={"12px"} fontWeight={"400px"}>
+            Current Deadline:
+            <p>{formatDate(detailData?.application_deadline)}</p>
+            <HStack spacing={2} alignItems="flex-start">
+              <Text fontSize={"14px"} fontWeight="500px" color={"#0037B9"}>
+                <SmallAddIcon color={"#0037B9"} /> Extend Deadline
+              </Text>
+            </HStack>
+          </Text>
+        </VStack>
+      </VStack>
+    </HStack>
+  );
 };
