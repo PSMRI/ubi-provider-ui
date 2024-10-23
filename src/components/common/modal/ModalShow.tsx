@@ -14,11 +14,11 @@ import { useTranslation } from "react-i18next";
 const ModalShow = ({ show, close }: { show: boolean; close: () => void }) => {
   const { t } = useTranslation();
   return (
-    <Modal isOpen={show} onClose={close} size="xl">
+    <Modal isOpen={show} onClose={close} size="xl" closeOnOverlayClick={false}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Terms & Conditions</ModalHeader>
-        <ModalBody>
+        <ModalBody maxHeight="400px" overflowY="auto">
           <OrderedList spacing={3}>
             <ListItem>
               Accuracy of Information
@@ -62,7 +62,7 @@ const ModalShow = ({ show, close }: { show: boolean; close: () => void }) => {
 
         <ModalFooter>
           <Button colorScheme="blue" mr={3} onClick={close}>
-            Accept
+            {t("TERMS_ACCEPT")}
           </Button>
         </ModalFooter>
       </ModalContent>

@@ -40,7 +40,7 @@ export default function UserRegister() {
         navigate("/otp", { state: { fromPage: "registration" } });
       } else {
         setIsLoading(false);
-        setMessage("Please contact admin!");
+        setMessage(t("REGISTER_ERROR"));
         setShowAlert(true);
       }
     } catch (err) {
@@ -56,6 +56,7 @@ export default function UserRegister() {
     setOpen(false);
     setIsChecked(true);
   };
+
   //conflict solve
   return (
     <Layout showMenu={false} showSearchBar={false} showLanguage={true}>
