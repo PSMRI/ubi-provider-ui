@@ -242,7 +242,7 @@ const detailsRow = ({ detailData }: { detailData: any }) => {
       <VStack spacing={"60px"} align="start">
         <VStack bg="#F8F8F8" p="5" align="stretch" flex="1">
           <Text fontSize="16px" fontWeight="400">
-            Total Budget: <b>₹ {detailData?.price}</b>
+            Sponsor-wise Budget: <b>₹ {detailData?.price}</b>
           </Text>
           <Text fontSize="16px" fontWeight="400">
             {"Number of Sponsors: "}
