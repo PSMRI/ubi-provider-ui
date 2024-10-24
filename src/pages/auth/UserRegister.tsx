@@ -35,18 +35,17 @@ export default function UserRegister() {
     setIsLoading(true);
     try {
       const registerResponse = await registerProvider(name, email);
-      setIsLoading(false);
       if (registerResponse) {
         navigate("/otp", { state: { fromPage: "registration" } });
       } else {
-        setIsLoading(false);
         setMessage(t("REGISTER_ERROR"));
         setShowAlert(true);
       }
     } catch (err) {
-      setIsLoading(false);
-      setMessage(err as string);
+      setMessage(err instanceof Error ? err.message : t("REGISTER_ERROR"));
       setShowAlert(true);
+    } finally {
+      setIsLoading(false);
     }
   };
   const handleCloseAlertModal = () => {
@@ -68,11 +67,11 @@ export default function UserRegister() {
           <VStack p={8} flex={1} align={"center"} justify={"center"} w={"full"}>
             <Stack spacing={6} w={"full"}>
               <Text fontSize={"24px"} fontWeight={400} marginBottom={"14px"}>
-                {t("LOGIN_REGISTER_TITLE")}
+                {t("REGISTER_TITLE")}
               </Text>
               <FormControl id="email">
                 <Text fontSize={"16px"} fontWeight={400} marginBottom={"12px"}>
-                  {t("REGISTER_ORGANISATION_NAME")}
+                  {t("REGISTER_ORGANISATION_NAME_LABEL")}
                 </Text>
                 <Input
                   type="text"
@@ -83,7 +82,7 @@ export default function UserRegister() {
                   marginBottom={"12px"}
                 />
                 <Text fontSize={"16px"} fontWeight={400} marginBottom={"12px"}>
-                  {t("LOGIN_ENAIL_ID")}
+                  {t("LOGIN_ENAIL_ID_LABEL")}
                 </Text>
                 <Input
                   type="email"
@@ -103,7 +102,7 @@ export default function UserRegister() {
                 >
                   <HStack marginBottom={"22px"}>
                     <Text fontSize={"16px"} fontWeight={400}>
-                      {t("LOGIN_TERMS_ACCEPT")}
+                      {t("REGISTER_TERMS_AND_CONDTION_TEXT")}
                     </Text>
                     <Text
                       fontSize={"16px"}
@@ -116,11 +115,11 @@ export default function UserRegister() {
                         className="custom-link"
                         onClick={() => setOpen(true)}
                       >
-                        {t("LOGIN_TERMS")}
+                        {t("REGISTER_TERMS_AND_CONDTION_TITLE")}
                       </Link>{" "}
                     </Text>
                     <Text fontSize={"16px"} fontWeight={400}>
-                      {t("LOGIN_TERMS_ACCEPT_PROCEED")}
+                      {t("REGISTER_TERMS_AND_CONDTION_SUBTEXT")}
                     </Text>
                   </HStack>
                   <Tooltip
@@ -135,7 +134,7 @@ export default function UserRegister() {
                       onMouseLeave={() => setShowTooltip(false)}
                     >
                       <Text fontSize={"16px"} fontWeight={400}>
-                        {t("LOGIN_AGREE")}
+                        {t("REGISTER_TERMS_AND_CONDTION_SELECT")}
                       </Text>
                     </Checkbox>
                   </Tooltip>
@@ -153,7 +152,7 @@ export default function UserRegister() {
                   navigate("/otp");
                 } */}
                   <Text fontSize="14px" fontWeight="400">
-                    {t("REGISTER_PROCEED")}
+                    {t("REGISTER_PROCEED_BUTTON")}
                   </Text>
                 </Button>
               </Stack>

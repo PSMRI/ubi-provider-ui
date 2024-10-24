@@ -75,7 +75,7 @@ export default function Login() {
               </Text>
               <FormControl id="email" mt={60}>
                 <Text fontSize={"16px"} fontWeight={400}>
-                  {t("LOGIN_ENAIL_ID")}
+                  {t("LOGIN_ENAIL_ID_LABEL")}
                 </Text>
                 <Input
                   type="email"
@@ -97,7 +97,7 @@ export default function Login() {
                   onClick={handleLogin}
                 >
                   <Text fontSize={"14px"} fontWeight={400}>
-                    {t("LOGIN_LOGIN")}
+                    {t("LOGIN_LOGIN_BUTTON")}
                   </Text>
                 </Button>
                 <Button
@@ -110,7 +110,7 @@ export default function Login() {
                   }}
                 >
                   <Text fontSize={"14px"} fontWeight={400}>
-                    {t("LOGIN_REGISTER")}
+                    {t("LOGIN_REGISTER_BUTTON")}
                   </Text>
                 </Button>
               </Stack>

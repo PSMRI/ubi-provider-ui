@@ -236,7 +236,7 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
       <HStack justify="space-between">
         {/* Key Metrics Heading */}
         <Text fontSize="36px" fontWeight="400" color="#06164B">
-          {t("DASHBOARD_VISUAL_REPRESENTATION")}
+          {t("DASHBOARD_VISUAL_REPRESENTATION_TITLE")}
         </Text>
 
         {/* October 2024 Dropdown */}

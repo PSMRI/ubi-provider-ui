@@ -39,7 +39,7 @@ interface MenuItem {
   onClick?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({
+export const Header: React.FC<HeaderProps> = ({
   showMenu,
   showSearchBar,
   showLanguage,
@@ -101,7 +101,7 @@ const Header: React.FC<HeaderProps> = ({
             style={{ width: "40px", marginRight: "8px" }}
           />
           <Text color="#484848" fontWeight={500} fontSize={"28px"}>
-            {t("HEADER_COMPANY_NAME")}
+            {t("LEFTSIDE_CONTENT_HEADER_COMPANY_NAME")}
           </Text>
         </HStack>
 

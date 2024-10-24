@@ -24,7 +24,7 @@ const BenefitSummary: React.FC<BenefitSummaryProps> = ({ tableData }) => {
   return (
     <VStack spacing="60px" align="stretch" px="28px">
       <Text fontSize="36px" fontWeight="400" color={"#2F3036"} px="170px">
-        {t("DASHBOARD_ALL_BENEFITS_SUMMARY")}
+        {t("DASHBOARD_ALL_BENEFITS_SUMMARY_TITLE")}
       </Text>
       {/* Tabs for Active, Closed, and Drafts */}
       <VStack spacing="35px" align="stretch">

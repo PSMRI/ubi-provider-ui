@@ -22,7 +22,7 @@ export default function LeftSideBar() {
             color={"white"}
             textAlign="left"
           >
-            {t("HEADER_COMPANY_NAME")}
+            {t("LEFTSIDE_CONTENT_HEADER_COMPANY_NAME")}
           </Text>
           <Text
             fontSize="16px"
@@ -31,7 +31,7 @@ export default function LeftSideBar() {
             textAlign="left"
             bg={"#D9D9D980"}
           >
-            {t("LOGIN_RIGHT_TEXT_H2")}
+            {t("LEFTSIDE_CONTENT_RIGHT_SUBTITLE")}
           </Text>
           <Text
             fontSize="16px"
@@ -39,7 +39,7 @@ export default function LeftSideBar() {
             color={"white"}
             textAlign="left"
           >
-            {t("LOGIN_RIGHT_TEXT_H3")}
+            {t("LEFTSIDE_CONTENT_RIGHT_TEXT")}
           </Text>
         </VStack>
       </HStack>

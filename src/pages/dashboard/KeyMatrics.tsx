@@ -47,7 +47,7 @@ const KeyMetrics: React.FC<{ matricsData: MatricsData }> = ({
       <HStack justify="space-between">
         {/* Key Metrics Heading */}
         <Text fontSize="36px" fontWeight="400" color="#06164B">
-          {t("DASHBOARD_KEY_MATRICS")}
+          {t("DASHBOARD_KEY_MATRICS_TITLE")}
         </Text>
 
         {/* October 2024 Dropdown */}
@@ -64,7 +64,7 @@ const KeyMetrics: React.FC<{ matricsData: MatricsData }> = ({
       <HStack align="stretch" spacing={"60px"}>
         <VStack spacing={"60px"} align="start">
           <Text fontSize="22px" fontWeight="400" color={"#2F3036"}>
-            {t("DASHBOARD_APPLICANT_OVERVIEW")}
+            {t("DASHBOARD_APPLICANT_OVERVIEW_TITLE")}
           </Text>
           <VStack spacing={4}>
             {matricsData?.application_overview &&
@@ -77,7 +77,7 @@ const KeyMetrics: React.FC<{ matricsData: MatricsData }> = ({
         </VStack>
         <VStack spacing={"60px"} align="start">
           <Text fontSize="22px" fontWeight="400" color={"#2F3036"}>
-            {t("DASHBOARD_FINANCIAL_OVERVIEW")}
+            {t("DASHBOARD_FINANCIAL_OVERVIEW_TITLE")}
           </Text>
           <VStack bg="#F8F8F8" p="5" align="stretch" flex="1">
             <Text fontSize="16px" fontWeight="400">
@@ -105,7 +105,7 @@ const KeyMetrics: React.FC<{ matricsData: MatricsData }> = ({
         </VStack>
         <VStack spacing={"60px"} align="start">
           <Text fontSize="22px" fontWeight="400" color={"#2F3036"}>
-            {t("DASHBOARD_POPULAR_BENEFITS")}
+            {t("DASHBOARD_POPULAR_BENEFITS_TITLE")}
           </Text>
           <VStack spacing={"35px"} align="stretch">
             {matricsData?.top_3_benefits?.map((item, index) => (

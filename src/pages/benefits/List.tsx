@@ -5,6 +5,7 @@ import {
   SmallAddIcon,
 } from "@chakra-ui/icons";
 import {
+  Button,
   HStack,
   IconButton,
   Input,
@@ -20,7 +21,7 @@ import { ICellTextProps } from "ka-table/props";
 import React, { memo, useEffect, useState } from "react";
 import { useTableInstance } from "ka-table";
 import { detailViewRow, formatDate } from "../../services/dashboard";
-import Chart from "react-apexcharts";
+import ChartWithErrorBoundary from "./ChartWithErrorBoundary";
 
 interface Sponsor {
   sponsor_name: string;
@@ -254,26 +255,36 @@ const detailsRow = ({ detailData }: { detailData: any }) => {
             {"Number of Sponsors: "}
             <b>{detailData?.sponsors.length}</b>
           </Text>
-          <Chart
-            options={(chartData?.options as any) || {}}
-            series={chartData?.series || []}
-            type="pie"
-            width="300"
+
+          <ChartWithErrorBoundary
+            options={chartData?.options}
+            series={chartData?.series}
           />
         </VStack>
       </VStack>
 
       <VStack spacing={"60px"} align="start">
         <VStack bg="#F8F8F8" p="5" align="stretch" flex="1">
-          <Text fontSize={"14px"} fontWeight={"400px"}>
+          <Text fontSize="14px" fontWeight={400}>
             Deadines
           </Text>
-          <Text fontSize={"12px"} fontWeight={"400px"}>
+          <Text fontSize="12px" fontWeight={400}>
             Current Deadline:
-            <p>{formatDate(detailData?.application_deadline)}</p>
+            <Text as="span" display="block">
+              {formatDate(detailData?.application_deadline)}
+            </Text>
             <HStack spacing={2} alignItems="flex-start">
               <Text fontSize={"14px"} fontWeight="500px" color={"#0037B9"}>
-                <SmallAddIcon color={"#0037B9"} /> Extend Deadline
+                <Button
+                  leftIcon={<SmallAddIcon />}
+                  variant="link"
+                  fontSize="14px"
+                  fontWeight={500}
+                  color="#0037B9"
+                >
+                  {" "}
+                  Extend Deadline{" "}
+                </Button>
               </Text>
             </HStack>
           </Text>

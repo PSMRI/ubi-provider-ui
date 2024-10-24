@@ -111,15 +111,15 @@ export default function OTP() {
             <Stack spacing={4} w={"full"}>
               <Text fontSize={"24px"} fontWeight={400} marginBottom={"20px"}>
                 {fromPage === "registration"
-                  ? t("LOGIN_REGISTER_TITLE")
-                  : t("OTP_LOGIN")}
+                  ? t("REGISTER_TITLE")
+                  : t("LOGIN_OTP_TITLE")}
               </Text>
               <Text fontSize={"16px"} fontWeight={400} marginBottom={"20px"}>
-                {t("OTP_WELCOME")}
+                {t("OTP_WELCOME_TEXT")}
               </Text>
               <FormControl id="email">
                 <Text fontSize={"16px"} fontWeight={400} marginBottom={"20px"}>
-                  {t("OTP_ENTER_OTP")}
+                  {t("OTP_ENTER_OTP_LABEL")}
                 </Text>
 
                 <HStack>
@@ -146,7 +146,7 @@ export default function OTP() {
               <Stack spacing={6}>
                 <HStack marginBottom={"14px"}>
                   <Text fontSize={"16px"} fontWeight={400}>
-                    {t("OTP_RESEND")}
+                    {t("OTP_RESEND_REQUEST_TEXT")}
                   </Text>
                   <Text
                     fontSize={"16px"}
@@ -156,7 +156,7 @@ export default function OTP() {
                     textUnderlineOffset={"1px"}
                   >
                     <Link to="#" className="custom-link">
-                      {t("OTP_RESEND_LINK")}
+                      {t("OTP_RESEND_REQUEST_LINK")}
                     </Link>
                   </Text>
                   <Text fontSize={"16px"} fontWeight={400}>
@@ -173,8 +173,8 @@ export default function OTP() {
                 >
                   <Text fontSize={"14px"} fontWeight={400}>
                     {fromPage === "registration"
-                      ? t("OTP_REGISTER")
-                      : t("OTP_SUBMIT")}
+                      ? t("REGISTER_OTP_SUBMIT_BUTTON")
+                      : t("LOGIN_OTP_SUBMIT_BUTTON")}
                   </Text>
                 </Button>
               </Stack>
