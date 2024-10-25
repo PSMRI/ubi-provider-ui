@@ -272,7 +272,7 @@ const detailsRow = ({ detailData }: { detailData: any }) => {
             {t("DASHBOARD_ALL_BENEFITS_SUMMARY_DETAIL_ROW_DEADLINES")}
           </Text>
           <Text fontSize="12px" fontWeight={400}>
-            Current Deadline:
+            {t("DASHBOARD_ALL_BENEFITS_SUMMARY_CURRENT_DEADLINES_TEXT")}:
             <Text as="span" display="block">
               {formatDate(detailData?.application_deadline)}
             </Text>
