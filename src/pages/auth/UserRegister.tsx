@@ -82,7 +82,7 @@ export default function UserRegister() {
                   marginBottom={"12px"}
                 />
                 <Text fontSize={"16px"} fontWeight={400} marginBottom={"12px"}>
-                  {t("LOGIN_ENAIL_ID_LABEL")}
+                  {t("LOGIN_EMAIL_ID_LABEL")}
                 </Text>
                 <Input
                   type="email"

@@ -75,7 +75,7 @@ export default function Login() {
               </Text>
               <FormControl id="email" mt={60}>
                 <Text fontSize={"16px"} fontWeight={400}>
-                  {t("LOGIN_ENAIL_ID_LABEL")}
+                  {t("LOGIN_EMAIL_ID_LABEL")}
                 </Text>
                 <Input
                   type="email"

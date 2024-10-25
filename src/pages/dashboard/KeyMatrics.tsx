@@ -47,7 +47,7 @@ const KeyMetrics: React.FC<{ matricsData: MatricsData }> = ({
       <HStack justify="space-between">
         {/* Key Metrics Heading */}
         <Text fontSize="36px" fontWeight="400" color="#06164B">
-          {t("DASHBOARD_KEY_MATRICS_TITLE")}
+          {t("DASHBOARD_KEY_METRICS_TITLE")}
         </Text>
 
         {/* October 2024 Dropdown */}

@@ -2,7 +2,14 @@ import { Text } from "@chakra-ui/react";
 import Chart from "react-apexcharts";
 
 // Error boundary wrapper for the Chart component
-const ChartWithErrorBoundary = ({ options, series }: any) => {
+interface ChartProps {
+  options: {
+    labels: string[];
+    [key: string]: any; // This allows for any other properties
+  };
+  series: number[]; // Assuming series is an array of numbers
+}
+const ChartWithErrorBoundary: React.FC<ChartProps> = ({ options, series }) => {
   if (!series?.length || !options?.labels?.length) {
     return <Text>No chart data available</Text>;
   }

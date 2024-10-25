@@ -1,14 +1,17 @@
 {
-  "DASHBOARD_KEY_MATRICS_TITLE": "Key Metrics",
+  "DASHBOARD_KEY_METRICS_TITLE": "Key Metrics",
   "DASHBOARD_APPLICANT_OVERVIEW_TITLE": "Applicant Overview",
   "DASHBOARD_FINANCIAL_OVERVIEW_TITLE": "Financial Overview",
   "DASHBOARD_POPULAR_BENEFITS_TITLE": "Popular Benefits",
   "DASHBOARD_ALL_BENEFITS_SUMMARY_TITLE": "All Benefits Summary",
+  "DASHBOARD_ALL_BENEFITS_SUMMARY_DETAIL_ROW_TITLE": "Sponsor-wise Budget",
+  "DASHBOARD_ALL_BENEFITS_SUMMARY_DETAIL_ROW_DEADLINES": "Deadines",
+  "DASHBOARD_ALL_BENEFITS_SUMMARY_DETAIL_ROW_EXTEND_DEADLINES": "Extend Deadline",
   "LEFTSIDE_CONTENT_HEADER_COMPANY_NAME": "Universal Benefits Platform",
   "LEFTSIDE_CONTENT_RIGHT_SUBTITLE": "Official Use Only",
   "LEFTSIDE_CONTENT_RIGHT_TEXT": "Welcome To The Benefit Creation Platform",
   "LOGIN_TITLE": "User Log In/Registration",
-  "LOGIN_ENAIL_ID_LABEL": "Organisation Email ID",
+  "LOGIN_EMAIL_ID_LABEL": "Organisation Email ID",
   "LOGIN_REGISTER_BUTTON": "Don’t Have An Account? Register Now",
   "LOGIN_LOGIN_BUTTON": "Log in",
   "LOGIN_OTP_TITLE": "User Log In",
@@ -18,65 +21,17 @@
   "OTP_ENTER_OTP_LABEL": "Enter the 6-digit OTP sent to your Email ID",
   "OTP_RESEND_REQUEST_TEXT": "Request to",
   "OTP_RESEND_REQUEST_LINK": "Resend OTP",
+  "OTP_ERROR": "Please enter correct OTP!",
   "REGISTER_TITLE": "User Registration",
   "REGISTER_OTP_SUBMIT_BUTTON": "Submit and Register",
   "REGISTER_ORGANISATION_NAME_LABEL": "Organisation Name",
   "REGISTER_PROCEED_BUTTON": "Proceed",
   "REGISTER_ERROR": "Provider with this email already exists, try login",
   "DASHBOARD_VISUAL_REPRESENTATION_TITLE": "Visual Representation",
-  "REGISTER_ACCEPT_AND_TERMS_1": "We confirm that all details provided regarding the benefit program, including eligibility criteria, deadlines, and disbursement processes, are accurate and up to date. Our organization acknowledges the responsibility to ensure the information remains accurate throughout the duration of the benefit program.",
-  "REGISTER_ACCEPT_AND_TERMS_2": "We certify that the benefit program complies with all applicable laws and regulations. We understand that failure to comply with legal requirements may result in the withdrawal of the benefit program and potential legal action.",
-  "REGISTER_ACCEPT_AND_TERMS_3": "We confirm that sufficient funds have been allocated for the benefit program, and we will ensure that these funds are disbursed in a timely manner to eligible beneficiaries. Our organization recognizes that the availability of funds is crucial for the success of the program, and we take full responsibility for managing the budget.",
-  "REGISTER_ACCEPT_AND_TERMS_4": "We agree to update the benefit details, deadlines, and disbursement schedules if any changes occur. We acknowledge that keeping the beneficiaries informed is essential for maintaining transparency and the success of the program.",
-  "REGISTER_ACCEPT_AND_TERMS_5": "We commit to providing timely and accurate responses to any queries from beneficiaries and to ensuring that the application process is clear and accessible. Our organization understands that failure to communicate effectively may result in misunderstandings or delays in the application process.",
-  "REGISTER_ACCEPT_AND_TERMS_6": "We certify that the benefit program does not discriminate based on race, gender, religion, or any other characteristic protected by law. We commit to ensuring that all eligible beneficiaries are treated fairly throughout the application and selection process.",
-  "REGISTER_ACCEPT_AND_TERMS_7": "We understand that any personal information collected from beneficiaries during the application process will be kept confidential and used solely for the purpose of evaluating and administering the benefit program. We agree to comply with all relevant data protection and privacy laws.",
-  "REGISTER_ACCEPT_AND_TERMS_8": "We acknowledge that amendments or updates to the benefit details may be required, and we agree to make such changes transparently and promptly. We understand that any significant changes will be communicated to potential beneficiaries in a timely manner.",
-  "REGISTER_ACCEPT_AND_TERMS_9": "By publishing this benefit to the public domain, our organization agrees to abide by these terms and conditions and to ensure that the benefit program is managed in a transparent, fair, and lawful manner.",
   "REGISTER_TERMS_AND_CONDTION_TITLE": "Terms and Conditions",
   "REGISTER_TERMS_AND_CONDTION_TEXT": "Read and accept the",
   "REGISTER_TERMS_AND_CONDTION_SUBTEXT": "before you proceed.",
   "REGISTER_TERMS_AND_CONDTION_SELECT": "Agree and proceed",
-
   "REGISTER_TERMS_ACCEPT_BUTTON": "Accept",
-  "OTP_ERROR": "Please enter correct OTP!",
-
-  "REGISTER_ACCEPT_AND_TERMS": [
-    {
-      "title": "Accuracy of Information",
-      "description": "We confirm that all details provided regarding the benefit program, including eligibility criteria, deadlines, and disbursement processes, are accurate and up to date. Our organization acknowledges the responsibility to ensure the information remains accurate throughout the duration of the benefit program."
-    },
-    {
-      "title": "Compliance with Legal and Regulatory Requirements",
-      "description": "We certify that the benefit program complies with all applicable laws and regulations. We understand that failure to comply with legal requirements may result in the withdrawal of the benefit program and potential legal action."
-    },
-    {
-      "title": "Fund Allocation and Availability",
-      "description": "We confirm that sufficient funds have been allocated for the benefit program, and we will ensure that these funds are disbursed in a timely manner to eligible beneficiaries. Our organization recognizes that the availability of funds is crucial for the success of the program, and we take full responsibility for managing the budget."
-    },
-    {
-      "title": "Timely Updates",
-      "description": "We agree to update the benefit details, deadlines, and disbursement schedules if any changes occur. We acknowledge that keeping the beneficiaries informed is essential for maintaining transparency and the success of the program."
-    },
-    {
-      "title": "Communication and Support",
-      "description": "We commit to providing timely and accurate responses to any queries from beneficiaries and to ensuring that the application process is clear and accessible. Our organization understands that failure to communicate effectively may result in misunderstandings or delays in the application process."
-    },
-    {
-      "title": "Non-Discrimination",
-      "description": "We certify that the benefit program does not discriminate based on race, gender, religion, or any other characteristic protected by law. We commit to ensuring that all eligible beneficiaries are treated fairly throughout the application and selection process."
-    },
-    {
-      "title": "Confidentiality",
-      "description": "We understand that any personal information collected from beneficiaries during the application process will be kept confidential and used solely for the purpose of evaluating and administering the benefit program. We agree to comply with all relevant data protection and privacy laws."
-    },
-    {
-      "title": "Amendments",
-      "description": "We acknowledge that amendments or updates to the benefit details may be required, and we agree to make such changes transparently and promptly. We understand that any significant changes will be communicated to potential beneficiaries in a timely manner."
-    },
-    {
-      "title": "Acceptance of Terms",
-      "description": "By publishing this benefit to the public domain, our organization agrees to abide by these terms and conditions and to ensure that the benefit program is managed in a transparent, fair, and lawful manner."
-    }
-  ]
+  "REGISTER_ACCEPT_AND_TERMS_HTML": "<ul><li><strong>Accuracy of Information</strong><p>We confirm that all details provided regarding the benefit program, including eligibility criteria, deadlines, and disbursement processes, are accurate and up to date. Our organization acknowledges the responsibility to ensure the information remains accurate throughout the duration of the benefit program.</p></li><li><strong>Compliance with Legal and Regulatory Requirements</strong><p>We certify that the benefit program complies with all applicable laws and regulations. We understand that failure to comply with legal requirements may result in the withdrawal of the benefit program and potential legal action.</p></li><li><strong>Fund Allocation and Availability</strong><p>We confirm that sufficient funds have been allocated for the benefit program, and we will ensure that these funds are disbursed in a timely manner to eligible beneficiaries. Our organization recognizes that the availability of funds is crucial for the success of the program, and we take full responsibility for managing the budget.</p></li><li><strong>Timely Updates</strong><p>We agree to update the benefit details, deadlines, and disbursement schedules if any changes occur. We acknowledge that keeping the beneficiaries informed is essential for maintaining transparency and the success of the program.</p></li><li><strong>Communication and Support</strong><p>We commit to providing timely and accurate responses to any queries from beneficiaries and to ensuring that the application process is clear and accessible. Our organization understands that failure to communicate effectively may result in misunderstandings or delays in the application process.</p></li><li><strong>Non-Discrimination</strong><p>We certify that the benefit program does not discriminate based on race, gender, religion, or any other characteristic protected by law. We commit to ensuring that all eligible beneficiaries are treated fairly throughout the application and selection process.</p></li><li><strong>Confidentiality</strong><p>We understand that any personal information collected from beneficiaries during the application process will be kept confidential and used solely for the purpose of evaluating and administering the benefit program. We agree to comply with all relevant data protection and privacy laws.</p></li><li><strong>Amendments</strong><p>We acknowledge that amendments or updates to the benefit details may be required, and we agree to make such changes transparently and promptly. We understand that any significant changes will be communicated to potential beneficiaries in a timely manner.</p></li><li><strong>Acceptance of Terms</strong><p>By publishing this benefit to the public domain, our organization agrees to abide by these terms and conditions and to ensure that the benefit program is managed in a transparent, fair, and lawful manner.</p></li></ul>"
 }

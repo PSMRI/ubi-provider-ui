@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Box } from "@chakra-ui/react";
-import { Header } from "./Header";
+import Header from "./Header";
 import TitleBar from "../common/TitleBar";
 
 // Define the props for the layout

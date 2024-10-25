@@ -39,7 +39,7 @@ interface MenuItem {
   onClick?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({
+const Header: React.FC<HeaderProps> = ({
   showMenu,
   showSearchBar,
   showLanguage,

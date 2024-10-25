@@ -22,6 +22,7 @@ import React, { memo, useEffect, useState } from "react";
 import { useTableInstance } from "ka-table";
 import { detailViewRow, formatDate } from "../../services/dashboard";
 import ChartWithErrorBoundary from "./ChartWithErrorBoundary";
+import { useTranslation } from "react-i18next";
 
 interface Sponsor {
   sponsor_name: string;
@@ -227,6 +228,7 @@ const customCellText = (
 
 const detailsRow = ({ detailData }: { detailData: any }) => {
   // Pie chart data
+  const { t } = useTranslation();
 
   const chartData = {
     options: {
@@ -249,7 +251,8 @@ const detailsRow = ({ detailData }: { detailData: any }) => {
       <VStack spacing={"60px"} align="start">
         <VStack bg="#F8F8F8" p="5" align="stretch" flex="1">
           <Text fontSize="16px" fontWeight="400">
-            Sponsor-wise Budget: <b>₹ {detailData?.price}</b>
+            {t("DASHBOARD_ALL_BENEFITS_SUMMARY_DETAIL_ROW_TITLE")}:{" "}
+            <b>₹ {detailData?.price}</b>
           </Text>
           <Text fontSize="16px" fontWeight="400">
             {"Number of Sponsors: "}
@@ -266,7 +269,7 @@ const detailsRow = ({ detailData }: { detailData: any }) => {
       <VStack spacing={"60px"} align="start">
         <VStack bg="#F8F8F8" p="5" align="stretch" flex="1">
           <Text fontSize="14px" fontWeight={400}>
-            Deadines
+            {t("DASHBOARD_ALL_BENEFITS_SUMMARY_DETAIL_ROW_DEADLINES")}
           </Text>
           <Text fontSize="12px" fontWeight={400}>
             Current Deadline:
@@ -283,7 +286,9 @@ const detailsRow = ({ detailData }: { detailData: any }) => {
                   color="#0037B9"
                 >
                   {" "}
-                  Extend Deadline{" "}
+                  {t(
+                    "DASHBOARD_ALL_BENEFITS_SUMMARY_DETAIL_ROW_EXTEND_DEADLINES"
+                  )}{" "}
                 </Button>
               </Text>
             </HStack>
