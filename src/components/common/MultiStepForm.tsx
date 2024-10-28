@@ -14,7 +14,7 @@ import {
 import { Theme as ChakraUITheme } from "@rjsf/chakra-ui";
 import { withTheme } from "@rjsf/core";
 import { JSONSchema7 } from "json-schema"; // Use this for the schema type
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import validator from "@rjsf/validator-ajv6";
 const Form = withTheme(ChakraUITheme);
 interface UiSchema {
