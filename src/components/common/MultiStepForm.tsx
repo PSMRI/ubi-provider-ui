@@ -5,6 +5,7 @@ import {
   AccordionItem,
   AccordionPanel,
   Box,
+  Button,
   Divider,
   HStack,
   Icon,
@@ -64,12 +65,30 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
   onSubmit,
 }) => {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  useEffect(() => {
-    setCompletedSteps([]);
-  }, []);
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const isLastStep = currentStep === items.length - 1;
+  // useEffect(() => {
+  //   setCompletedSteps([]);
+  // }, []);
+
+  const handleSaveAndNext = () => {
+    // Mark the current step as completed
+    setCompletedSteps((prev) => [...prev, items[currentStep].step]);
+
+    // Move to the next step
+    if (!isLastStep) {
+      setCurrentStep((prev) => prev + 1);
+    } else {
+      onSubmit(); // Call the submit function if it's the last step
+    }
+  };
+
   return (
     <Box p={5} mx="auto">
-      <Accordion allowToggle>
+      <Accordion
+        allowToggle
+        index={currentStep >= 0 ? [currentStep] : undefined}
+      >
         {items?.map((stepItem, index) => (
           <React.Fragment key={stepItem?.step}>
             <AccordionItem border="none">
@@ -95,6 +114,8 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
                     boxSize={5}
                     position="relative"
                     zIndex={1}
+                    onClick={() => setCurrentStep(index)} // Allow clicking on icon to toggle
+                    cursor="pointer" // Change cursor to pointer
                   />
                   {index < stepsData.length - 1 && (
                     <Divider
@@ -125,11 +146,23 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
                         schema={stepItem?.schema}
                         formData={formData}
                         onChange={onChange}
-                        onSubmit={onSubmit}
+                        // onSubmit={onSubmit}
                         uiSchema={stepItem?.uiSchema}
                         validator={validator}
                       />
                     )}
+                    <HStack spacing={4} justifyContent="flex-end" mt={4}>
+                      {!isLastStep && (
+                        <Button onClick={handleSaveAndNext} colorScheme="blue">
+                          Save & Next
+                        </Button>
+                      )}
+                      {isLastStep && (
+                        <Button onClick={onSubmit} colorScheme="green">
+                          Submit
+                        </Button>
+                      )}
+                    </HStack>
                   </AccordionPanel>
                 </Box>
               </HStack>
