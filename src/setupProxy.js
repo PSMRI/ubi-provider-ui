@@ -31,7 +31,7 @@ module.exports = function (app) {
     "/fsm-calculator/v1/billingSlab/_search",
     "/muster-roll",
     "/uba-bff-service",
-    "/application/v1/_appstat",
+    "/application",
   ].forEach((location) => app.use(location, createProxy));
   ["/pb-egov-assets"].forEach((location) => app.use(location, assetsProxy));
 };
