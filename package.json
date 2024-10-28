@@ -28,6 +28,7 @@
     "chakra-react-select": "^4.9.2",
     "env-cmd": "^10.1.0",
     "framer-motion": "^5",
+    "http-proxy-middleware": "^3.0.3",
     "i18next": "^23.15.1",
     "i18next-http-backend": "^2.6.1",
     "json-schema": "^0.4.0",

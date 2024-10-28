@@ -1,6 +1,81 @@
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 
 const apiUrl = import.meta.env.VITE_BASE_URL;
+const apiDigitUrl = import.meta.env.VITE_DIGIT_BASE_URL;
+
+// Application overview digit API
+export const applicationOverviewDigit1 = async () => {
+  const payload = {};
+  try {
+    const response = await axios.get(`${apiDigitUrl}/_appstat`, payload);
+    console.log(response.data);
+    return response?.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const applicationOverviewDigit = async () => {
+  let data = JSON.stringify({});
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `${apiDigitUrl}/_appstat`, // Local proxy path
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: data,
+  };
+
+  try {
+    const response = await axios(config);
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("API request error:", error);
+  }
+};
+// Financial overview digit API
+
+export const financialOverviewDigit = async () => {
+  const payload = {};
+  try {
+    const response = await axios.get(`${apiDigitUrl}/_fundsstat`, payload);
+    console.log(response.data);
+    return response?.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+//Popular benefitd digit API
+export const popularBenefitDigit = async () => {
+  const payload = {};
+  try {
+    const response = await axios.get(
+      `${apiDigitUrl}/scholarships/top-3`,
+      payload
+    );
+    console.log(response.data);
+    return response?.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+//Benefit summary digit API
+export const benefitSummaryDigit = async () => {
+  const payload = {};
+  try {
+    const response = await axios.get(
+      `${apiDigitUrl}/scholarships/details`,
+      payload
+    );
+    console.log(response.data);
+    return response?.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 export const applicationOverview = async (id: number) => {
   try {
@@ -13,7 +88,6 @@ export const applicationOverview = async (id: number) => {
     console.log(error);
   }
 };
-
 export const detailViewRow = async (id: string) => {
   try {
     const response = await axios.get(`${apiUrl}/benefit/getBenefit/${id}`);

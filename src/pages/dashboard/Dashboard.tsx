@@ -4,7 +4,10 @@ import Layout from "../../components/layout/Layout";
 import BenefitSummary from "./BenefitSummary";
 import KeyMatrics from "./KeyMatrics";
 import React from "react";
-import { applicationOverview } from "../../services/dashboard";
+import {
+  applicationOverview,
+  applicationOverviewDigit,
+} from "../../services/dashboard";
 import Loading from "../../components/common_components/Loading";
 import AlertMessage from "../../components/common/modal/AlertMessage";
 function Dashboard() {
@@ -24,6 +27,11 @@ function Dashboard() {
           // Extract the id, ensuring to handle possible null cases
           const id = userObject.id;
           const response = await applicationOverview(id);
+          const digitResponse = await applicationOverviewDigit();
+          console.log("digit--", digitResponse);
+          if (digitResponse) {
+            alert(digitResponse);
+          }
           setIsLoading(false);
           setData(response);
         } else {
