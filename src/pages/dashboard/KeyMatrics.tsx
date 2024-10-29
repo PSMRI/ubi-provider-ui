@@ -83,7 +83,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({
                 />
               ))
             ) : (
-              <Text>No application data available</Text>
+              <Text>No application data available!</Text>
             )}
           </VStack>
         </VStack>
