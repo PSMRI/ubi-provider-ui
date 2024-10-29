@@ -74,9 +74,17 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({
             {t("DASHBOARD_APPLICANT_OVERVIEW_TITLE")}
           </Text>
           <VStack spacing={4}>
-            {applicationData?.map((item) => (
-              <StatBox key={item.id} number={item.number} label={item.label} />
-            ))}
+            {applicationData.length > 0 ? (
+              applicationData.map((item) => (
+                <StatBox
+                  key={item.id}
+                  number={item.number}
+                  label={item.label}
+                />
+              ))
+            ) : (
+              <Text>No application data available</Text>
+            )}
           </VStack>
         </VStack>
         <VStack spacing={"60px"} align="start">

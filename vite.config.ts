@@ -39,9 +39,6 @@ export default defineConfig({
   },
 });
 */
-console.log(
-  "process.env.VITE_APP_PROXY_API, : " + process.env.VITE_APP_PROXY_API
-);
 
 export default defineConfig({
   server: {
