@@ -26,6 +26,7 @@
     "apexcharts": "^3.54.0",
     "axios": "^1.7.7",
     "chakra-react-select": "^4.9.2",
+    "dotenv": "^16.4.5",
     "env-cmd": "^10.1.0",
     "framer-motion": "^5",
     "http-proxy-middleware": "^3.0.3",

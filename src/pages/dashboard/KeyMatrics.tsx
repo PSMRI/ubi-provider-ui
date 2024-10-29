@@ -13,6 +13,23 @@ interface ApplicationOverview {
     label: string;
   };
 }
+interface ApplicationData {
+  id: number;
+  number: number;
+  label: string;
+}
+interface FinancialData {
+  id: number;
+  count: number;
+  label: string;
+  sponsorCount: number;
+}
+interface PopularBenefitData {
+  id: number;
+  totalDisbursed: string;
+  title: string;
+  totalApplications: number;
+}
 
 interface MatricsData {
   application_overview: ApplicationOverview;
@@ -37,11 +54,19 @@ const pieChartOptions = {
   plotOptions: { pie: { startAngle: 45 } },
 };
 const pieChartSeries = financialData.map((e) => e.count);
+interface KeyMetricsProps {
+  matricsData: MatricsData;
+  applicationData: ApplicationData[];
+  financialData: FinancialData[];
+  popularBenefit: PopularBenefitData[];
+}
 
-const KeyMetrics: React.FC<{ matricsData: MatricsData }> = ({
+const KeyMetrics: React.FC<KeyMetricsProps> = ({
   matricsData,
+  applicationData,
 }) => {
   const { t } = useTranslation();
+
   return (
     <VStack spacing="60px" align="stretch">
       <HStack justify="space-between">
@@ -67,12 +92,9 @@ const KeyMetrics: React.FC<{ matricsData: MatricsData }> = ({
             {t("DASHBOARD_APPLICANT_OVERVIEW_TITLE")}
           </Text>
           <VStack spacing={4}>
-            {matricsData?.application_overview &&
-              Object.entries(matricsData.application_overview).map(
-                ([key, item]) => (
-                  <StatBox key={key} number={item?.count} label={item?.label} />
-                )
-              )}
+            {applicationData?.map((item) => (
+              <StatBox key={item.id} number={item.number} label={item.label} />
+            ))}
           </VStack>
         </VStack>
         <VStack spacing={"60px"} align="start">

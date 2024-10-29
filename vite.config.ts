@@ -1,5 +1,7 @@
 import { defineConfig } from "vite";
+import "dotenv/config";
 
+/*
 export default defineConfig({
   server: {
     proxy: {
@@ -33,6 +35,22 @@ export default defineConfig({
         secure: false,
       },
       // Continue adding routes as necessary
+    },
+  },
+});
+*/
+console.log(
+  "process.env.VITE_APP_PROXY_API, : " + process.env.VITE_APP_PROXY_API
+);
+
+export default defineConfig({
+  server: {
+    proxy: {
+      "/application": {
+        target: process.env.VITE_APP_PROXY_API, // or your backend URL
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 });

@@ -5,10 +5,10 @@ import React from "react";
 interface StatBoxProps {
   number: number;
   label: string;
-  currency?: string; // Optional currency symbol, for cases like rupee sign
+  // currency?: string; // Optional currency symbol, for cases like rupee sign
 }
 
-const StatBox: React.FC<StatBoxProps> = ({ number, label, currency }) => {
+const StatBox: React.FC<StatBoxProps> = ({ number, label }) => {
   return (
     <Box
       textAlign="center"
@@ -22,7 +22,7 @@ const StatBox: React.FC<StatBoxProps> = ({ number, label, currency }) => {
     >
       <VStack spacing="5px">
         <Text fontSize={"22px"} fontWeight={400} color={"#2F3036"}>
-          {currency ? `${currency} ${number}` : number}
+          {number}
         </Text>
         <Text fontSize={"16px"} fontWeight={400} color={"#00000080"}>
           {label}

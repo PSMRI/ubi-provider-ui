@@ -7,11 +7,17 @@ import React from "react";
 import {
   applicationOverview,
   applicationOverviewDigit,
+  financialOverviewDigit,
+  popularBenefitDigit,
 } from "../../services/dashboard";
 import Loading from "../../components/common_components/Loading";
 import AlertMessage from "../../components/common/modal/AlertMessage";
 function Dashboard() {
   const [data, setData] = React.useState<any>(null);
+  const [applicationData, setApplicationData] = React.useState<any>(null);
+  const [financialData, setFinancialData] = React.useState<any>(null);
+  const [popularData, setPopularData] = React.useState<any>(null);
+
   const [isLoading, setIsLoading] = React.useState(false);
   const [showAlert, setShowAlert] = React.useState(false);
   const [message, setMessage] = React.useState("");
@@ -27,10 +33,18 @@ function Dashboard() {
           // Extract the id, ensuring to handle possible null cases
           const id = userObject.id;
           const response = await applicationOverview(id);
-          const digitResponse = await applicationOverviewDigit();
-          console.log("digit--", digitResponse);
-          if (digitResponse) {
-            alert(digitResponse);
+          const digitApplicantResponse = await applicationOverviewDigit();
+          const digitFinancialResponse = await financialOverviewDigit();
+          const digitPopularResponse = await popularBenefitDigit();
+
+          if (digitApplicantResponse) {
+            setApplicationData(digitApplicantResponse);
+          }
+          if (digitFinancialResponse) {
+            setFinancialData(digitFinancialResponse);
+          }
+          if (digitPopularResponse) {
+            setPopularData(digitPopularResponse);
           }
           setIsLoading(false);
           setData(response);
@@ -62,7 +76,12 @@ function Dashboard() {
     >
       {isLoading && <Loading />}
       <VStack gap="60px" py="60px" overflowX={"hidden"}>
-        <KeyMatrics matricsData={data} />
+        <KeyMatrics
+          matricsData={data}
+          applicationData={applicationData}
+          financialData={financialData}
+          popularBenefit={popularData}
+        />
         <BenefitSummary tableData={data} />
         <CommonBarChart chartData={data} />
       </VStack>
