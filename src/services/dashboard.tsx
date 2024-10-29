@@ -76,16 +76,22 @@ export const popularBenefitDigit = async () => {
 };
 
 export const benefitSummaryDigit = async () => {
-  const payload = {};
+  let data = JSON.stringify({});
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: "/application/v1/scholarships/details", // Local proxy path
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: data,
+  };
+
   try {
-    const response = await axios.get(
-      `${apiDigitUrl}/scholarships/details`,
-      payload
-    );
+    const response = await axios(config);
     console.log(response.data);
-    return response?.data;
+    return response.data;
   } catch (error) {
-    console.log(error);
+    console.error("API request error:", error);
   }
 };
 

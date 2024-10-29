@@ -133,11 +133,11 @@ const BenefitsList: React.FC<{
           (item) => {
             switch (activeTab) {
               case 0:
-                return item?.status === "active";
+                return item?.status === "active" || item?.status === "Active";
               case 1:
-                return item.status === "closed";
+                return item.status === "closed" || item.status === "Closed";
               case 2:
-                return item.status === "draft";
+                return item.status === "Draft" || item.status === "draft";
               default:
                 return "No data found";
             }

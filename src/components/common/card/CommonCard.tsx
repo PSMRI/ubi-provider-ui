@@ -4,7 +4,7 @@ import { VStack, Text } from "@chakra-ui/react";
 interface CommonCardProps {
   title: string;
   totalApplications: number;
-  totalDisbursed: number;
+  totalDisbursed: string;
 }
 
 const CommonCard: React.FC<CommonCardProps> = ({

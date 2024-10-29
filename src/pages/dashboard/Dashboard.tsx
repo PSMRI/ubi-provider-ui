@@ -7,6 +7,7 @@ import React from "react";
 import {
   applicationOverview,
   applicationOverviewDigit,
+  benefitSummaryDigit,
   financialOverviewDigit,
   popularBenefitDigit,
 } from "../../services/dashboard";
@@ -17,6 +18,7 @@ function Dashboard() {
   const [applicationData, setApplicationData] = React.useState<any>(null);
   const [financialData, setFinancialData] = React.useState<any>(null);
   const [popularData, setPopularData] = React.useState<any>(null);
+  const [benefitSummaryData, setBenefitSummaryData] = React.useState<any>(null);
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [showAlert, setShowAlert] = React.useState(false);
@@ -36,6 +38,7 @@ function Dashboard() {
           const digitApplicantResponse = await applicationOverviewDigit();
           const digitFinancialResponse = await financialOverviewDigit();
           const digitPopularResponse = await popularBenefitDigit();
+          const benefitSummaryResponse = await benefitSummaryDigit();
 
           if (digitApplicantResponse) {
             setApplicationData(digitApplicantResponse);
@@ -45,6 +48,9 @@ function Dashboard() {
           }
           if (digitPopularResponse) {
             setPopularData(digitPopularResponse);
+          }
+          if (benefitSummaryResponse) {
+            setBenefitSummaryData({ benefit_summary: benefitSummaryResponse });
           }
           setIsLoading(false);
           setData(response);
@@ -77,12 +83,11 @@ function Dashboard() {
       {isLoading && <Loading />}
       <VStack gap="60px" py="60px" overflowX={"hidden"}>
         <KeyMatrics
-          matricsData={data}
           applicationData={applicationData}
           financialData={financialData}
           popularBenefit={popularData}
         />
-        <BenefitSummary tableData={data} />
+        <BenefitSummary tableData={benefitSummaryData} />
         <CommonBarChart chartData={data} />
       </VStack>
       {showAlert && (
