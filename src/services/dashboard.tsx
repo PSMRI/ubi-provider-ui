@@ -1,8 +1,8 @@
 import axios, { AxiosRequestConfig } from "axios";
 
 const apiUrl = import.meta.env.VITE_BASE_URL;
-const apiDigitUrl = import.meta.env.VITE_DIGIT_BASE_URL;
-console.log("apiDigitUrl==", apiDigitUrl);
+const apiDigitUrl = import.meta.env.VITE_APP_PROXY_API;
+
 // Application overview digit API
 export const applicationOverviewDigit1 = async () => {
   const payload = {};
@@ -79,7 +79,7 @@ export const benefitSummaryDigit = async () => {
   const data = JSON.stringify({});
   const config: AxiosRequestConfig = {
     method: "post",
-    url: `${apiDigitUrl}/aplication/v1/scholarships/details`, // Local proxy path
+    url: `${apiDigitUrl}/application/v1/scholarships/details`, // Local proxy path
     headers: {
       "Content-Type": "application/json",
     },

@@ -44,7 +44,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/application": {
-        target: "https://devpiramal.tekdinext.com", // or your backend URL
+        target: process.env.VITE_APP_PROXY_API, // or your backend URL
         changeOrigin: true,
         secure: false,
       },

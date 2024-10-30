@@ -91,7 +91,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({
           <Text fontSize="22px" fontWeight="400" color={"#2F3036"}>
             {t("DASHBOARD_FINANCIAL_OVERVIEW_TITLE")}
           </Text>
-          <VStack bg="#F8F8F8" p="2" align="stretch" flex="1">
+          <VStack bg="#F8F8F8" p="5" align="stretch" flex="1">
             <Text fontSize="16px" fontWeight="400">
               Total Budget:{" "}
               <b>
