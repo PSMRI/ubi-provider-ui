@@ -13,7 +13,18 @@ export const generalInfoSchema: JSONSchema7 = {
     benefitName: { type: "string", title: "Benefit Name" },
     benefitProvider: { type: "string", title: "Benefit Provider" },
     benefitSponsor1: { type: "string", title: "Benefit Sponsor-1" },
-    sponsor1Entity: { type: "string", title: "Sponsor-1 Entity Type" },
+    sponsor1Entity: {
+      type: "string",
+      title: "Sponsor-1 Entity Type",
+      enum: [
+        "NON_PROFIT",
+        "CORPORATE",
+        "GOVERNMENT",
+        "INSTITUTE",
+        "FOUNDATION",
+        "INDIVIDUAL",
+      ],
+    },
     sponsor1Share: { type: "string", title: "Sponsor-1 Share (Percentage)" },
 
     "": {
@@ -23,7 +34,18 @@ export const generalInfoSchema: JSONSchema7 = {
         type: "object",
         properties: {
           benefitSponsor: { type: "string", title: "Benefit Sponsor" },
-          sponsorEntity: { type: "string", title: "Sponsor Entity Type" },
+          sponsorEntity: {
+            type: "string",
+            title: "Sponsor Entity Type",
+            enum: [
+              "NON_PROFIT",
+              "CORPORATE",
+              "GOVERNMENT",
+              "INSTITUTE",
+              "FOUNDATION",
+              "INDIVIDUAL",
+            ],
+          },
           sponsorShare: { type: "string", title: "Sponsor Share (Percentage)" },
         },
       },
@@ -37,12 +59,16 @@ export const eligibilityCriteriaSchema: JSONSchema7 = {
 
   required: ["gender", "disability", "domicile"],
   properties: {
-    gender: { type: "boolean", title: "Gender" },
+    gender: {
+      type: "boolean",
+      title: "Gender",
+      enum: ["Male", "Female", "Both"],
+    },
     class: { type: "string", title: "Class", enum: ["10th", "12th", "Other"] },
     marks: {
       type: "string",
       title: "Marks (Minimum Required)",
-      enum: ["Above 60%", "Above 70%", "Other"],
+      enum: ["60%", "70%", "Other"],
     },
 
     minQualification: {
@@ -58,7 +84,7 @@ export const eligibilityCriteriaSchema: JSONSchema7 = {
     attendancePercentage: {
       type: "string",
       title: "Attendance Percentage",
-      enum: ["Above 60%", "Above 70%", "Other"],
+      enum: ["60%", "70%", "Other"],
     },
 
     annualIncome: {
@@ -75,17 +101,29 @@ export const eligibilityCriteriaSchema: JSONSchema7 = {
       },
       uniqueItems: true, // Prevents duplicate selections
     },
-    disability: { type: "boolean", title: "Disability" },
+    disability: {
+      type: "boolean",
+      title: "Disability",
+      enum: [
+        "Yes (only students with Disability can apply)",
+        "No (anyone can apply)",
+      ],
+    },
     domicile: {
       type: "string",
       title: "Domicile",
       enum: ["Madhya Pradesh", "Maharashtra", "Other"],
     },
-    dayScholar: { type: "boolean", title: "Dayscholar/Hostler" },
+    dayScholar: {
+      type: "string",
+      title: "Dayscholar/Hostler",
+      enum: ["Hosteler", "Dayscholar", "Not Applicable"],
+    },
+
     age: {
       type: "string",
       title: "Age",
-      enum: ["18 years", "25 years", "Other"],
+      enum: ["18", "25", "Other"],
     },
     eligibleChildren: {
       type: "string",
@@ -103,7 +141,6 @@ export const financialInformationSchema: JSONSchema7 = {
     parentOccupation: {
       type: "string",
       title: "Parent's Occupation",
-      enum: ["Service", "Business", "Other"],
     },
     amountPerBeneficiaryCategory: {
       type: "object",
@@ -117,17 +154,16 @@ export const financialInformationSchema: JSONSchema7 = {
         beneficieryType: {
           type: "string",
           title: "Beneficiary Type",
-          enum: ["SC", "ST", "Others"],
+          enum: ["HOSTELER", "DAYSCHOLAR", "BOTH"],
         },
         beneficieryCategory: {
           type: "string",
           title: "Beneficiary Category",
-          enum: ["SC", "ST", "Others"],
+          enum: ["Merit-based", "Need-based", "Others"],
         },
         beneficieryAmount: {
           type: "string",
           title: "Amount",
-          enum: ["SC", "ST", "Others"],
         },
       },
     },
@@ -145,17 +181,16 @@ export const financialInformationSchema: JSONSchema7 = {
           beneficieryType: {
             type: "string",
             title: "Beneficiary Type",
-            enum: ["SC", "ST", "Others"],
+            enum: ["HOSTELER", "DAYSCHOLAR", "BOTH"],
           },
           beneficieryCategory: {
             type: "string",
             title: "Beneficiary Category",
-            enum: ["SC", "ST", "Others"],
+            enum: ["Merit-based", "Need-based", "Others"],
           },
           beneficieryAmount: {
             type: "string",
             title: "Amount",
-            enum: ["SC", "ST", "Others"],
           },
         },
       },
@@ -171,7 +206,7 @@ export const financialInformationSchema: JSONSchema7 = {
 export const termsAndConditionSchema: JSONSchema7 = {
   title: "",
   type: "object",
-  required: ["applicationDeadlineDate", "validDate", "renewalApplicable"],
+
   properties: {
     academicYear: {
       type: "boolean",
@@ -186,17 +221,14 @@ export const termsAndConditionSchema: JSONSchema7 = {
     applicationDeadlineDate: {
       type: "string",
       title: "Application Deadline Date",
-      enum: ["10th", "12th", "Other"],
     },
     extendDeadlineDate: {
       type: "string",
       title: "Extend Deadline Date",
-      enum: ["10th", "12th", "Other"],
     },
     validDate: {
       type: "string",
       title: "Valid Till Date",
-      enum: ["10th", "12th", "Other"],
     },
     renewalApplicable: { type: "boolean", title: "Auto Renewal Applicable" },
   },
