@@ -19,7 +19,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { viewAllApplicationByBenefitId } from "../../../services/benefits";
 
 const columns = [
-  { key: "name", title: "Name", dataType: DataType.String },
+  { key: "studentName", title: "Name", dataType: DataType.String },
   { key: "applicationId", title: "Application ID", dataType: DataType.Number },
   { key: "status", title: "Status", dataType: DataType.String },
 
@@ -27,22 +27,6 @@ const columns = [
     key: "actions",
     title: "Actions",
     dataType: DataType.String,
-  },
-];
-const appData = [
-  {
-    name: "Namita",
-    applicationId: 1,
-
-    deadline: "1970-01-01",
-    status: "Active",
-  },
-  {
-    name: "Vidya",
-    applicationId: 2,
-
-    deadline: "1970-01-01",
-    status: "Draft",
   },
 ];
 
@@ -66,6 +50,7 @@ const ApplicantDetails: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState<string>("asc");
   const { id } = useParams<{ id: string }>();
+  const [applicationData, setApplicationData] = useState([]);
   useEffect(() => {
     const fetchApplicationData = async () => {
       if (id) {
@@ -73,7 +58,12 @@ const ApplicantDetails: React.FC = () => {
           const applicantionDataResponse = await viewAllApplicationByBenefitId(
             id
           );
-          console.log("applicantionDataResponse===", applicantionDataResponse);
+          const processedData = applicantionDataResponse?.map((item: any) => ({
+            studentName: item?.applicant?.studentName || "N/A",
+            applicationId: item?.id || "N/A",
+            status: item?.status || "N/A",
+          }));
+          setApplicationData(processedData);
         } catch (error) {
           console.error(error);
         }
@@ -83,7 +73,6 @@ const ApplicantDetails: React.FC = () => {
     };
     fetchApplicationData();
   }, [id]);
-
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
@@ -126,7 +115,7 @@ const ApplicantDetails: React.FC = () => {
         </HStack>
         <Table
           columns={columns}
-          data={appData}
+          data={applicationData}
           detailsRows={[1]}
           rowKeyField={"applicationId"}
           childComponents={{

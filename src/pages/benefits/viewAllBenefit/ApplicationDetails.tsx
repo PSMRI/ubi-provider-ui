@@ -11,99 +11,57 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../../../components/layout/Layout";
 import "react-datepicker/dist/react-datepicker.css";
 import { useParams } from "react-router-dom";
-
-const appData = [
-  {
-    name: "Namita",
-    applicationId: 1,
-
-    deadline: "1970-01-01",
-    status: "Active",
-  },
-  {
-    name: "Vidya",
-    applicationId: 2,
-
-    deadline: "1970-01-01",
-    status: "Draft",
-  },
-];
-const detailData = [
-  {
-    name: "Namita",
-    applicationId: 1,
-    gender: "Female",
-    age: 12,
-    class: 10,
-    marks: 90,
-  },
-  {
-    name: "Vidya",
-    applicationId: 2,
-    gender: "Female",
-    age: 12,
-    class: 10,
-    marks: 90,
-  },
-];
+import { viewApplicationByApplicationId } from "../../../services/benefits";
+import Loading from "../../../components/common_components/Loading";
 
 const ApplicationDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const [applicantData, setApplicantData] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<any[]>([]);
+  const [documentData, setDocumentData] = useState<any[]>([]);
 
-  const matchedDetail = detailData.find(
-    (detail) => detail.applicationId === Number(id)
-  );
-  const applicantDetail = appData.find(
-    (detail) => detail.applicationId === Number(id)
-  );
-  const fieldsToDisplay: {
-    label: string;
-    key: keyof (typeof detailData)[0];
-  }[] = [
-    { label: "Full Name", key: "name" },
-    { label: "Gender", key: "gender" },
-    { label: "Age", key: "age" },
-    { label: "Class", key: "class" },
-    { label: "Marks", key: "marks" },
-  ];
-  const applicantionFieldsToDisplay: {
-    label: string;
-    key: keyof (typeof appData)[0];
-  }[] = [
-    { label: "Application ID", key: "applicationId" },
-    { label: "Status", key: "status" },
-  ];
-  //   useEffect(() => {
-  //     const fetchApplicationData = async () => {
-  //       if (id) {
-  //         try {
-  //           const applicantionDataResponse = await viewApplicationByApplicationId(
-  //             Number(id)
-  //           );
-  //           console.log("applicantionDataResponse===", applicantionDataResponse);
-  //         } catch (error) {
-  //           console.error(error);
-  //         }
-  //       } else {
-  //         console.error("id is undefined");
-  //       }
-  //     };
-  //     fetchApplicationData();
-  //   }, [id]);
+  useEffect(() => {
+    const fetchApplicationData = async () => {
+      if (id) {
+        setLoading(true);
+        try {
+          const applicantionDataResponse = await viewApplicationByApplicationId(
+            id
+          );
+          setLoading(false);
+          setStatus(applicantionDataResponse?.status || "N/A");
+          setApplicantData(applicantionDataResponse?.applicant || null);
+          setDocumentData(applicantionDataResponse?.documents || []);
+        } catch (error) {
+          setLoading(false);
+          console.error(error);
+        }
+      } else {
+        setLoading(false);
+        console.error("id is undefined");
+      }
+    };
+    fetchApplicationData();
+  }, [id]);
 
+  if (!applicantData) {
+    return <Loading />;
+  }
   return (
     <Layout
       _titleBar={{
-        title: `Applicant Details : ${matchedDetail?.applicationId}`,
+        title: `Applicant Details : ${applicantData?.applicationId || id}`,
       }}
       showMenu={true}
       showSearchBar={true}
       showLanguage={false}
     >
+      {loading && <Loading />}
       <VStack spacing="50px" p={"20px"} align="stretch">
         <VStack align="start" spacing={4} p={4} bg="gray.50">
           <HStack
@@ -114,16 +72,18 @@ const ApplicationDetails: React.FC = () => {
             borderRadius="md"
             bg="white"
           >
-            {applicantionFieldsToDisplay?.map((appFeild) => (
-              <FormControl key={appFeild.key}>
-                <FormLabel>{appFeild.label}</FormLabel>
-                <Input
-                  value={applicantDetail?.[appFeild.key] ?? ""}
-                  isReadOnly
-                  variant="unstyled"
-                />
-              </FormControl>
-            ))}
+            <FormControl>
+              <FormLabel>Application ID </FormLabel>
+              <Input
+                value={applicantData.applicationId ?? "N/A"}
+                isReadOnly
+                variant="unstyled"
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel>Status </FormLabel>
+              <Input value={status ?? "N/A"} isReadOnly variant="unstyled" />
+            </FormControl>
           </HStack>
           <HStack
             spacing={8}
@@ -133,23 +93,81 @@ const ApplicationDetails: React.FC = () => {
             borderRadius="md"
             bg="white"
           >
-            {fieldsToDisplay.map((field) => (
-              <VStack key={field.key} align="start" spacing={2} w="20%">
-                <FormControl>
-                  <FormLabel>{field.label}</FormLabel>
-                  <InputGroup size="md">
-                    <Input
-                      value={matchedDetail?.[field.key] ?? ""}
-                      isReadOnly
-                      variant="unstyled"
-                    />
-                    <InputRightElement>
-                      <CheckIcon color="green.500" />
-                    </InputRightElement>
-                  </InputGroup>
-                </FormControl>
-              </VStack>
-            ))}
+            <VStack align="start" spacing={2} w="20%">
+              <FormControl>
+                <FormLabel>Full Name</FormLabel>
+                <InputGroup size="md">
+                  <Input
+                    value={applicantData.studentName}
+                    isReadOnly
+                    variant="unstyled"
+                  />
+                  <InputRightElement>
+                    <CheckIcon color="green.500" />
+                  </InputRightElement>
+                </InputGroup>
+              </FormControl>
+            </VStack>
+            <VStack align="start" spacing={2} w="20%">
+              <FormControl>
+                <FormLabel>Gender</FormLabel>
+                <InputGroup size="md">
+                  <Input
+                    value={applicantData.gender}
+                    isReadOnly
+                    variant="unstyled"
+                  />
+                  <InputRightElement>
+                    <CheckIcon color="green.500" />
+                  </InputRightElement>
+                </InputGroup>
+              </FormControl>
+            </VStack>
+            <VStack align="start" spacing={2} w="20%">
+              <FormControl>
+                <FormLabel>Age</FormLabel>
+                <InputGroup size="md">
+                  <Input
+                    value={applicantData.age}
+                    isReadOnly
+                    variant="unstyled"
+                  />
+                  <InputRightElement>
+                    <CheckIcon color="green.500" />
+                  </InputRightElement>
+                </InputGroup>
+              </FormControl>
+            </VStack>
+            <VStack align="start" spacing={2} w="20%">
+              <FormControl>
+                <FormLabel>Class</FormLabel>
+                <InputGroup size="md">
+                  <Input
+                    value={applicantData.currentClass}
+                    isReadOnly
+                    variant="unstyled"
+                  />
+                  <InputRightElement>
+                    <CheckIcon color="green.500" />
+                  </InputRightElement>
+                </InputGroup>
+              </FormControl>
+            </VStack>
+            <VStack align="start" spacing={2} w="20%">
+              <FormControl>
+                <FormLabel>Marks</FormLabel>
+                <InputGroup size="md">
+                  <Input
+                    value={applicantData.marks || "N/A"}
+                    isReadOnly
+                    variant="unstyled"
+                  />
+                  <InputRightElement>
+                    <CheckIcon color="green.500" />
+                  </InputRightElement>
+                </InputGroup>
+              </FormControl>
+            </VStack>
           </HStack>
           <Text fontWeight="bold" fontSize={"24px"}>
             Supporting Documents
@@ -162,21 +180,23 @@ const ApplicationDetails: React.FC = () => {
             borderRadius="md"
             bg="white"
           >
-            <FormControl>
-              <FormLabel>Certificate Name</FormLabel>
-              <InputGroup>
-                <InputLeftElement pointerEvents="none">
-                  <CheckIcon color="#0037B9" />
-                </InputLeftElement>
-                <Input
-                  color={"#0037B9"}
-                  value="Attached Certificate.pdf"
-                  isReadOnly
-                  variant="unstyled"
-                  pl="2.5rem"
-                />
-              </InputGroup>
-            </FormControl>
+            {documentData.map((doc) => (
+              <FormControl key={doc.id}>
+                <FormLabel>{doc.documentType.replace(/_/g, " ")}</FormLabel>
+                <InputGroup>
+                  <InputLeftElement pointerEvents="none">
+                    <CheckIcon color="#0037B9" />
+                  </InputLeftElement>
+                  <Input
+                    color={"#0037B9"}
+                    value={`File: ${doc.fileStoreId}`} // Use documentType for display
+                    isReadOnly
+                    variant="unstyled"
+                    pl="2.5rem"
+                  />
+                </InputGroup>
+              </FormControl>
+            ))}
           </HStack>
           <HStack spacing={4} justifyContent={"center"} w="100%">
             <Button

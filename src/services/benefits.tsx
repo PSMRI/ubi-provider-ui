@@ -111,8 +111,7 @@ export const updateForm = async (
 
 export const viewAllBenefitsData = async (payload: ViewAllBenefits) => {
   try {
-    const response = await axios.post(`${apiUrl}/benefits/v1/_search`, payload);
-    console.log(response.data);
+    const response = await axios.post(`/benefits/v1/_search`, payload);
     return response?.data;
   } catch (error) {
     console.log(error);
@@ -121,20 +120,28 @@ export const viewAllBenefitsData = async (payload: ViewAllBenefits) => {
 
 export const viewAllApplicationByBenefitId = async (id: string) => {
   try {
+    const payload = {
+      benefitId: id,
+    };
     const response = await axios.post(
-      `${apiUrl}/benefits/v1/${id}/application`
+      `${apiUrl}/benefits/v1/getApplicationsByBenefitId`,
+      payload
     );
-    console.log(response.data);
     return response?.data;
   } catch (error) {
     console.log(error);
   }
 };
 
-export const viewApplicationByApplicationId = async (id: number) => {
+export const viewApplicationByApplicationId = async (id: string) => {
   try {
-    const response = await axios.post(`${apiUrl}/application/v1/getById/${id}`);
-    console.log(response.data);
+    const payload = {
+      applicationId: id,
+    };
+    const response = await axios.post(
+      `${apiUrl}/application/v1/getByApplicationId`,
+      payload
+    );
     return response?.data;
   } catch (error) {
     console.log(error);

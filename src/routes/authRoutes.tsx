@@ -38,13 +38,13 @@ const routes = [
     component: ApplicationDetails,
   },
   {
-    path: "/provider.com/:id/apply",
+    path: "/uba-ui/provider.com/:id/apply",
     component: BenefitFormUI,
   },
-  // {
-  //   path: "*",
-  //   component: Dashboard,
-  // },
+  {
+    path: "*",
+    component: Dashboard,
+  },
 ];
 
 export default routes;
