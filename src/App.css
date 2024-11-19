@@ -44,6 +44,9 @@
 .react-datepicker__portal {
   z-index: 111 !important;
 }
-.rjsf > form > button[type="submit"] {
-  display: none !important;
+.custom-btn {
+  padding: 24px 63px !important;
+  background-color: #3c5fdd !important;
+  color: #fff !important;
+  border-radius: 100px !important;
 }
