@@ -12,39 +12,44 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Layout from "../../components/layout/Layout";
 import LeftSideBar from "../../components/common/login/LeftSideBar";
-import { LoginProvider } from "../../services/auth";
+// import { LoginProvider } from "../../services/auth";
 import Loading from "../../components/common_components/Loading";
-import AlertMessage from "../../components/common/modal/AlertMessage";
+// import AlertMessage from "../../components/common/modal/AlertMessage";
 export default function Login() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [message, setMessage] = useState("");
+  // const [showAlert, setShowAlert] = useState(false);
+  // const [message, setMessage] = useState("");
   const handleLogin = async () => {
     setIsLoading(true);
     localStorage.setItem("Email", email);
-    try {
-      const loginResponse = await LoginProvider(email);
-      if (loginResponse) {
-        setIsLoading(false);
-        navigate("/otp", { state: { fromPage: "login" } });
-      } else {
-        setIsLoading(false);
-        setMessage(t("LOGIN_ERROR"));
-        setShowAlert(true);
-      }
-    } catch (err) {
+    // try {
+    //   const loginResponse = await LoginProvider(email);
+    //   if (loginResponse) {
+
+    const timer = setTimeout(() => {
       setIsLoading(false);
-      setMessage(err as string);
-      setShowAlert(true);
-    }
+      navigate("/otp", { state: { fromPage: "login" } });
+    }, 3000);
+    return () => clearTimeout(timer);
+
+    // } else {
+    //   setIsLoading(false);
+    //   setMessage(t("LOGIN_ERROR"));
+    //   setShowAlert(true);
+    // }
+    // } catch (err) {
+    //   setIsLoading(false);
+    //   setMessage(err as string);
+    //   setShowAlert(true);
+    // }
   };
 
-  const handleCloseAlertModal = () => {
-    setShowAlert(false);
-  };
+  // const handleCloseAlertModal = () => {
+  //   setShowAlert(false);
+  // };
 
   return (
     <Layout showMenu={false} showSearchBar={false} showLanguage={true}>
@@ -61,7 +66,7 @@ export default function Login() {
             align={"center"}
             justify={"center"}
             w={"full"}
-            h={"full"} // Ensure full height is used
+            h={"full"}
             overflow="hidden"
           >
             <Stack spacing={4} w={"full"}>
@@ -105,7 +110,6 @@ export default function Login() {
                   variant={"outline"}
                   borderRadius={"100px"}
                   onClick={() => {
-                    // localStorage.setItem("token", "true");
                     navigate("/user/register");
                   }}
                 >
@@ -119,13 +123,13 @@ export default function Login() {
         </HStack>
       )}
 
-      {showAlert && (
+      {/* {showAlert && (
         <AlertMessage
           message={message}
           show={showAlert}
           close={handleCloseAlertModal}
         />
-      )}
+      )} */}
     </Layout>
   );
 }

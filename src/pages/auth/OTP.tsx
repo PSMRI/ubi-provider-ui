@@ -14,9 +14,9 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 
 import Layout from "../../components/layout/Layout";
 import LeftSideBar from "../../components/common/login/LeftSideBar";
-import { sendOTP, userRegister } from "../../services/auth";
+// import { sendOTP, userRegister } from "../../services/auth";
 import Loading from "../../components/common_components/Loading";
-import AlertMessage from "../../components/common/modal/AlertMessage";
+// import AlertMessage from "../../components/common/modal/AlertMessage";
 
 export default function OTP() {
   const navigate = useNavigate();
@@ -27,16 +27,14 @@ export default function OTP() {
   const [timer, setTimer] = React.useState(300); // 5 minutes countdown (300 seconds)
   const otpArray = Array(6).fill("");
   const [isLoading, setIsLoading] = React.useState(false);
-  const [showAlert, setShowAlert] = React.useState(false);
-  const [message, setMessage] = React.useState("");
+  // const [showAlert, setShowAlert] = React.useState(false);
+  // const [message, setMessage] = React.useState("");
   const fromPage = location?.state?.fromPage || "login";
-  // Handle OTP input change
   const handleChange = (element: any) => {
     setOtp(element);
     setIsSubmitDisabled(element.length !== 6);
   };
 
-  // Countdown timer effect
   React.useEffect(() => {
     if (timer > 0) {
       const countdown = setInterval(() => {
@@ -46,7 +44,6 @@ export default function OTP() {
     }
   }, [timer]);
 
-  // Format time as MM:SS
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -54,52 +51,60 @@ export default function OTP() {
   };
   const handleOtp = async () => {
     setIsLoading(true);
-    const otpNumber = Number(otp);
-    const email = localStorage.getItem("Email");
-    if (fromPage == "registration" && email) {
-      try {
-        const registerResponse = await userRegister(otpNumber, email);
-        setIsLoading(false);
-        if (registerResponse?.jwt) {
-          setIsLoading(false);
-          localStorage.setItem("token", "true");
-          localStorage.setItem("user", JSON.stringify(registerResponse?.user));
-          navigate(0); //string to number
-        } else {
-          setIsLoading(false);
-          setMessage(t("OTP_ERROR"));
-          setShowAlert(true);
-        }
-      } catch (err) {
-        setIsLoading(false);
-        setMessage(err as string);
-        setShowAlert(true);
-      }
-    } else if (fromPage == "login" && email) {
-      try {
-        const otpLoginResponse = await sendOTP(otpNumber, email);
-        setIsLoading(false);
-        if (otpLoginResponse?.jwt) {
-          localStorage.setItem("token", "true");
-          setIsLoading(false);
-          localStorage.setItem("user", JSON.stringify(otpLoginResponse?.user));
-          navigate(0); //string to number
-        } else {
-          setIsLoading(false);
-          setMessage(t("OTP_ERROR"));
-          setShowAlert(true);
-        }
-      } catch (err) {
-        setIsLoading(false);
-        setMessage(err as string);
-        setShowAlert(true);
-      }
-    }
+    // const otpNumber = Number(otp);
+    // const email = localStorage.getItem("Email");
+    // if (fromPage == "registration" || (fromPage == "login" && email)) {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      localStorage.setItem("token", "true");
+      navigate("/home");
+      window.location.reload();
+    }, 3000);
+    return () => clearTimeout(timer);
+    // try {
+    //   const registerResponse = await userRegister(otpNumber, email);
+    //   setIsLoading(false);
+    //   if (registerResponse?.jwt) {
+    //     setIsLoading(false);
+    //     localStorage.setItem("token", "true");
+    //     localStorage.setItem("user", JSON.stringify(registerResponse?.user));
+    //     navigate(0);
+    //   } else {
+    //     setIsLoading(false);
+    //     setMessage(t("OTP_ERROR"));
+    //     setShowAlert(true);
+    //   }
+    // } catch (err) {
+    //   setIsLoading(false);
+    //   setMessage(err as string);
+    //   setShowAlert(true);
+    // }
+    // }
+    // else if (fromPage == "login" && email) {
+    //   try {
+    //     const otpLoginResponse = await sendOTP(otpNumber, email);
+    //     setIsLoading(false);
+    //     if (otpLoginResponse?.jwt) {
+    //       localStorage.setItem("token", "true");
+    //       setIsLoading(false);
+    //       localStorage.setItem("user", JSON.stringify(otpLoginResponse?.user));
+    //       navigate(0);
+    //     } else {
+    //       setIsLoading(false);
+    //       setMessage(t("OTP_ERROR"));
+    //       setShowAlert(true);
+    //     }
+    //   } catch (err) {
+    //     setIsLoading(false);
+    //     setMessage(err as string);
+    //     setShowAlert(true);
+    //   }
+    // }
   };
-  const handleCloseAlertModal = () => {
-    setShowAlert(false);
-  };
-  //conflict solve
+  // const handleCloseAlertModal = () => {
+  //   setShowAlert(false);
+  // };
+
   return (
     <Layout showMenu={false} showSearchBar={false} showLanguage={true}>
       {isLoading ? (
@@ -182,14 +187,14 @@ export default function OTP() {
           </VStack>
         </HStack>
       )}
-
+      {/* 
       {showAlert && (
         <AlertMessage
           message={message}
           show={showAlert}
           close={handleCloseAlertModal}
         />
-      )}
+      )} */}
     </Layout>
   );
 }

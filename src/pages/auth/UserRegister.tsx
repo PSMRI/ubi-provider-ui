@@ -14,10 +14,10 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, Link } from "react-router-dom";
 import Layout from "../../components/layout/Layout";
 import LeftSideBar from "../../components/common/login/LeftSideBar";
-import { registerProvider } from "../../services/auth";
+// import { registerProvider } from "../../services/auth";
 import Loading from "../../components/common_components/Loading";
 import ModalShow from "../../components/common/modal/ModalShow";
-import AlertMessage from "../../components/common/modal/AlertMessage";
+// import AlertMessage from "../../components/common/modal/AlertMessage";
 export default function UserRegister() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -26,37 +26,41 @@ export default function UserRegister() {
   const [email, setEmail] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [open, setOpen] = React.useState(false);
-  const [showAlert, setShowAlert] = React.useState(false);
-  const [message, setMessage] = React.useState("");
+  // const [showAlert, setShowAlert] = React.useState(false);
+  // const [message, setMessage] = React.useState("");
   const [showTooltip, setShowTooltip] = React.useState(false);
 
   const handleRegister = async () => {
     localStorage.setItem("Email", email);
     setIsLoading(true);
-    try {
-      const registerResponse = await registerProvider(name, email);
-      if (registerResponse) {
-        navigate("/otp", { state: { fromPage: "registration" } });
-      } else {
-        setMessage(t("REGISTER_ERROR"));
-        setShowAlert(true);
-      }
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : t("REGISTER_ERROR"));
-      setShowAlert(true);
-    } finally {
+    const timer = setTimeout(() => {
       setIsLoading(false);
-    }
+      navigate("/otp", { state: { fromPage: "registration" } });
+    }, 3000);
+    return () => clearTimeout(timer);
+    // try {
+    //   const registerResponse = await registerProvider(name, email);
+    //   if (registerResponse) {
+    //     navigate("/otp", { state: { fromPage: "registration" } });
+    //   } else {
+    //     setMessage(t("REGISTER_ERROR"));
+    //     setShowAlert(true);
+    //   }
+    // } catch (err) {
+    //   setMessage(err instanceof Error ? err.message : t("REGISTER_ERROR"));
+    //   setShowAlert(true);
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
-  const handleCloseAlertModal = () => {
-    setShowAlert(false);
-  };
+  // const handleCloseAlertModal = () => {
+  //   setShowAlert(false);
+  // };
   const handleCloseModal = () => {
     setOpen(false);
     setIsChecked(true);
   };
 
-  //conflict solve
   return (
     <Layout showMenu={false} showSearchBar={false} showLanguage={true}>
       {isLoading ? (
@@ -161,13 +165,13 @@ export default function UserRegister() {
         </HStack>
       )}
       {open && <ModalShow show={open} close={handleCloseModal} />}
-      {showAlert && (
+      {/* {showAlert && (
         <AlertMessage
           message={message}
           show={showAlert}
           close={handleCloseAlertModal}
         />
-      )}
+      )} */}
     </Layout>
   );
 }

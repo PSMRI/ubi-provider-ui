@@ -18,24 +18,27 @@ import Tab from "../../components/common/Tab";
 import Table from "../../components/common/table/Table";
 import { DataType } from "ka-table/enums";
 import { ICellTextProps } from "ka-table/props";
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useState } from "react";
 import { useTableInstance } from "ka-table";
 import { detailViewRow, formatDate } from "../../services/dashboard";
 import ChartWithErrorBoundary from "./ChartWithErrorBoundary";
 import { useTranslation } from "react-i18next";
+import { viewAllBenefitsData } from "../../services/benefits";
 
 interface Sponsor {
-  sponsor_name: string;
-  share_percent: number;
+  benefitSponsor: string;
+  sponsorShare: number;
 }
 
 interface DetailData {
   id: string;
+  application_deadline: string;
   sponsors: Sponsor[];
   price: number;
   benefit: any[]; // Define this more specifically if you have a better shape
   // Add other properties based on the API response
 }
+
 const columns = [
   { key: "name", title: "Name", dataType: DataType.String },
   { key: "applicants", title: "Applicants", dataType: DataType.Number },
@@ -75,7 +78,7 @@ const ActionCell = ({
   // Method to show the details row
   const showDetails = async () => {
     table.showDetailsRow(rowKeyValue);
-    await fetchRowDetails(rowData?.rowData?.documentId);
+    await fetchRowDetails(rowData?.rowData?.id);
   };
 
   // Method to hide the details row
@@ -120,37 +123,45 @@ const DeadLineCell = (prop: ICellTextProps) => {
 
 const BenefitsList: React.FC<{
   _vstack?: object;
-  benefitData?: { benefit_summary: { status: string }[] };
-}> = memo(({ _vstack, benefitData }) => {
+}> = memo(({ _vstack }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [data, setData] = useState([]);
   const [detailData, setDetailData] = useState<DetailData[]>([]);
-  useEffect(() => {
-    const init = async () => {
-      // Filtering data based on the selected tab (Active, Closed, Drafts)
-      if (benefitData?.benefit_summary) {
-        const filteredTableData = benefitData?.benefit_summary?.filter(
-          (item) => {
-            switch (activeTab) {
-              case 0:
-                return item?.status === "active" || item?.status === "Active";
-              case 1:
-                return item.status === "closed" || item.status === "Closed";
-              case 2:
-                return item.status === "Draft" || item.status === "draft";
-              default:
-                return "No data found";
-            }
-          }
-        );
-        setData(filteredTableData as any);
+
+  const fetchBenefitList = async (tab: number) => {
+    const status = (() => {
+      switch (tab) {
+        case 0:
+          return "ACTIVE";
+        case 1:
+          return "CLOSED";
+        case 2:
+          return "DRAFT";
+        default:
+          return "No data found";
       }
+    })();
+    const payload = {
+      name: null,
+      valid_till: null,
+      created_start: null,
+      created_end: null,
+      status: status,
+      page_no: 0,
+      page_size: 10,
+      sort_by: "benefit_name",
+      sort_order: "",
     };
-    init();
-  }, [activeTab, benefitData]);
+
+    const response = await viewAllBenefitsData(payload);
+    if (response) {
+      setData(response);
+    }
+  };
 
   const handleTabClick = (tab: string) => {
     setActiveTab(parseInt(tab, 10));
+    fetchBenefitList(parseInt(tab, 10));
   };
   const handleDetailData = (data: DetailData) => {
     setDetailData((prevData) => {
@@ -161,8 +172,8 @@ const BenefitsList: React.FC<{
       return [...prevData, data];
     });
   };
-  const detailRowdata = (props: any) =>
-    detailData?.find((item) => item?.id === props?.rowData.id) || null;
+
+  console.log("detailRowdata===", detailData);
   return (
     <VStack spacing="20px" align="stretch" {..._vstack}>
       <HStack justifyContent="space-between">
@@ -185,6 +196,7 @@ const BenefitsList: React.FC<{
           </InputRightElement>
         </InputGroup>
       </HStack>
+
       <Table
         columns={columns}
         data={data?.length > 0 ? data : []}
@@ -195,8 +207,14 @@ const BenefitsList: React.FC<{
               customCellText(props, handleDetailData),
           },
           detailsRow: {
-            content: (props: any) =>
-              detailsRow({ detailData: detailRowdata(props) }),
+            content: (props: any) => {
+              const detailRowItem = detailData.find(
+                (item) => item.id === props.rowData.id
+              );
+              return detailsRow({
+                detailData: detailRowItem,
+              });
+            },
           },
         }}
       />
@@ -226,13 +244,12 @@ const customCellText = (
   }
 };
 
-const detailsRow = ({ detailData }: { detailData: any }) => {
-  // Pie chart data
+const detailsRow = ({ detailData }: { detailData: DetailData | null }) => {
   const { t } = useTranslation();
 
   const chartData = {
     options: {
-      labels: detailData?.sponsors?.map((e: Sponsor) => e.sponsor_name),
+      labels: detailData?.sponsors?.map((e: Sponsor) => e.benefitSponsor) || [],
       colors: ["#06164B", "#DDE1FF"],
       dataLabels: {
         enabled: true,
@@ -241,9 +258,9 @@ const detailsRow = ({ detailData }: { detailData: any }) => {
         position: "bottom",
         horizontalAlign: "left",
       },
-      plotOptions: { pie: { startAngle: 45 } },
+      plotOptions: { pie: { startAngle: 0, endAngle: 360 } },
     },
-    series: detailData?.sponsors.map((e: Sponsor) => e.share_percent),
+    series: detailData?.sponsors?.map((e: Sponsor) => e.sponsorShare) || [],
   };
 
   return (
@@ -256,7 +273,7 @@ const detailsRow = ({ detailData }: { detailData: any }) => {
           </Text>
           <Text fontSize="16px" fontWeight="400">
             {"Number of Sponsors: "}
-            <b>{detailData?.sponsors.length}</b>
+            <b>{detailData?.sponsors?.length}</b>
           </Text>
 
           <ChartWithErrorBoundary
@@ -274,7 +291,7 @@ const detailsRow = ({ detailData }: { detailData: any }) => {
           <Text fontSize="12px" fontWeight={400}>
             {t("DASHBOARD_ALL_BENEFITS_SUMMARY_CURRENT_DEADLINES_TEXT")}:
             <Text as="span" display="block">
-              {formatDate(detailData?.application_deadline)}
+              {formatDate(detailData?.application_deadline as string)}
             </Text>
             <HStack spacing={2} alignItems="flex-start">
               <Text fontSize={"14px"} fontWeight="500px" color={"#0037B9"}>

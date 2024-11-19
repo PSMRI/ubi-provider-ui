@@ -1,6 +1,12 @@
 import { lazy } from "react";
+import ViewApplicants from "../pages/benefits/viewAllBenefit/ApplicantDetails";
+import ApplicationDetails from "../pages/benefits/viewAllBenefit/ApplicationDetails";
 const BenefitsForm = lazy(() => import("../pages/benefits/form/Form"));
 const Dashboard = lazy(() => import("../pages/dashboard/Dashboard"));
+
+const ViewAllBenefits = lazy(
+  () => import("../pages/benefits/viewAllBenefit/ViewAllBenefits")
+);
 
 //lazy loading
 const routes = [
@@ -19,9 +25,21 @@ const routes = [
   },
 
   {
-    path: "*",
-    component: Dashboard,
+    path: "/benefit_list",
+    component: ViewAllBenefits,
   },
+  {
+    path: "/:id/applicants_list",
+    component: ViewApplicants,
+  },
+  {
+    path: "/application_detail/:id",
+    component: ApplicationDetails,
+  },
+  // {
+  //   path: "*",
+  //   component: Dashboard,
+  // },
 ];
 
 export default routes;

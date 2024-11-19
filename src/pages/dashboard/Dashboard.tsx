@@ -5,7 +5,6 @@ import BenefitSummary from "./BenefitSummary";
 import KeyMatrics from "./KeyMatrics";
 import React from "react";
 import {
-  applicationOverview,
   applicationOverviewDigit,
   benefitSummaryDigit,
   financialOverviewDigit,
@@ -14,7 +13,6 @@ import {
 import Loading from "../../components/common_components/Loading";
 import AlertMessage from "../../components/common/modal/AlertMessage";
 function Dashboard() {
-  const [data, setData] = React.useState<any>(null);
   const [applicationData, setApplicationData] = React.useState<any>(null);
   const [financialData, setFinancialData] = React.useState<any>(null);
   const [popularData, setPopularData] = React.useState<any>(null);
@@ -29,12 +27,7 @@ function Dashboard() {
     const fetchData = async () => {
       try {
         if (userId) {
-          // Check if userId is not null
-          const userObject = JSON.parse(userId); // Parse the JSON string to an object
           setIsLoading(true);
-          // Extract the id, ensuring to handle possible null cases
-          const id = userObject.id;
-          const response = await applicationOverview(id);
           const digitApplicantResponse = await applicationOverviewDigit();
           const digitFinancialResponse = await financialOverviewDigit();
           const digitPopularResponse = await popularBenefitDigit();
@@ -53,7 +46,6 @@ function Dashboard() {
             setBenefitSummaryData({ benefit_summary: benefitSummaryResponse });
           }
           setIsLoading(false);
-          setData(response);
         } else {
           setIsLoading(false);
           setMessage("No user data found!");
@@ -88,7 +80,7 @@ function Dashboard() {
           popularBenefit={popularData}
         />
         <BenefitSummary tableData={benefitSummaryData} />
-        <CommonBarChart chartData={data} />
+        <CommonBarChart />
       </VStack>
       {showAlert && (
         <AlertMessage

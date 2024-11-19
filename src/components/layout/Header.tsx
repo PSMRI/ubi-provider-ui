@@ -52,22 +52,22 @@ const Header: React.FC<HeaderProps> = ({
     {
       label: "Dashboard",
       onClick: () => {
-        navigate("/");
+        navigate("/home");
       },
     },
-    {
-      label: "Quick Actions",
-      option: [
-        {
-          name: "Create",
-          icon: <AddIcon />,
-          onClick: () => {
-            navigate("/benefits/form");
-          },
-        },
-        { name: "Edit", icon: <EditIcon /> },
-      ],
-    },
+    // {
+    //   label: "Quick Actions",
+    //   option: [
+    //     {
+    //       name: "Create",
+    //       icon: <AddIcon />,
+    //       onClick: () => {
+    //         navigate("/benefits/form");
+    //       },
+    //     },
+    //     { name: "Edit", icon: <EditIcon /> },
+    //   ],
+    // },
     {
       label: "Log out",
       onClick: () => {

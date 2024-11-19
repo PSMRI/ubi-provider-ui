@@ -1,6 +1,7 @@
-import { Text, VStack } from "@chakra-ui/react";
+import { Button, Text, VStack } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import BenefitsList from "../benefits/List";
+import { useNavigate } from "react-router-dom";
 
 interface BenefitSummaryProps {
   tableData: {
@@ -17,10 +18,11 @@ interface BenefitSummaryProps {
   };
 }
 
-const BenefitSummary: React.FC<BenefitSummaryProps> = ({ tableData }) => {
+const BenefitSummary: React.FC<BenefitSummaryProps> = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
   // Check if benefit_summary is defined and is an array
-  const benefits = tableData?.benefit_summary || [];
   return (
     <VStack spacing="60px" align="stretch" px="28px">
       <Text fontSize="36px" fontWeight="400" color={"#2F3036"} px="170px">
@@ -34,9 +36,21 @@ const BenefitSummary: React.FC<BenefitSummaryProps> = ({ tableData }) => {
             pt: "10",
             boxShadow: "0px 2px 6px 2px #00000026",
           }}
-          benefitData={{ benefit_summary: benefits }}
         />
       </VStack>
+      <Button
+        colorScheme={"blue"}
+        bg="#0037B9"
+        variant={"solid"}
+        borderRadius={"100px"}
+        w="494px"
+        alignSelf="center"
+        onClick={() => {
+          navigate("/benefit_list");
+        }}
+      >
+        {t("BENEFIT_SUMMARY_VIEW_BENEFIT_BUTTON")}
+      </Button>
     </VStack>
   );
 };

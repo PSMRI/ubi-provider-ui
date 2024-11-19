@@ -1,37 +1,11 @@
-import React from "react";
 import Chart from "react-apexcharts";
 import { useTranslation } from "react-i18next";
 import { HStack, VStack, Select, Text } from "@chakra-ui/react";
 import { visualRepresentation } from "../../utils/dataJSON/BenefitSummary";
 
-// Define the structure for the props and visualData
-interface DataItem {
-  label: string;
-  count: number;
-}
-
-interface VisualData {
-  gender: DataItem[];
-  caste: DataItem[];
-  ratio: DataItem[];
-  standard: DataItem[];
-}
-
-interface ChartData {
-  chartData: {
-    visualData: VisualData;
-  };
-}
-
-const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
+const CommonBarChart = () => {
   const { t } = useTranslation();
-  const visualdata = chartData?.visualData;
-  console.log(
-    visualdata?.standard?.length > 0
-      ? visualdata?.standard?.reduce((acc, item) => acc + item.count, 0)
-      : 0
-  );
-  // Pie chart data
+
   const data = [
     {
       title: "Disbursal Rate",
@@ -48,7 +22,7 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
         ],
         chart: {
           toolbar: {
-            show: false, // Disable the menu
+            show: false,
           },
         },
         xaxis: {
@@ -56,7 +30,7 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
             (e) => e.label
           ),
           labels: {
-            show: false, // Hide x-axis labels
+            show: false,
           },
           title: {
             text: "Weeks",
@@ -64,7 +38,7 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
         },
         yaxis: {
           labels: {
-            show: false, // Hide x-axis labels
+            show: false,
           },
           title: {
             text: "Percentage",
@@ -76,15 +50,15 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
             return val + "%";
           },
           style: {
-            colors: ["#000"], // Set the color of the labels
-            fontSize: "10px", // font size 10
+            colors: ["#000"],
+            fontSize: "10px",
           },
-          offsetY: -20, // Adjust the position above the bar
+          offsetY: -20,
         },
         plotOptions: {
           bar: {
             dataLabels: {
-              position: "top", // Show the data labels on top of the bars
+              position: "top",
             },
           },
         },
@@ -100,15 +74,18 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
     {
       title: "Breakdown by Gender",
       count:
-        visualdata?.gender?.length > 0
-          ? visualdata?.gender?.reduce((acc, item) => acc + item.count, 0)
+        visualRepresentation?.gender?.length > 0
+          ? visualRepresentation?.gender?.reduce(
+              (acc, item) => acc + item.count,
+              0
+            )
           : 0,
       type: "pie",
       footerText: "Gender",
       options: {
         labels:
-          visualdata?.gender?.length > 0
-            ? visualdata?.gender?.map((e) => e.label)
+          visualRepresentation?.gender?.length > 0
+            ? visualRepresentation?.gender?.map((e) => e.label)
             : [],
         colors: ["#867fa5", "#06164B", "#DDE1FF"],
         dataLabels: {
@@ -120,28 +97,31 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
         states: {
           hover: {
             filter: {
-              type: "none", // Disable hover effect
+              type: "none",
             },
           },
         },
       },
       series:
-        visualdata?.gender?.length > 0
-          ? visualdata?.gender?.map((e) => e.count)
+        visualRepresentation?.gender?.length > 0
+          ? visualRepresentation?.gender?.map((e) => e.count)
           : [],
     },
     {
       title: "Breakdown by Caste",
       count:
-        visualdata?.caste?.length > 0
-          ? visualdata?.caste?.reduce((acc, item) => acc + item.count, 0)
+        visualRepresentation?.caste?.length > 0
+          ? visualRepresentation?.caste?.reduce(
+              (acc, item) => acc + item.count,
+              0
+            )
           : 0,
       footerText: "Caste",
       type: "pie",
       options: {
         labels:
-          visualdata?.caste?.length > 0
-            ? visualdata?.caste?.map((e) => e.label)
+          visualRepresentation?.caste?.length > 0
+            ? visualRepresentation?.caste?.map((e) => e.label)
             : [],
         colors: ["#867fa5", "#06164B", "#DDE1FF"],
         dataLabels: {
@@ -153,28 +133,31 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
         states: {
           hover: {
             filter: {
-              type: "none", // Disable hover effect
+              type: "none",
             },
           },
         },
       },
       series:
-        visualdata?.caste?.length > 0
-          ? visualdata?.caste?.map((e) => e.count)
+        visualRepresentation?.caste?.length > 0
+          ? visualRepresentation?.caste?.map((e) => e.count)
           : [],
     },
     {
       title: "Breakdown by Level of Study",
       count:
-        visualdata?.standard?.length > 0
-          ? visualdata?.standard?.reduce((acc, item) => acc + item.count, 0)
+        visualRepresentation?.standard?.length > 0
+          ? visualRepresentation?.standard?.reduce(
+              (acc, item) => acc + item.count,
+              0
+            )
           : 0,
       footerText: "Standard",
       type: "pie",
       options: {
         labels:
-          visualdata?.standard?.length > 0
-            ? visualdata?.standard?.map((e) => e.label)
+          visualRepresentation?.standard?.length > 0
+            ? visualRepresentation?.standard?.map((e) => e.label)
             : [],
         colors: ["#867fa5", "#06164B", "#DDE1FF"],
         dataLabels: {
@@ -186,21 +169,24 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
         states: {
           hover: {
             filter: {
-              type: "none", // Disable hover effect
+              type: "none",
             },
           },
         },
       },
       series:
-        visualdata?.standard?.length > 0
-          ? visualdata?.standard?.map((e) => e.count)
+        visualRepresentation?.standard?.length > 0
+          ? visualRepresentation?.standard?.map((e) => e.count)
           : [],
     },
     {
       title: "Day Scholar / Hostler Ratio",
       count:
-        visualdata?.ratio?.length > 0
-          ? visualdata?.ratio.reduce((acc, item) => acc + item.count, 0)
+        visualRepresentation?.ratio?.length > 0
+          ? visualRepresentation?.ratio.reduce(
+              (acc, item) => acc + item.count,
+              0
+            )
           : 0,
       footerText: "Ratio",
       type: "pie",
@@ -208,13 +194,13 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
         states: {
           hover: {
             filter: {
-              type: "none", // Disable hover effect
+              type: "none",
             },
           },
         },
         labels:
-          visualdata?.ratio?.length > 0
-            ? visualdata?.ratio?.map((e) => e.label)
+          visualRepresentation?.ratio?.length > 0
+            ? visualRepresentation?.ratio?.map((e) => e.label)
             : [],
         colors: ["#867fa5", "#06164B", "#DDE1FF"],
         dataLabels: {
@@ -225,8 +211,8 @@ const CommonBarChart: React.FC<ChartData> = ({ chartData }) => {
         },
       },
       series:
-        visualdata?.ratio?.length > 0
-          ? visualdata?.ratio?.map((e) => e.count)
+        visualRepresentation?.ratio?.length > 0
+          ? visualRepresentation?.ratio?.map((e) => e.count)
           : [],
     },
   ];

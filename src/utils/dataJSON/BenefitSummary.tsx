@@ -31,7 +31,7 @@ export const visualRepresentation = {
     { label: "ST", count: 27 },
     { label: "OBC", count: 60 },
   ],
-  age: [
+  standard: [
     { label: "15-25", count: 13 },
     { label: "25-35", count: 27 },
     { label: "45-55", count: 60 },

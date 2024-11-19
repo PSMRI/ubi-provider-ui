@@ -41,3 +41,9 @@
 .read-the-docs {
   color: #888;
 }
+.react-datepicker__portal {
+  z-index: 111 !important;
+}
+.rjsf > form > button[type="submit"] {
+  display: none !important;
+}
