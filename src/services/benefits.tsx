@@ -1,6 +1,6 @@
 import { tableData } from "../utils/dataJSON/BenefitSummary";
 import axios from "axios";
-
+const apiUrl = import.meta.env.VITE_DIGIT_BASE_URL;
 export const getAll = async () => {
   //   const response = await axios.get(`http://localhost:3001/api/benefits`);
 
@@ -72,11 +72,22 @@ interface BenefitTermsAndCondition {
   Benefit: Benefit;
   TermsAndCondition: TermsAndCondition;
 }
-export default { getAll };
+
+interface ViewAllBenefits {
+  name: string | null;
+  valid_till: string | null;
+  created_start: string | null;
+  created_end: string | null;
+  status: string;
+  page_no: number;
+  page_size: number;
+  sort_by: string;
+  sort_order: string;
+}
 
 export const createBenefitForm = async (payload: BenefitPayload) => {
   try {
-    const response = await axios.post(`/benefits/v1/_create`, payload);
+    const response = await axios.post(`${apiUrl}/benefits/v1/_create`, payload);
     console.log(response.data);
     return response?.data;
   } catch (error) {
@@ -90,7 +101,39 @@ export const updateForm = async (
     | BenefitTermsAndCondition
 ) => {
   try {
-    const response = await axios.post(`/benefits/v1/_update`, payload);
+    const response = await axios.post(`${apiUrl}/benefits/v1/_update`, payload);
+    console.log(response.data);
+    return response?.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const viewAllBenefitsData = async (payload: ViewAllBenefits) => {
+  try {
+    const response = await axios.post(`${apiUrl}/benefits/v1/_search`, payload);
+    console.log(response.data);
+    return response?.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const viewAllApplicationByBenefitId = async (id: string) => {
+  try {
+    const response = await axios.post(
+      `${apiUrl}/benefits/v1/${id}/application`
+    );
+    console.log(response.data);
+    return response?.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const viewApplicationByApplicationId = async (id: number) => {
+  try {
+    const response = await axios.post(`${apiUrl}/application/v1/getById/${id}`);
     console.log(response.data);
     return response?.data;
   } catch (error) {

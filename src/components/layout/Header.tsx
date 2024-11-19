@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  AddIcon,
-  EditIcon,
-  SearchIcon,
-  ChevronDownIcon,
-} from "@chakra-ui/icons";
+import { SearchIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import {
   Box,
   HStack,

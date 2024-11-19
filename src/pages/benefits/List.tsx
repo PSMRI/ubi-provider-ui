@@ -244,7 +244,11 @@ const customCellText = (
   }
 };
 
-const detailsRow = ({ detailData }: { detailData: DetailData | null }) => {
+const detailsRow = ({
+  detailData,
+}: {
+  detailData: DetailData | null | undefined;
+}) => {
   const { t } = useTranslation();
 
   const chartData = {
