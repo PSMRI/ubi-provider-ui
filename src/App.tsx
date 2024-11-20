@@ -1,6 +1,6 @@
 import { Suspense, useState, useEffect } from "react";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { initializeI18n } from "./i18n";
 import authRoutes from "./routes/authRoutes";
 import guestRoutes from "./routes/guestRoutes";
@@ -15,7 +15,6 @@ function App() {
   const [routes, setRoutes] = useState<
     { path: string; component: React.ElementType }[]
   >([]);
-
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -33,17 +32,15 @@ function App() {
   return (
     <ChakraProvider theme={theme}>
       <Suspense fallback={<Loading />}>
-        <Router>
-          <Routes>
-            {routes?.map((item, index) => (
-              <Route
-                key={item?.path + index}
-                path={item?.path}
-                element={<item.component />}
-              />
-            ))}
-          </Routes>
-        </Router>
+        <Routes>
+          {routes?.map((item, index) => (
+            <Route
+              key={item?.path + index}
+              path={item?.path}
+              element={<item.component />}
+            />
+          ))}
+        </Routes>
       </Suspense>
     </ChakraProvider>
   );

@@ -6,7 +6,7 @@ const OTP = lazy(() => import("../pages/auth/OTP"));
 //lazy loading
 const routes = [
   {
-    path: "*",
+    path: "/",
     component: Login,
   },
   {

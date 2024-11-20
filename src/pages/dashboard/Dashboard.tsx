@@ -48,8 +48,8 @@ function Dashboard() {
           setIsLoading(false);
         } else {
           setIsLoading(false);
-          setMessage("No user data found!");
-          setShowAlert(true);
+          // setMessage("No user data found!");
+          // setShowAlert(true);
         }
       } catch (err) {
         console.log(err);

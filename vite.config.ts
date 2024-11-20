@@ -3,6 +3,7 @@ import { defineConfig } from "vite";
 import "dotenv/config";
 
 export default defineConfig({
+  base: "/uba-ui/",
   server: {
     proxy: {
       "/application": {
