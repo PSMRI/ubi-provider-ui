@@ -41,7 +41,6 @@ const routes = [
     path: "/uba-ui/provider.com/:id/apply",
     component: BenefitFormUI,
   },
-
   // {
   //   path: "*",
   //   component: Dashboard,
