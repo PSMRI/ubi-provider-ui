@@ -45,6 +45,10 @@ const routes = [
     path: "*",
     component: Dashboard,
   },
+  // {
+  //   path: "*",
+  //   component: Dashboard,
+  // },
 ];
 
 export default routes;

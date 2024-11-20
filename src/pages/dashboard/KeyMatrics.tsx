@@ -121,9 +121,12 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({
           </VStack>
         </VStack>
         <VStack spacing={"60px"} align="start">
-          <Text fontSize="22px" fontWeight="400" color={"#2F3036"}>
-            {t("DASHBOARD_POPULAR_BENEFITS_TITLE")}
-          </Text>
+          {popularBenefit?.length > 0 && (
+            <Text fontSize="22px" fontWeight="400" color={"#2F3036"}>
+              {t("DASHBOARD_POPULAR_BENEFITS_TITLE")}
+            </Text>
+          )}
+
           <VStack spacing={"35px"} align="stretch">
             {popularBenefit?.map((item, index) => (
               <CommonCard key={item?.id || index} {...(item || {})} />

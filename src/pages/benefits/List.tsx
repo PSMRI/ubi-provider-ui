@@ -155,7 +155,7 @@ const BenefitsList: React.FC<{
 
     const response = await viewAllBenefitsData(payload);
     if (response) {
-      setData(response);
+      setData(response?.slice(0, 10));
     }
   };
 
@@ -173,7 +173,6 @@ const BenefitsList: React.FC<{
     });
   };
 
-  console.log("detailRowdata===", detailData);
   return (
     <VStack spacing="20px" align="stretch" {..._vstack}>
       <HStack justifyContent="space-between">
