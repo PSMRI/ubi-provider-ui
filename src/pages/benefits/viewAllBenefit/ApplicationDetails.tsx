@@ -17,13 +17,28 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useParams } from "react-router-dom";
 import { viewApplicationByApplicationId } from "../../../services/benefits";
 import Loading from "../../../components/common_components/Loading";
+interface ApplicantData {
+  applicationId: string;
+  studentName: string;
+  gender: string;
+  age: number | string;
+  currentClass: string;
+  marks?: number | string; // Optional
+}
+interface DocumentData {
+  id: string;
+  documentType: string;
+  fileStoreId: string;
+}
 
 const ApplicationDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [applicantData, setApplicantData] = useState<any | null>(null);
+  const [applicantData, setApplicantData] = useState<ApplicantData | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<any[]>([]);
-  const [documentData, setDocumentData] = useState<any[]>([]);
+  const [documentData, setDocumentData] = useState<DocumentData[]>([]);
 
   useEffect(() => {
     const fetchApplicationData = async () => {

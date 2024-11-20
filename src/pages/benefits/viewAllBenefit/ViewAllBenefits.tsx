@@ -1,7 +1,6 @@
 import {
   ArrowForwardIcon,
   ChevronDownIcon,
-  EditIcon,
   SearchIcon,
 } from "@chakra-ui/icons";
 import {
