@@ -1,7 +1,6 @@
 import { lazy } from "react";
 import ViewApplicants from "../pages/benefits/viewAllBenefit/ApplicantDetails";
 import ApplicationDetails from "../pages/benefits/viewAllBenefit/ApplicationDetails";
-import BenefitFormUI from "../pages/benefits/benefitFormUI/BenefitFormUI";
 const BenefitsForm = lazy(() => import("../pages/benefits/form/Form"));
 const Dashboard = lazy(() => import("../pages/dashboard/Dashboard"));
 
@@ -37,10 +36,7 @@ const routes = [
     path: "/application_detail/:id",
     component: ApplicationDetails,
   },
-  {
-    path: "/uba-ui/provider.com/:id/apply",
-    component: BenefitFormUI,
-  },
+
   // {
   //   path: "*",
   //   component: Dashboard,
