@@ -19,7 +19,7 @@ const routes = [
     component: UserRegister,
   },
   {
-    path: "/provider.com/:id/apply",
+    path: "/benefit/:id/apply",
     component: BenefitFormUI,
   },
 ];
