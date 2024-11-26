@@ -9,28 +9,20 @@ interface ApplicationFormField {
   multiple?: boolean;
 }
 
-interface EligibilityFormField {
-  type: string;
-  name: string;
-  label: string;
-  required: boolean;
-  options?: { value: string; label: string }[];
-  multiple?: boolean;
-  clause?: string;
-  evidence?: string;
-  criteria?: {
-    name: string;
-    condition: string;
-    conditionValues: string[] | string;
-  };
-  allowedProofs?: string[];
+interface Doc {
+  doc_data: string;
+  doc_datatype: string;
+  doc_id: string;
+  doc_name: string;
+  doc_path: string;
+  doc_subtype: string;
+  doc_type: string;
+  doc_verified: boolean;
+  imported_from: string;
+  is_uploaded: boolean;
+  uploaded_at: string;
+  user_id: string;
 }
-interface Document {
-  documentType: string;
-  isRequired: boolean;
-  allowedProofs: string[];
-}
-
 export const convertApplicationFormFields = (
   applicationForm: ApplicationFormField[]
 ) => {
@@ -44,7 +36,6 @@ export const convertApplicationFormFields = (
       type: "string",
       title: field.label,
     };
-
     if (field.type === "radio" || field.type === "select") {
       fieldSchema.enum = field.options?.map((option) => option.value);
       fieldSchema.enumNames = field.options?.map((option) => option.label);
@@ -56,63 +47,67 @@ export const convertApplicationFormFields = (
     }
 
     rjsfSchema.properties[field.name] = fieldSchema;
-    console.log(
-      `Added field to schema: ${field.name}`,
-      rjsfSchema.properties[field.name]
-    );
   });
   return rjsfSchema;
 };
 
-export const convertEligibilityFields = (
-  eligibility: EligibilityFormField[]
+export const convertDocumentFields = (
+  schemaArr: any[],
+  userDocs: Doc[]
 ): JSONSchema7 => {
-  const schema: JSONSchema7 = {
+  const schema: any = {
     type: "object",
     properties: {},
   };
 
-  eligibility.forEach((eligibilityField: any) => {
-    const fieldLabel = `Upload document for ${eligibilityField.evidence}${
-      eligibilityField.allowedProofs
-        ? ` (${eligibilityField.allowedProofs.join(", ")})`
-        : ""
-    }`;
-    schema.properties![eligibilityField.name] = {
+  // Object to hold grouped results
+  const groupedByAllowedProofs: any = {};
+
+  // Iterate through the data
+  schemaArr.forEach((item) => {
+    item.allowedProofs.forEach((proof: any) => {
+      // If the proof does not exist in the results object, create it
+      if (!groupedByAllowedProofs[proof]) {
+        groupedByAllowedProofs[proof] = {
+          name: proof,
+          schema: [],
+        };
+      }
+      // Push the current item to the corresponding proof's schema
+      groupedByAllowedProofs[proof].schema.push(item);
+    });
+  });
+
+  // Convert the results object to an array
+  const schemaDoc = Object.values(groupedByAllowedProofs);
+  // const userDocsDataType = userDocs?.docs_datatype || [];
+  schemaDoc.forEach((field: any) => {
+    const matchingDocs = userDocs?.filter((doc: Doc) =>
+      field?.name?.includes(doc.doc_subtype)
+    );
+
+    const [enumValues, enumNames] = matchingDocs?.reduce(
+      ([values, names]: any, doc: Doc) => {
+        values.push(doc.doc_data);
+        names.push(doc.doc_subtype);
+        return [values, names];
+      },
+      [[], []]
+    ) ?? [[], []];
+
+    const fieldLabel = `Upload document for ${field.schema
+      .map((e: any) =>
+        e.documentType ? e.documentType : e?.criteria?.name || ""
+      )
+      .join(", ")}`;
+    schema.properties![field?.name] = {
       type: "string",
       title: fieldLabel,
-      enum: eligibilityField.allowedProofs || [],
+      enum: enumValues as string[],
+      enumNames: enumNames as string[],
+      isDocument: true,
     };
   });
 
   return schema;
 };
-export const convertDocumentFields = (documents: Document[]): JSONSchema7 => {
-  const schema: JSONSchema7 = {
-    type: "object",
-    properties: {},
-  };
-
-  documents.forEach((doc: any) => {
-    schema.properties![doc.documentType] = {
-      type: "string",
-      title: `Upload document for ${doc.documentType}${
-        doc.allowedProofs ? ` (${doc.allowedProofs.join(", ")})` : ""
-      }`,
-      format: "data-url",
-    };
-  });
-
-  return schema;
-};
-export function checkUniqueField<T>(schemaArray: T[], field: keyof T): boolean {
-  const seen = new Set();
-  for (const item of schemaArray) {
-    const value = item[field];
-    if (seen.has(value)) {
-      return false;
-    }
-    seen.add(value);
-  }
-  return true;
-}

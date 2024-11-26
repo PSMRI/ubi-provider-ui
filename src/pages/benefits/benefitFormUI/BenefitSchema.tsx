@@ -103,152 +103,152 @@ export const benefitUiSchema2 = {
 export const preMatricScholarshipSC = {
   en: {
     basicDetails: {
-      title: "Pre Matric Scholarship For Scheduled Tribe Students",
+      title: "Shashaktikaran Sahyog",
       category: "education-and-learning",
       subCategory: "scholarship",
-      tags: [
-        "ST",
-        "Financial Assistance",
-        "Scholarship",
-        "Student",
-        "Person With Disability",
-        "Pre Matric",
-        "PwD",
-        "Scheduled Tribe",
-        "Social Welfare",
-        "Tuition Fee",
-      ],
-      applicationOpenDate: "2024-10-31",
-      applicationCloseDate: "2024-12-31",
+      tags: ["Scholarship", "Student"],
+      applicationOpenDate: "2024-11-30",
+      applicationCloseDate: "2024-12-30",
     },
     benefitContent: {
-      imageUrl:
-        "https://fastly.picsum.photos/id/24/200/200.jpg?hmac=Tw5b43UPAehS5e4JyB0qMQysvfLBmu_GZ_iafWou3m8",
-      shortDescription: "Scholarship for ST students in classes 9 and 10.",
+      imageUrl: "",
+      shortDescription:
+        "This scholarship is intended to support SC/ST/OBC students in pursuing their education in secondary and senior secondary grades.",
       shortDescription_md: "",
-      longDescription:
-        "A scholarship scheme by Ministry of Tribal Affairs for regular, full time students from Scheduled Tribe studying in Class 9th and 10th, in a Government School or in a School recognized by Govt. or a Central/State Board of Secondary Education. The income of the student’s Parents/Guardian should not exceed Rs. 2.00 lakh per annum. <br/> The scheme aims to support the parents of ST children for education of their wards so that the incidence of drop-out, especially in the transition from the elementary to the secondary stage is minimized. The scheme improves the participation of ST children of the prematric stage, so that they perform better and have a better chance of progressing to the post-matric stage of education. <br/>The scholarship will be available for studies in India only and will be awarded by the Government of the State/Union Territory to which the applicant belongs i.e. where she/he is domiciled. The scholarship for studying in any class will be available for only one year.",
+      longDescription: "",
       longDescription_md: "",
       benefits: [
         {
           type: "financial",
-          title: "Financial Assistance",
-          description:
-            "This scholarship provides financial assistance to students. <br />Day Scholar<br />Boys - 3500<br />Girls - 3500<br />Disabled - 3850<br /><br />Hosteller<br />Boys - 7000<br />Girls - 7000<br />Disabled - 7700",
+          title: "Financial Benefits",
           description_md: "",
-        },
-      ],
-      exclusions: [
-        {
           description:
-            "The applicant must not be availing of any other scholarship by the govt",
-          description_md: "",
+            "This scholarship is intended to support SC/ST/OBC students in pursuing their education in secondary and senior secondary grades.",
         },
       ],
-      references: [
-        {
-          link: "https://scholarships.gov.in/public/schemeGuidelines/PRE_MATRIC_ST_(Class_IX_X)_GUIDELINES.pdf",
-          title: "Guidelines",
-        },
-      ],
+      exclusions: [],
+      references: [],
     },
     providingEntity: {
-      type: "government",
-      name: "Ministry of Tribal Welfare",
+      type: "individual",
+      name: "Saurabh Johri",
       address: {
-        street: "Some Street",
-        city: "New Delhi",
-        state: "Delhi",
-        postalCode: "110001",
+        street: "",
+        city: "",
+        state: "",
+        postalCode: "",
       },
-      department: "Tribal Welfare Department",
+      department: "",
       contactInfo: {
-        phoneNumber: "1234567890",
-        email: "contact@mtw.gov.in",
+        phoneNumber: "-",
+        email: "na@na.org",
       },
     },
     sponsoringEntities: [
       {
-        type: "government",
-        name: "Ministry of Tribal Welfare",
+        type: "individual",
+        name: "Saurabh Johri",
         address: {
-          street: "Some Street",
-          city: "New Delhi",
-          state: "Delhi",
-          postalCode: "110001",
+          street: "",
+          city: "",
+          state: "",
+          postalCode: "",
         },
-        department: "Ministry of Tribal Welfare Department",
+        department: "Education and learning",
         contactInfo: {
-          phoneNumber: "1234567890",
-          email: "contact@mtw.gov.in",
+          phoneNumber: "-",
+          email: "na@na.org",
         },
-        sponsorShare: "75",
+        sponsorShare: "29",
       },
       {
-        type: "government",
-        name: "Tribal Welfare Department, Madhya Pradesh",
+        type: "individual",
+        name: "Gaurav",
         address: {
-          street: "Some Street",
-          city: "Bhopal",
-          state: "Madhya Pradesh",
-          postalCode: "462001",
+          street: "",
+          city: "",
+          state: "",
+          postalCode: "",
         },
-        department: "Tribal Welfare",
+        department: "Education and learning",
         contactInfo: {
-          phoneNumber: "9876543210",
-          email: "contact@twd.mp.gov.in",
+          phoneNumber: "-",
+          email: "na@na.org",
         },
-        sponsorShare: "25",
+        sponsorShare: "12",
+      },
+      {
+        type: "individual",
+        name: "Gaurav",
+        address: {
+          street: "",
+          city: "",
+          state: "",
+          postalCode: "",
+        },
+        department: "Education and learning",
+        contactInfo: {
+          phoneNumber: "-",
+          email: "na@na.org",
+        },
+        sponsorShare: "59",
       },
     ],
     eligibility: [
       {
+        type: "personal",
+        description: "Gender of Applicant",
+        evidence: "aadhaar",
+        criteria: {
+          name: "Gender",
+          condition: "in",
+          conditionValues: ["male", "female"],
+        },
+        allowedProofs: ["aadhaar"],
+      },
+      {
         type: "educational",
         description:
-          "The applicant must be a student studying in Class 9th or Class 10th",
+          "The applicant must be a student studying in Class 9th to Class 12th",
         evidence: "class",
         criteria: {
           name: "class",
           condition: "in",
-          conditionValues: ["9", "10"],
+          conditionValues: ["9", "10", "11", "12"],
         },
-        allowedProofs: [
-          "academicCertificate",
-          "bonafideCertificate",
-          "enrollmentCertificate",
-        ],
+        allowedProofs: ["enrollmentCertificate"],
       },
       {
         type: "personal",
-        description: "The applicant must be from Scheduled Tribe",
+        description: "The applicant must be from Scheduled Caste",
         evidence: "caste",
         criteria: {
           name: "caste",
-          condition: "equals",
-          conditionValues: "st",
+          condition: "in",
+          conditionValues: ["SC", "ST", "OBC"],
         },
         allowedProofs: ["casteCertificate"],
       },
       {
         type: "economical",
         description:
-          "The Total Annual income of parents/guardians of the applicant (from all sources) must not exceed ₹ 2.50 Lakh per Annum",
+          "The Total Annual income of parents/guardians of the applicant must not exceed ₹ 2.50 Lakh per Annum",
         evidence: "annualIncome",
         criteria: {
           name: "annualIncome",
-          condition: "max",
+          condition: "less than equals",
           conditionValues: "250000",
         },
         allowedProofs: ["incomeCertificate"],
       },
       {
         type: "geographical",
-        description: "The applicant must be from Madhya Pradesh state",
-        evidence: "state",
+        description: "The applicant must be from Rajasthan state",
+        evidence: "domicile Certificate",
         criteria: {
           name: "state",
           condition: "equals",
-          conditionValues: "madhyaPradesh",
+          conditionValues: "Rajasthan",
         },
         allowedProofs: ["domicileCertificate"],
       },
@@ -266,14 +266,13 @@ export const preMatricScholarshipSC = {
       },
       {
         documentType: "hostelerProof",
-        isRequired: false,
+        isRequired: true,
         allowedProofs: ["hostelAccommodationCertificate"],
       },
     ],
     applicationProcess: {
-      mode: "offline",
-      description:
-        "Step 1: The application form (as prescribed by the State Govt. and made available on the website of the state govt.) complete in all respects should be submitted by the student to the Head of the Institution/School.<br /><br />Step 2: The same shall be forwarded by the Head of Institution, after scrutiny and with his recommendation, to the Block / District level authorities.<br /><br />Step 3: State Governments/UT Administrations will delegate powers to sanction scholarships under the scheme to appropriate District / Block level authorities/ Heads of Institution, as appropriate.",
+      mode: "online",
+      description: "",
       description_md: "",
     },
     applicationForm: [
@@ -326,6 +325,41 @@ export const preMatricScholarshipSC = {
             value: "10",
             label: "10",
           },
+          {
+            value: "11",
+            label: "11",
+          },
+          {
+            value: "12",
+            label: "12",
+          },
+        ],
+      },
+      {
+        type: "text",
+        name: "previousClassMarks",
+        label: "Enter your previous class marks",
+        required: true,
+      },
+      {
+        type: "select",
+        name: "caste",
+        label: "Choose your Caste",
+        required: true,
+        multiple: false,
+        options: [
+          {
+            value: "SC",
+            label: "SC",
+          },
+          {
+            value: "ST",
+            label: "ST",
+          },
+          {
+            value: "OBC",
+            label: "OBC",
+          },
         ],
       },
       {
@@ -333,7 +367,6 @@ export const preMatricScholarshipSC = {
         name: "annualIncome",
         label: "Choose your parent's Annual Income",
         required: true,
-        multiple: false,
         options: [
           {
             value: "99999",
@@ -358,35 +391,6 @@ export const preMatricScholarshipSC = {
         ],
       },
       {
-        type: "select",
-        name: "caste",
-        label: "Choose your Caste",
-        required: true,
-        multiple: false,
-        options: [
-          {
-            value: "general",
-            label: "General",
-          },
-          {
-            value: "sc",
-            label: "SC",
-          },
-          {
-            value: "st",
-            label: "ST",
-          },
-          {
-            value: "obc",
-            label: "OBC",
-          },
-          {
-            value: "na",
-            label: "NA",
-          },
-        ],
-      },
-      {
         type: "radio",
         name: "disabled",
         label: "Are you differently abled person?",
@@ -404,24 +408,24 @@ export const preMatricScholarshipSC = {
       },
       {
         type: "select",
-        name: "disabled",
+        name: "Domicile State",
         label: "Choose your Domicile State?",
         required: true,
         multiple: false,
         options: [
           {
-            value: "madhyaPradesh",
-            label: "Madhya Pradesh",
+            value: "Rajasthan",
+            label: "Rajasthan",
           },
           {
             value: "other",
-            label: "Other",
+            label: "other",
           },
         ],
       },
       {
         type: "radio",
-        name: "disabled",
+        name: "Student Type",
         label: "Are you Day Scholar/ Hostler?",
         required: true,
         options: [
@@ -435,9 +439,34 @@ export const preMatricScholarshipSC = {
           },
         ],
       },
+      {
+        type: "text",
+        name: "bankAccountHolderName",
+        label: "Enter Bank Account Holder Name",
+        required: true,
+      },
+      {
+        type: "text",
+        name: "bankName",
+        label: "Enter Bank Name",
+        required: true,
+      },
+      {
+        type: "number",
+        name: "bankAccountNumber",
+        label: "Enter Bank Account Number",
+        required: true,
+      },
+      {
+        type: "text",
+        name: "bankIfscCode",
+        label: "Enter Bank IFSC Code",
+        required: true,
+      },
     ],
   },
 };
+
 export const preMatricScholarshipST = {
   en: {
     basicDetails: {

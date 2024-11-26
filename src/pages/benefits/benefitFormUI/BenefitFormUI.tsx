@@ -8,12 +8,11 @@ import { withTheme } from "@rjsf/core";
 import { Theme as ChakraTheme } from "@rjsf/chakra-ui";
 import {
   convertApplicationFormFields,
-  convertEligibilityFields,
   convertDocumentFields,
-  checkUniqueField,
 } from "./ConvertToRJSF";
 import { SubmitButtonProps, getSubmitButtonOptions } from "@rjsf/utils";
 import CommonButton from "../../../components/common/buttons/SubmitButton";
+import { submitForm } from "../../../services/benefits";
 
 const Form = withTheme(ChakraTheme);
 const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
@@ -26,114 +25,101 @@ const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
 
   return <button type="submit" style={{ display: "none" }}></button>;
 };
-
+const uiSchema = {
+  certificateType: {
+    "ui:widget": "select", // Ensure the widget matches the desired UI behavior
+  },
+};
 const BenefitFormUI: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [applicationFormDetails, setApplicationFormDetails] =
-    useState<any>(null);
-  const [eligibilityFormDetails, setEligibilityFormDetails] =
-    useState<any>(null);
-  const [documentFormDetails, setDocumentFormDetails] = useState<any>(null);
+  const [formSchema, setFormSchema] = useState<any>(null);
   const [formData, setFormData] = useState<any>({});
-  //   useEffect(() => {
-  //     const fetchSchemaDetails = async () => {
-  //       try {
-  //         const response = await axios.get(
-  //           `http://localhost:5173/api/benefit/${id}`
-  //         );
-  //         setSchemaDetails(response.data);
-  //       } catch (error) {
-  //         console.error("Error fetching schema details:", error);
-  //       }
-  //     };
+  const [userDocs, setUserDocs] = useState<any>(null);
 
-  //     if (id) {
-  //       fetchSchemaDetails();
-  //     }
-  //   }, [id]);
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      window.postMessage({ type: "FORM_SUBMIT", data: formData }, "*");
 
-  //   if (!schemaDetails) {
-  //     return <div>Loading...</div>;
-  //   }
+      if (event.origin !== "http://localhost:5173") {
+        return;
+      }
 
-  //   const { applicationForm, document } = schemaDetails;
+      const receivedData = event.data.prefillData;
+      if (receivedData) {
+        setFormData(receivedData);
+      }
+      setUserDocs(event?.data?.user?.data?.docs);
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
+
+  // Fetch schema details and populate form schemas
   useEffect(() => {
     if (id) {
       const applicationSchema = preMatricScholarshipSC.en.applicationForm;
+      const eligSchemaStatic = preMatricScholarshipSC.en.eligibility;
+      const docSchemaStatic = preMatricScholarshipSC.en.documents;
 
-      const eligibilitySchema = preMatricScholarshipSC.en.eligibility.map(
-        (eligibility: any) => ({
-          ...eligibility,
-
-          name: eligibility.evidence,
-          label: eligibility?.criteria?.name,
-          required: eligibility.allowedproofs?.length > 0,
-        })
-      );
-      const documentSchema = preMatricScholarshipSC.en.documents;
-
-      //   const applicationformSchema = convertToRJSFFormat(scholarshipSchema);
+      const docSchemaArr = [...eligSchemaStatic, ...docSchemaStatic];
       const applicationFormSchema =
         convertApplicationFormFields(applicationSchema);
-      const isEligibilityUnique = checkUniqueField(
-        eligibilitySchema,
-        "evidence"
-      );
-      const isDocumentsUnique = checkUniqueField(
-        documentSchema,
-        "documentType"
-      );
-      if (isEligibilityUnique && isDocumentsUnique) {
-        const eligibilityFormSchema =
-          convertEligibilityFields(eligibilitySchema);
-        const documentFormSchema = convertDocumentFields(documentSchema);
-        setEligibilityFormDetails(eligibilityFormSchema);
-        setDocumentFormDetails(documentFormSchema);
-      }
-
-      setApplicationFormDetails(applicationFormSchema);
-    } else {
-      console.log("");
+      const docSchema = convertDocumentFields(docSchemaArr, userDocs);
+      setFormSchema({
+        ...applicationFormSchema,
+        properties: {
+          ...(applicationFormSchema.properties || {}),
+          ...(docSchema?.properties || {}),
+        },
+      });
     }
-  }, [id]);
+  }, [id, userDocs]);
 
-  const handleFormChange = ({ formData }: any) => {
-    setFormData(formData);
+  const handleFormChange = ({ formData: newFormData }: any) => {
+    setFormData(newFormData);
   };
-  useEffect(() => {
-    console.log("schemaDetails updated:", applicationFormDetails);
-  }, [applicationFormDetails]);
 
-  if (!applicationFormDetails) {
-    return <Box>Loading...</Box>;
-  }
-  if (!eligibilityFormDetails || !documentFormDetails) {
-    return <Box>Loading...</Box>;
-  }
+  // Listen for messages from the parent app to prefill the form
+
+  // Handle form submission (optional)
   const handleExternalFormSubmit = async () => {
-    console.log("Form data submitted:", formData);
+    console.log("base64===", formData);
+    let formDataNew = { ...formData };
+    console.log(formSchema?.properties, "prop");
+    const list: string[] = [];
+
+    // Iterate through the object's keys
+    for (const key in formSchema?.properties) {
+      if (
+        formSchema?.properties.hasOwnProperty(key) &&
+        formSchema?.properties[key].isDocument === true
+      ) {
+        list.push(key);
+      }
+    }
+    list.forEach((e) => {
+      if (formDataNew[e]) {
+        formDataNew[e] = btoa(formDataNew[e]);
+      }
+    });
+    window.parent.postMessage({ type: "FORM_SUBMIT", data: formDataNew }, "*");
+    console.log("sent successfully", formDataNew);
   };
+
+  // Show loading state if schema or form data is not ready
+  if (!formSchema) {
+    return <Box>Loading...</Box>;
+  }
+  console.log(formSchema);
   return (
     <ChakraProvider>
       <Box maxW="600px" mx="auto" p="4">
         <Form
-          schema={applicationFormDetails as JSONSchema7}
-          validator={validator}
-          formData={formData}
-          onChange={handleFormChange}
-          templates={{ ButtonTemplates: { SubmitButton } }}
-        />
-        <Form
-          schema={eligibilityFormDetails as JSONSchema7}
-          uiSchema={eligibilityFormDetails.uiSchema}
-          validator={validator}
-          formData={formData}
-          onChange={handleFormChange}
-          templates={{ ButtonTemplates: { SubmitButton } }}
-        />
-        <Form
-          schema={documentFormDetails as JSONSchema7}
-          uiSchema={documentFormDetails.uiSchema}
+          schema={formSchema as JSONSchema7}
           validator={validator}
           formData={formData}
           onChange={handleFormChange}
