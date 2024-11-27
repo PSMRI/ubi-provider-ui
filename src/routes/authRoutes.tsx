@@ -41,10 +41,10 @@ const routes = [
     path: "/benefit/:id/apply",
     component: BenefitFormUI,
   },
-  // {
-  //   path: "*",
-  //   component: Dashboard,
-  // },
+  {
+    path: "*",
+    component: Dashboard,
+  },
 ];
 
 export default routes;
