@@ -1,6 +1,8 @@
 name: S3 Deployment on the Piramal-OU Tekdi
-
-on: [push]
+on:
+  push:
+    branches:
+      - dev
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
