@@ -51,18 +51,10 @@ export const convertApplicationFormFields = (
       fieldSchema.enumNames = field.options?.map((option) => option.label);
     }
 
-    if (field.type === "radio" || field.type === "select") {
-      if (field.name === "class") {
-        fieldSchema.enum = field.options?.map((option) => Number(option.value));
-        fieldSchema.enumNames = field.options?.map((option) => option.label);
-      } else {
-        fieldSchema.enum = field.options?.map((option) => option.value);
-        fieldSchema.enumNames = field.options?.map((option) => option.label);
-      }
-    }
     if (field.required) {
       fieldSchema.required = true;
     }
+
     rjsfSchema.properties[field.name] = fieldSchema;
   });
   return rjsfSchema;
@@ -105,6 +97,7 @@ export const convertDocumentFields = (
     });
   });
 
+  // Convert the results object to an array
   const schemaDoc = Object.values(groupedByAllowedProofs);
   // const userDocsDataType = userDocs?.docs_datatype || [];
   schemaDoc.forEach((field: any) => {
