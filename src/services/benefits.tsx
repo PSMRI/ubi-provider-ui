@@ -1,6 +1,9 @@
 import { tableData } from "../utils/dataJSON/BenefitSummary";
+import { generateUUID } from "../utils/dataJSON/helper/helper";
 import axios from "axios";
 const apiUrl = import.meta.env.VITE_DIGIT_BASE_URL;
+const initAPI = import.meta.env.VITE_APPLICATION_API;
+const schemaAPI = import.meta.env.VITE_SCHEMA_API;
 export const getAll = async () => {
   //   const response = await axios.get(`http://localhost:3001/api/benefits`);
 
@@ -84,7 +87,19 @@ interface ViewAllBenefits {
   sort_by: string;
   sort_order: string;
 }
-
+interface PrefillData {
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  gender: string;
+  class: string; // You can specify an enum or union type if you have predefined classes
+  annualIncome: string; // You can specify types for certificates, if needed
+  caste: string; // Same as annualIncome
+  disabled: string; // Assuming it is "yes" or "no"
+  state: string; // Assuming this refers to domicile certificate data
+  student: string; // You can define a union type if the values are specific
+  identityProof: string | null; // Can be nullable if not provided
+}
 export const createBenefitForm = async (payload: BenefitPayload) => {
   try {
     const response = await axios.post(`${apiUrl}/benefits/v1/_create`, payload);
@@ -142,6 +157,53 @@ export const viewApplicationByApplicationId = async (id: string) => {
       `${apiUrl}/application/v1/getByApplicationId`,
       payload
     );
+    return response?.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const submitForm = async (payload: PrefillData) => {
+  try {
+    const response = await axios.post(
+      `${initAPI}/api/application-init`,
+      payload
+    );
+    return response?.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const getSchema = async () => {
+  const payload = {
+    context: {
+      domain: "onest:financial-support",
+      action: "select",
+      timestamp: "2023-08-02T07:21:58.448Z",
+      ttl: "PT10M",
+      version: "1.1.0",
+      bap_id: "dev-uba-bap.tekdinext.com",
+      bap_uri: "https://dev-uba-bap.tekdinext.com/",
+      bpp_id: "dev-uba-bpp.tekdinext.com",
+      bpp_uri: "https://dev-uba-bpp.tekdinext.com/",
+      transaction_id: generateUUID(),
+      message_id: generateUUID(),
+    },
+    message: {
+      order: {
+        items: [
+          {
+            id: "PB-BTR-2024-11-26-000564",
+          },
+        ],
+        provider: {
+          id: "PB-BTR-2024-11-26-000564",
+        },
+      },
+    },
+  };
+  try {
+    const response = await axios.post(`${schemaAPI}/api/select`, payload);
     return response?.data;
   } catch (error) {
     console.log(error);

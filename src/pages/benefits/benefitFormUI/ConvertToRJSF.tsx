@@ -36,16 +36,29 @@ export const convertApplicationFormFields = (
       type: "string",
       title: field.label,
     };
-    if (field.type === "radio" || field.type === "select") {
-      fieldSchema.enum = field.options?.map((option) => option.value);
-      fieldSchema.enumNames = field.options?.map((option) => option.label);
-      fieldSchema.enumSeparator = field.multiple ? "," : undefined;
+    if (field.name === "bankAccountNumber") {
+      fieldSchema.minLength = 9; // Minimum length for bank account numbers
+      fieldSchema.maxLength = 18; // Maximum length for bank account numbers
+      fieldSchema.pattern = "^[0-9]+$"; // Ensure only numbers are allowed
     }
 
+    if (field.name === "bankIfscCode") {
+      fieldSchema.pattern = "^[A-Z]{4}0[A-Z0-9]{6}$"; // IFSC code format
+      fieldSchema.title = field.label || "Enter valid IFSC code";
+    }
+
+    if (field.type === "radio" || field.type === "select") {
+      if (field.name === "class") {
+        fieldSchema.enum = field.options?.map((option) => Number(option.value));
+        fieldSchema.enumNames = field.options?.map((option) => option.label);
+      } else {
+        fieldSchema.enum = field.options?.map((option) => option.value);
+        fieldSchema.enumNames = field.options?.map((option) => option.label);
+      }
+    }
     if (field.required) {
       fieldSchema.required = true;
     }
-
     rjsfSchema.properties[field.name] = fieldSchema;
   });
   return rjsfSchema;
@@ -78,7 +91,6 @@ export const convertDocumentFields = (
     });
   });
 
-  // Convert the results object to an array
   const schemaDoc = Object.values(groupedByAllowedProofs);
   // const userDocsDataType = userDocs?.docs_datatype || [];
   schemaDoc.forEach((field: any) => {
@@ -95,7 +107,7 @@ export const convertDocumentFields = (
       [[], []]
     ) ?? [[], []];
 
-    const fieldLabel = `Upload document for ${field.schema
+    const fieldLabel = `Choose ${field.name} for ${field.schema
       .map((e: any) =>
         e.documentType ? e.documentType : e?.criteria?.name || ""
       )
