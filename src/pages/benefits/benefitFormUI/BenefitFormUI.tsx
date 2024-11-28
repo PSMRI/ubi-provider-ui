@@ -36,6 +36,7 @@ const BenefitFormUI: React.FC = () => {
   const [docSchema, setDocSchema] = useState<any>(null);
   const [extraErrors, setExtraErrors] = useState<any>(null);
   const [applicationSchema, setApplicationSchema] = useState<any>(null);
+
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       window.postMessage({ type: "FORM_SUBMIT", data: formData }, "*");
@@ -44,26 +45,25 @@ const BenefitFormUI: React.FC = () => {
         return;
       }
 
-      const receivedData = event.data.prefillData;
-      // console.log("received data==", event.data.user);
-      if (receivedData) {
-        setFormData(receivedData);
-        const applicationSchemaData = preMatricScholarshipSC.en.applicationForm;
-        const applicationFormSchema = convertApplicationFormFields(
-          applicationSchemaData
-        );
-        const prop = applicationFormSchema?.properties;
-        Object.keys(prop).forEach((item: string) => {
-          if (receivedData?.[item] && receivedData?.[item] !== "") {
-            prop[item] = {
-              ...prop[item],
-              readOnly: true,
-            };
-          }
-        });
-        setApplicationSchema({ ...applicationFormSchema, properties: prop });
-      }
-      setUserDocs(event?.data?.user?.data?.docs);
+      const receivedData = event.data;
+      setFormData(receivedData);
+      const applicationSchemaData = preMatricScholarshipSC.en.applicationForm;
+      const applicationFormSchema = convertApplicationFormFields(
+        applicationSchemaData
+      );
+
+      const prop = applicationFormSchema?.properties;
+      Object.keys(prop).forEach((item: string) => {
+        if (receivedData?.[item] && receivedData?.[item] !== "") {
+          prop[item] = {
+            ...prop[item],
+            readOnly: true,
+          };
+        }
+      });
+      setApplicationSchema({ ...applicationFormSchema, properties: prop });
+
+      setUserDocs(event?.data?.docs);
     };
 
     window.addEventListener("message", handleMessage);
@@ -72,13 +72,8 @@ const BenefitFormUI: React.FC = () => {
       window.removeEventListener("message", handleMessage);
     };
   }, []);
-
   useEffect(() => {
     const fetchSchema = async () => {
-      // const result = await getSchema();
-      // const resultItem = result?.result?.data;
-      // console.log("resultItem===", resultItem);
-
       if (id) {
         const eligSchemaStatic = preMatricScholarshipSC.en.eligibility;
         const docSchemaStatic = preMatricScholarshipSC.en.documents;

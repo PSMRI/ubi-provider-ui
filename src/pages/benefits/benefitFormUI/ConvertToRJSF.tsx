@@ -46,19 +46,15 @@ export const convertApplicationFormFields = (
       fieldSchema.pattern = "^[A-Z]{4}0[A-Z0-9]{6}$"; // IFSC code format
       fieldSchema.title = field.label || "Enter valid IFSC code";
     }
-
     if (field.type === "radio" || field.type === "select") {
-      if (field.name === "class") {
-        fieldSchema.enum = field.options?.map((option) => Number(option.value));
-        fieldSchema.enumNames = field.options?.map((option) => option.label);
-      } else {
-        fieldSchema.enum = field.options?.map((option) => option.value);
-        fieldSchema.enumNames = field.options?.map((option) => option.label);
-      }
+      fieldSchema.enum = field.options?.map((option) => option.value);
+      fieldSchema.enumNames = field.options?.map((option) => option.label);
     }
+
     if (field.required) {
       fieldSchema.required = true;
     }
+
     rjsfSchema.properties[field.name] = fieldSchema;
   });
   return rjsfSchema;
@@ -83,7 +79,17 @@ export const convertDocumentFields = (
       if (!groupedByAllowedProofs[proof]) {
         groupedByAllowedProofs[proof] = {
           name: proof,
+          isRequired: Boolean(item.isRequired || item?.criteria?.name || false),
           schema: [],
+        };
+      } else {
+        groupedByAllowedProofs[proof] = {
+          ...groupedByAllowedProofs[proof],
+          isRequired: Boolean(
+            item.isRequired ||
+              item?.criteria?.name ||
+              groupedByAllowedProofs[proof]?.isRequired
+          ),
         };
       }
       // Push the current item to the corresponding proof's schema
@@ -91,6 +97,7 @@ export const convertDocumentFields = (
     });
   });
 
+  // Convert the results object to an array
   const schemaDoc = Object.values(groupedByAllowedProofs);
   // const userDocsDataType = userDocs?.docs_datatype || [];
   schemaDoc.forEach((field: any) => {
@@ -115,9 +122,9 @@ export const convertDocumentFields = (
     schema.properties![field?.name] = {
       type: "string",
       title: fieldLabel,
-      enum: enumValues as string[],
-      enumNames: enumNames as string[],
-      isDocument: true,
+      required: field.isRequired,
+      enum: enumValues.length > 0 ? (enumValues as string[]) : [],
+      enumNames: (enumNames as string[]) || [],
     };
   });
 
