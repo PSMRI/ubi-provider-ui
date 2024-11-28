@@ -1,9 +1,9 @@
 import { tableData } from "../utils/dataJSON/BenefitSummary";
+import { generateUUID } from "../utils/dataJSON/helper/helper";
 import axios from "axios";
 const apiUrl = import.meta.env.VITE_DIGIT_BASE_URL;
 const initAPI = import.meta.env.VITE_APPLICATION_API;
 const schemaAPI = import.meta.env.VITE_SCHEMA_API;
-
 export const getAll = async () => {
   //   const response = await axios.get(`http://localhost:3001/api/benefits`);
 
@@ -186,8 +186,8 @@ export const getSchema = async () => {
       bap_uri: "https://dev-uba-bap.tekdinext.com/",
       bpp_id: "dev-uba-bpp.tekdinext.com",
       bpp_uri: "https://dev-uba-bpp.tekdinext.com/",
-      transaction_id: "a3e4edf9-8ce6-46c0-8b2f-8f73ffee3e3b",
-      message_id: "7978bab9-791c-4be7-b15d-795532ad3c88",
+      transaction_id: generateUUID(),
+      message_id: generateUUID(),
     },
     message: {
       order: {

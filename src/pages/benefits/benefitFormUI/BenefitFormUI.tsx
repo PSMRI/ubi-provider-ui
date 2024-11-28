@@ -31,7 +31,6 @@ const BenefitFormUI: React.FC = () => {
   const [formSchema, setFormSchema] = useState<any>(null);
   const [formData, setFormData] = useState<any>({});
   const [userDocs, setUserDocs] = useState<any>(null);
-
   const formRef = useRef<any>(null);
 
   const [docSchema, setDocSchema] = useState<any>(null);
@@ -41,11 +40,12 @@ const BenefitFormUI: React.FC = () => {
     const handleMessage = (event: MessageEvent) => {
       window.postMessage({ type: "FORM_SUBMIT", data: formData }, "*");
 
-      if (event.origin !== "http://localhost:5173") {
+      if (event.origin !== `${import.meta.env.VITE_DIGIT_BASE_URL}/uba-ui`) {
         return;
       }
 
       const receivedData = event.data.prefillData;
+      // console.log("received data==", event.data.user);
       if (receivedData) {
         setFormData(receivedData);
         const applicationSchemaData = preMatricScholarshipSC.en.applicationForm;
@@ -75,8 +75,9 @@ const BenefitFormUI: React.FC = () => {
 
   useEffect(() => {
     const fetchSchema = async () => {
-      // const schemaResponse = await getSchema();
-      // console.log("schemaResponse===", schemaResponse?.responses);
+      // const result = await getSchema();
+      // const resultItem = result?.result?.data;
+      // console.log("resultItem===", resultItem);
 
       if (id) {
         const eligSchemaStatic = preMatricScholarshipSC.en.eligibility;
@@ -87,7 +88,7 @@ const BenefitFormUI: React.FC = () => {
         const docSchemaData = convertDocumentFields(docSchemaArr, userDocs);
         setDocSchema(docSchemaData);
         const properties = {
-          ...(applicationSchema.properties || {}),
+          ...(applicationSchema?.properties || {}),
           ...(docSchemaData?.properties || {}),
         };
         // const properties = applicationFormSchema.properties;

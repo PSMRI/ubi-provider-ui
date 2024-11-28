@@ -1,11 +1,11 @@
-name: DEV EKS DEPLOYMENT
+name: UAT EKS DEPLOYMENT
 
 on:
   push:
     branches:
       - main
 jobs:
-  build_and_Deploy_EKS-DEV:
+  build_and_Deploy_EKS-UAT:
     runs-on: ubuntu-latest
     steps:
       # Checkout repository
@@ -25,7 +25,7 @@ jobs:
           if [ -f .env ]; then
             rm .env
           fi
-          echo '${{ secrets.DEV_ENV }}' > .env
+          echo '${{ secrets.UAT_ENV }}' > .env
           ls -ltra
           yarn install
           yarn run build
@@ -38,7 +38,6 @@ jobs:
             echo "dist/ directory not found. Creating it manually."
             mkdir dist
           fi
-
       - name: Create Dockerfile in dist/
         run: |
           # Copy nginx.conf if it exists
@@ -57,19 +56,17 @@ jobs:
             echo "Error: Dockerfile not found in the repository."
             exit 1
           fi
-
       # Log in to Docker Hub
       - name: Log in to Docker Hub
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
       # Build and push Docker image
       - name: Build and Push Docker Image
         run: |
           ls -ltra dist
           cd dist/
-          docker build -t ${{ secrets.DOCKER_REPO_NAME_DEV }}:${{ secrets.DOCKER_IMAGE_DEV }} .
-          docker push ${{ secrets.DOCKER_REPO_NAME_DEV }}:${{ secrets.DOCKER_IMAGE_DEV }}
+          docker build -t ${{ secrets.DOCKER_REPO_NAME_UAT }}:${{ secrets.DOCKER_IMAGE_UAT }} .
+          docker push ${{ secrets.DOCKER_REPO_NAME_UAT }}:${{ secrets.DOCKER_IMAGE_UAT }}
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
@@ -82,9 +79,8 @@ jobs:
           export AWS_REGION=${{ secrets.AWS_REGION }}
           
           # Set kubectl configuration
-          aws eks update-kubeconfig --region "${{ secrets.AWS_REGION }}" --name "${{ secrets.EKS_CLUSTER_NAME_DEV }}"
-
+          aws eks update-kubeconfig --region "${{ secrets.AWS_REGION }}" --name "${{ secrets.EKS_CLUSTER_NAME_UAT }}"
           # Restart the deployment
-          kubectl rollout restart deployment/${{ secrets.EKS_DEPLOYMENT_NAME_DEV }} -n egov
+          kubectl rollout restart deployment/${{ secrets.EKS_DEPLOYMENT_NAME_UAT }} -n egov
           # Verify the restart
-          kubectl rollout status deployment/${{ secrets.EKS_DEPLOYMENT_NAME_DEV }} -n egov
+          kubectl rollout status deployment/${{ secrets.EKS_DEPLOYMENT_NAME_UAT }} -n egov
