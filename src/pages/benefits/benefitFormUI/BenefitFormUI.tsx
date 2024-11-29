@@ -82,7 +82,7 @@ const BenefitFormUI: React.FC = () => {
           };
         }
       });
-      getEligibilitySchemaData(formData, benefit, {
+      getEligibilitySchemaData(receivedData, benefit, {
         ...applicationFormSchema,
         properties: prop,
       });
@@ -106,6 +106,7 @@ const BenefitFormUI: React.FC = () => {
     };
     const required = Object.keys(properties).filter((key) => {
       const isRequired = properties[key].required;
+
       if (isRequired !== undefined) {
         delete properties[key].required;
       }
