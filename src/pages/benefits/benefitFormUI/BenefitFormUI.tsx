@@ -106,7 +106,6 @@ const BenefitFormUI: React.FC = () => {
     };
     const required = Object.keys(properties).filter((key) => {
       const isRequired = properties[key].required;
-
       if (isRequired !== undefined) {
         delete properties[key].required;
       }
