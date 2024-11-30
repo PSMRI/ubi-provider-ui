@@ -8,7 +8,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import CommonButton from "../../../components/common/buttons/SubmitButton";
 import { getSchema, submitForm } from "../../../services/benefits";
-import { preMatricScholarshipSC } from "./BenefitSchema";
 import {
   convertApplicationFormFields,
   convertDocumentFields,
@@ -43,7 +42,6 @@ const BenefitFormUI: React.FC = () => {
       const prefillData = event.data;
       const receivedData = prefillData;
       if (id) {
-        console.log("tag---", id);
         const result = await getSchema(id);
 
         const targetTag =
@@ -53,7 +51,6 @@ const BenefitFormUI: React.FC = () => {
         const resultItem = targetTag?.list?.[0]?.value;
         const cleanedSchema = resultItem?.replace(/\\/g, "");
         const benefit = JSON.parse(cleanedSchema) || {};
-        console.log("tag---", benefit);
 
         getApplicationSchemaData(receivedData, benefit);
       }
@@ -146,7 +143,6 @@ const BenefitFormUI: React.FC = () => {
         },
         "*"
       );
-      console.log("formdata--", response);
     }
   };
 
