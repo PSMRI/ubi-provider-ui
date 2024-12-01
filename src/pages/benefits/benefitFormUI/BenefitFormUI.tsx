@@ -18,11 +18,9 @@ const Form = withTheme(ChakraTheme);
 const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
   const { uiSchema } = props;
   const { norender } = getSubmitButtonOptions(uiSchema);
-
   if (norender) {
     return null;
   }
-
   return <button type="submit" style={{ display: "none" }}></button>;
 };
 
