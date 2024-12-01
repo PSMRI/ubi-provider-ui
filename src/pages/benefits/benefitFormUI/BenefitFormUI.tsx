@@ -7,12 +7,12 @@ import { JSONSchema7 } from "json-schema";
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import CommonButton from "../../../components/common/buttons/SubmitButton";
+import Loading from "../../../components/common/Loading";
 import { getSchema, submitForm } from "../../../services/benefits";
 import {
   convertApplicationFormFields,
   convertDocumentFields,
 } from "./ConvertToRJSF";
-import Loading from "../../../components/common/Loading";
 
 const Form = withTheme(ChakraTheme);
 const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
