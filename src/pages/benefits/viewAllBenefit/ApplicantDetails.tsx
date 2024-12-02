@@ -82,7 +82,7 @@ const ApplicantDetails: React.FC = () => {
   return (
     <Layout
       _titleBar={{
-        title: `Applicantion list: ${id}`,
+        title: `Application list: ${id}`,
       }}
       showMenu={true}
       showSearchBar={true}
