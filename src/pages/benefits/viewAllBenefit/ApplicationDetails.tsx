@@ -36,7 +36,7 @@ const ApplicationDetails: React.FC = () => {
   );
   const [loading, setLoading] = useState(false);
   const [documentData, setDocumentData] = useState<DocumentData[]>([]);
-
+  const [status, setStatus] = useState<any[]>([]);
   useEffect(() => {
     const fetchApplicationData = async () => {
       if (id) {
@@ -45,6 +45,7 @@ const ApplicationDetails: React.FC = () => {
           const applicantionDataResponse = await viewApplicationByApplicationId(
             id
           );
+          setStatus(applicantionDataResponse?.status || "N/A");
           setLoading(false);
 
           const data = getPreviewDetails(applicantionDataResponse?.applicant);
@@ -72,7 +73,7 @@ const ApplicationDetails: React.FC = () => {
   return (
     <Layout
       _titleBar={{
-        title: `Applicant Details : ${applicantData?.applicationId || id}`,
+        title: `Applicant Details : ${applicantData[0]?.id || id}`,
       }}
       showMenu={true}
       showSearchBar={true}
@@ -81,8 +82,23 @@ const ApplicationDetails: React.FC = () => {
       {loading && <Loading />}
       <VStack spacing="50px" p={"20px"} align="stretch">
         <VStack align="start" spacing={4} p={2} bg="gray.50">
+          <HStack
+            spacing={8}
+            w="100%"
+            // boxShadow="0px 4px 4px 0px #00000040"
+            p="2"
+            borderRadius="md"
+            bg="white"
+          >
+            <Text fontWeight="bold" w="30%">
+              Status:
+            </Text>
+            <Text w="70%">{status ? status.toString() : "N/A"}</Text>
+            <CheckIcon color="#0037B9" />
+          </HStack>
           {applicantData?.map((item) => (
             <HStack
+              key={item?.id}
               spacing={8}
               w="100%"
               // boxShadow="0px 4px 4px 0px #00000040"
@@ -96,7 +112,6 @@ const ApplicationDetails: React.FC = () => {
               <Text w="70%">
                 {item.value !== null ? item.value.toString() : "N/A"}
               </Text>
-              <CheckIcon color="#0037B9" />
             </HStack>
           ))}
           <Text fontWeight="bold" fontSize={"24px"}>
@@ -107,9 +122,7 @@ const ApplicationDetails: React.FC = () => {
               <FormControl key={doc.id}>
                 <FormLabel>{doc?.documentType?.replace(/_/g, " ")}</FormLabel>
                 <InputGroup>
-                  <InputLeftElement pointerEvents="none">
-                    {/* <CheckIcon color="#0037B9" /> */}
-                  </InputLeftElement>
+                  <InputLeftElement pointerEvents="none"></InputLeftElement>
                   <Input
                     color={"#0037B9"}
                     value={`File: ${doc.fileStoreId}`} // Use documentType for display

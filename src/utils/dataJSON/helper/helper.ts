@@ -22,7 +22,7 @@ export const transformErrors = (errors: any, schema: any, t: any) => {
     const getErrorObj = (message: any) => {
       returnData = { ...returnData, message };
     };
-    console.log("error.name--", error);
+
     switch (error.name) {
       case "required":
         getErrorObj(
@@ -49,11 +49,7 @@ export const transformErrors = (errors: any, schema: any, t: any) => {
         break;
       case "enum":
         getErrorObj(t("SELECT_MESSAGE"));
-        // if (error?.params?.allowedValues?.includes("No options available")) {
-        //   getErrorObj(t("INVALID_SELECTION").replace("{field}", t(title)));
-        // } else {
-        //   getErrorObj(t("SELECT_VALID_OPTION").replace("{field}", t(title)));
-        // }
+
         break;
       default:
         getErrorObj(error.message);
