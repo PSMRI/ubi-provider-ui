@@ -7,7 +7,7 @@ import BenefitFormUI from "../pages/benefits/benefitFormUI/BenefitFormUI";
 //lazy loading
 const routes = [
   {
-    path: "/",
+    path: "*",
     component: Login,
   },
   {
