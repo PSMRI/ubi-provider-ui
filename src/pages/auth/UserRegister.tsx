@@ -350,7 +350,8 @@ export default function UserRegister() {
                     !name ||
                     !password ||
                     !mobile ||
-                    !userName
+                    !userName ||
+                    !gender
                   }
                   onClick={() => handleRegister()}
                 >

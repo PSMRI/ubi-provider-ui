@@ -74,7 +74,7 @@ export const LoginProvider = async (username: string, password: string) => {
     )}&userType=EMPLOYEE`;
     const config = {
       headers: {
-        Authorization: "Basic ZWdvdi11c2VyLWNsaWVudDo=",
+        Authorization: `Basic ${import.meta.env.VITE_LOGIN_AUTH_TOKEN}`,
         "Content-Type": "application/x-www-form-urlencoded",
       },
     };

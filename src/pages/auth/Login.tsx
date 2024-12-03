@@ -145,7 +145,7 @@ export default function Login() {
                   colorScheme={"blue"}
                   variant={"solid"}
                   borderRadius={"100px"}
-                  isDisabled={userName === ""}
+                  isDisabled={!userName.trim() || !password.trim()}
                   onClick={handleLogin}
                 >
                   <Text fontSize={"14px"} fontWeight={400}>
