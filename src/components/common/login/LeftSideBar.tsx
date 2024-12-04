@@ -1,9 +1,7 @@
-import { HStack, Image, Text, VStack } from "@chakra-ui/react";
-import { useTranslation } from "react-i18next";
+import { HStack, Image, VStack } from "@chakra-ui/react";
 import Logo from "../../../assets/Images/Frame.png";
 
 export default function LeftSideBar() {
-  const { t } = useTranslation();
   return (
     <VStack
       flex={1}
