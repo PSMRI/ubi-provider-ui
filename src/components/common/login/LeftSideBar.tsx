@@ -13,7 +13,6 @@ export default function LeftSideBar() {
     >
       <HStack>
         <Image src={Logo} />
-        <VStack align={"start"}></VStack>
       </HStack>
     </VStack>
   );
