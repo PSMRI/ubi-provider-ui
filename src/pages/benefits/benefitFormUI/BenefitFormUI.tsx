@@ -113,6 +113,7 @@ const BenefitFormUI: React.FC = () => {
     setFormData(formData);
   };
   const handleFormSubmit = async () => {
+    setDisableSubmit(true);
     const formDataNew: any = { ...formData };
     formDataNew.benefit_id = id;
     delete formDataNew.docs;
