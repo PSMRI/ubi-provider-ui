@@ -49,50 +49,51 @@ export default function UserRegister() {
 
   const validateField = (field: any, value: any) => {
     let error = "";
-    switch (field) {
-      case "email":
-        error = !value.trim()
-          ? "Email is required."
-          : !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)
-          ? "Invalid email address."
-          : "";
-        break;
-      case "name":
-        error = !value.trim()
-          ? "Name is required."
-          : !/^[a-zA-Z\s]{2,50}$/.test(value)
-          ? "Name must be 2-50 characters long and contain only letters and spaces."
-          : "";
-        break;
-      case "mobile":
-        error = !value.trim()
-          ? "Mobile number is required."
-          : !/^\d{10}$/.test(value)
-          ? "Mobile number must be 10 digits."
-          : "";
-        break;
-      case "userName":
-        error = !value.trim()
-          ? "Username is required."
-          : !/^\w{3,15}$/.test(value)
-          ? "Username must be 3-15 characters and can only contain letters, numbers, or underscores."
-          : "";
-        break;
-      case "password":
-        error = !value.trim()
-          ? t("LOGIN_PASSWORD_REQUIRED_HELPER_TEXT")
-          : !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/.test(
-              value
-            )
-          ? t("REGISTER_PASSWORD_LENGTH_HELPER_TEXT")
-          : "";
-        break;
-      case "gender":
-        error = !value ? "Gender is required." : "";
-        break;
-      default:
-        break;
+
+    if (field === "email") {
+      if (!value.trim()) {
+        error = "Email is required.";
+      } else if (
+        !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)
+      ) {
+        error = "Invalid email address.";
+      }
+    } else if (field === "name") {
+      if (!value.trim()) {
+        error = "Name is required.";
+      } else if (!/^[a-zA-Z\s]{2,50}$/.test(value)) {
+        error =
+          "Name must be 2-50 characters long and contain only letters and spaces.";
+      }
+    } else if (field === "mobile") {
+      if (!value.trim()) {
+        error = "Mobile number is required.";
+      } else if (!/^\d{10}$/.test(value)) {
+        error = "Mobile number must be 10 digits.";
+      }
+    } else if (field === "userName") {
+      if (!value.trim()) {
+        error = "Username is required.";
+      } else if (!/^\w{3,15}$/.test(value)) {
+        error =
+          "Username must be 3-15 characters and can only contain letters, numbers, or underscores.";
+      }
+    } else if (field === "password") {
+      if (!value.trim()) {
+        error = t("LOGIN_PASSWORD_REQUIRED_HELPER_TEXT");
+      } else if (
+        !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/.test(
+          value
+        )
+      ) {
+        error = t("REGISTER_PASSWORD_LENGTH_HELPER_TEXT");
+      }
+    } else if (field === "gender") {
+      if (!value) {
+        error = "Gender is required.";
+      }
     }
+
     setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
   };
 
