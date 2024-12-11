@@ -357,11 +357,6 @@ export default function UserRegister() {
                   }
                   onClick={() => handleRegister()}
                 >
-                  {/* {
-                  localStorage.setItem("token", "true");
-                  
-                  navigate("/otp");
-                } */}
                   <Text fontSize="14px" fontWeight="400">
                     {t("REGISTER_PROCEED_BUTTON")}
                   </Text>

@@ -44,14 +44,15 @@ const BenefitFormUI: React.FC = () => {
         );
 
         const prop = applicationFormSchema?.properties;
+
         Object.keys(prop).forEach((item: string) => {
           if (receivedData?.[item] && receivedData?.[item] !== "") {
             prop[item] = {
               ...prop[item],
-              // readOnly: true,
             };
           }
         });
+
         setFormData(receivedData);
         getEligibilitySchemaData(receivedData, benefit, {
           ...applicationFormSchema,
@@ -105,6 +106,7 @@ const BenefitFormUI: React.FC = () => {
       required,
       properties,
     };
+    console.log("allSchema----", allSchema);
 
     setFormSchema(allSchema);
   };
@@ -124,16 +126,16 @@ const BenefitFormUI: React.FC = () => {
         console.log(`${e} is missing from formDataNew`);
       }
     });
-    // API call for submit id and sent it to the post message
     const response = await submitForm(formDataNew);
     if (response) {
       setDisableSubmit(true);
+      const targetOrigin = import.meta.env.VITE_BENEFICIERY_IFRAME_URL;
       window.parent.postMessage(
         {
           type: "FORM_SUBMIT",
           data: { submit: response, userData: formDataNew },
         },
-        "*"
+        targetOrigin
       );
     } else {
       setDisableSubmit(false);
@@ -157,7 +159,6 @@ const BenefitFormUI: React.FC = () => {
         onChange={handleChange}
         onSubmit={handleFormSubmit}
         templates={{ ButtonTemplates: { SubmitButton } }}
-        // transformErrors={(errors) => transformErrors(errors, formSchema, t)}
         extraErrors={extraErrors}
       />
       <CommonButton
@@ -187,5 +188,5 @@ const BenefitFormUI: React.FC = () => {
 export default BenefitFormUI;
 
 function encodeToBase64(str: string) {
-  return `base64,${btoa(unescape(encodeURIComponent(str)))}`;
+  return `base64,${btoa(encodeURIComponent(str))}`;
 }
