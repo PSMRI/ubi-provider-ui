@@ -88,7 +88,7 @@ const ViewAllBenefits = () => {
   const datePickerRef = useRef<DatePicker | null>(null);
   const datePickerCreatedRef = useRef<DatePicker | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
-  const pageSize = 10;
+  const PAGE_SIZE = 10;
   const fetchBenefitsData = async () => {
     const statusValues = {
       0: "ACTIVE",
@@ -103,7 +103,7 @@ const ViewAllBenefits = () => {
       created_end: createdAt ?? null,
       status: statusValues[activeTab as 0 | 1 | 2],
       page_no: pageIndex,
-      page_size: pageSize,
+      page_size: PAGE_SIZE,
       sort_by: "benefit_name",
       sort_order: sortOrder,
     };
@@ -156,8 +156,8 @@ const ViewAllBenefits = () => {
     item?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const paginatedData = filteredData?.slice(
-    pageIndex * pageSize,
-    pageIndex * pageSize + pageSize
+    pageIndex * PAGE_SIZE,
+    pageIndex * PAGE_SIZE + PAGE_SIZE
   );
   return (
     <Layout
@@ -306,7 +306,7 @@ const ViewAllBenefits = () => {
         )}
         <PaginationList
           total={data?.length}
-          pageSize={pageSize}
+          pageSize={PAGE_SIZE}
           currentPage={pageIndex}
           onPageChange={handlePageChange}
         />

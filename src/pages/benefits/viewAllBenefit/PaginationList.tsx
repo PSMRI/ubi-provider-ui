@@ -14,6 +14,11 @@ const PaginationList: React.FC<PaginationControlsProps> = ({
   currentPage,
   onPageChange,
 }) => {
+  if (total < 0 || pageSize <= 0) {
+    throw new Error(
+      "Invalid pagination parameters: total and pageSize must be positive"
+    );
+  }
   const totalPages = Math.ceil(total / pageSize);
   const pageLimit = 3; // Maximum number of page numbers to show at a time
   const startPage = Math.floor(currentPage / pageLimit) * pageLimit;
