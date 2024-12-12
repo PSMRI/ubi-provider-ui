@@ -1,7 +1,5 @@
 import { SearchIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 import {
-  Box,
-  Button,
   HStack,
   IconButton,
   Input,

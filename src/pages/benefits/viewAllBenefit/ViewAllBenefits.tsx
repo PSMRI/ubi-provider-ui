@@ -4,7 +4,6 @@ import {
   SearchIcon,
 } from "@chakra-ui/icons";
 import {
-  Button,
   HStack,
   IconButton,
   Input,
@@ -13,7 +12,6 @@ import {
   Select,
   Text,
   VStack,
-  Box,
 } from "@chakra-ui/react";
 import Tab from "../../../components/common/Tab";
 import Table from "../../../components/common/table/Table";
