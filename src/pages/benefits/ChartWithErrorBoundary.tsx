@@ -4,7 +4,6 @@ import Chart from "react-apexcharts";
 interface ChartProps {
   options: {
     labels: string[];
-    [key: string]: any;
   };
   series: number[];
 }
