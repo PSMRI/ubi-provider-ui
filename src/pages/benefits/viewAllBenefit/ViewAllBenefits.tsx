@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import Tab from "../../../components/common/Tab";
 import Table from "../../../components/common/table/Table";
-import { DataType, PagingPosition } from "ka-table/enums";
+import { DataType } from "ka-table/enums";
 import { ICellTextProps } from "ka-table/props";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -35,12 +35,6 @@ const columns = [
     dataType: DataType.String,
   },
 ];
-interface TableEvent {
-  type: "PageIndexChange" | "SortChange" | "FilterChange"; // Example event types
-  pageIndex?: number;
-  sortOrder?: string;
-  filter?: string;
-}
 const DeadLineCell = (prop: ICellTextProps) => {
   return (
     <HStack>
@@ -82,9 +76,6 @@ const ViewAllBenefits = () => {
   const [createdAt, setCreatedAt] = useState<string | null>("");
   const [sortOrder, setSortOrder] = useState<string>("asc");
   const [data, setData] = useState([]);
-  const [pageIndex, setPageIndex] = useState<number>(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const pageSize = 10; // Set your page size here
   const { t } = useTranslation();
   const datePickerRef = useRef<DatePicker | null>(null);
   const datePickerCreatedRef = useRef<DatePicker | null>(null);
@@ -102,8 +93,8 @@ const ViewAllBenefits = () => {
       created_start: createdAt ?? null,
       created_end: createdAt ?? null,
       status: statusValues[activeTab as 0 | 1 | 2],
-      page_no: pageIndex,
-      page_size: pageSize,
+      page_no: 0,
+      page_size: 10,
       sort_by: "benefit_name",
       sort_order: sortOrder,
     };
@@ -112,22 +103,19 @@ const ViewAllBenefits = () => {
 
     if (response) {
       setData(response);
-      setTotalPages(response?.length);
     }
   };
 
   useEffect(() => {
     fetchBenefitsData();
-  }, [activeTab, pageIndex, searchTerm, validTill, createdAt, sortOrder]);
+  }, [activeTab, searchTerm, validTill, createdAt, sortOrder]);
 
   const handleTabClick = (tab: string) => {
     setActiveTab(parseInt(tab, 10));
-    setPageIndex(0);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    setPageIndex(0);
   };
 
   const handleValidTillChange = (date: Date | null) => {
@@ -136,7 +124,6 @@ const ViewAllBenefits = () => {
     } else {
       setValidTill(null);
     }
-    setPageIndex(0);
   };
 
   const handleCreatedAtChange = (date: Date | null) => {
@@ -145,18 +132,10 @@ const ViewAllBenefits = () => {
     } else {
       setCreatedAt(null);
     }
-    setPageIndex(0);
   };
 
   const handleSortOrderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortOrder(e.target.value);
-    setPageIndex(0);
-  };
-
-  const onTableEvent = (e: TableEvent) => {
-    if (e.type === "PageIndexChange") {
-      setPageIndex(e.pageIndex ?? 0);
-    }
   };
 
   return (
@@ -293,17 +272,6 @@ const ViewAllBenefits = () => {
             columns={columns}
             data={data}
             rowKeyField={"id"}
-            paging={{
-              enabled: true,
-              pageIndex: pageIndex,
-              pageSize: pageSize,
-              pagesCount: totalPages,
-              position: PagingPosition.Bottom,
-            }}
-            onPageIndexChange={(newPageIndex: number) =>
-              setPageIndex(newPageIndex)
-            }
-            onEvent={onTableEvent}
             childComponents={{
               cellText: {
                 content: (props: ICellTextProps) => customCellText(props),

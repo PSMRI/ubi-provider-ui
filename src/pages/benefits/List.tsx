@@ -29,14 +29,16 @@ interface Sponsor {
   benefitSponsor: string;
   sponsorShare: number;
 }
-
+interface Benefit {
+  id: string;
+  name: string;
+}
 interface DetailData {
   id: string;
   application_deadline: string;
   sponsors: Sponsor[];
   price: number;
-  benefit: any[]; // Define this more specifically if you have a better shape
-  // Add other properties based on the API response
+  benefit: Benefit[];
 }
 
 const columns = [
@@ -54,8 +56,8 @@ const ActionCell = ({
   rowKeyValue,
   isDetailsRowShown,
   rowData,
-  setDetailData, // Receive the setDetailData function
-}: ICellTextProps & { setDetailData: (data: any) => void }) => {
+  setDetailData,
+}: ICellTextProps & { setDetailData: (data: DetailData) => void }) => {
   const table = useTableInstance();
 
   const fetchRowDetails = async (id: string) => {
@@ -63,18 +65,15 @@ const ActionCell = ({
       const response = await detailViewRow(id);
       setDetailData(response?.benefit || null);
       console.log("Fetched row details:", response);
-      // Handle API response (update UI or state with the response)
     } catch (error) {
       console.error("Error fetching row details:", error);
     }
   };
-  // Method to show the details row
   const showDetails = async () => {
     table.showDetailsRow(rowKeyValue);
     await fetchRowDetails(rowData?.rowData?.id);
   };
 
-  // Method to hide the details row
   const hideDetails = async () => {
     table.hideDetailsRow(rowKeyValue);
   };

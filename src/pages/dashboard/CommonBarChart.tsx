@@ -223,6 +223,15 @@ const CommonBarChart = () => {
         <Text fontSize="36px" fontWeight="400" color="#06164B">
           {t("DASHBOARD_VISUAL_REPRESENTATION_TITLE")}
         </Text>
+
+        {/* <Select
+          w="175px"
+          placeholder="November 2024"
+          borderColor="gray.300"
+          bg="white"
+          _hover={{ borderColor: "gray.400" }}
+          _focus={{ borderColor: "blue.500", boxShadow: "outline" }}
+        /> */}
       </HStack>
       <HStack align="stretch" spacing={"35px"}>
         {data?.length > 0 &&
