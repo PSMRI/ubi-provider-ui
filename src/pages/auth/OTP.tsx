@@ -31,7 +31,6 @@ export default function OTP() {
   };
 
   React.useEffect(() => {
-    //Remove commented code
     if (timer > 0) {
       const countdown = setInterval(() => {
         setTimer((prev) => prev - 1);
