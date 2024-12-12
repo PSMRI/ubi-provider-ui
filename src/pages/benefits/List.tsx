@@ -29,25 +29,28 @@ interface Sponsor {
   benefitSponsor: string;
   sponsorShare: number;
 }
-
+interface Benefit {
+  id: string;
+  name: string;
+}
 interface DetailData {
   id: string;
   application_deadline: string;
   sponsors: Sponsor[];
   price: number;
-  benefit: any[];
+  benefit: Benefit[];
 }
 
 const columns = [
   { key: "name", title: "Name", dataType: DataType.String },
   { key: "applicants", title: "Applicants", dataType: DataType.Number },
-  // { key: "approved", title: "Approved", dataType: DataType.Number },
-  // { key: "rejected", title: "Rejected", dataType: DataType.Number },
-  // {
-  //   key: "disbursalPending",
-  //   title: "Disbursal Pending",
-  //   dataType: DataType.Number,
-  // },
+  /*{ key: "approved", title: "Approved", dataType: DataType.Number },
+  { key: "rejected", title: "Rejected", dataType: DataType.Number },
+  {
+    key: "disbursalPending",
+    title: "Disbursal Pending",
+    dataType: DataType.Number,
+  },*/
   { key: "deadline", title: "Deadline", dataType: DataType.String },
   {
     key: "actions",
@@ -164,6 +167,7 @@ const BenefitsList: React.FC<{
     fetchBenefitList(parseInt(tab, 10));
   };
   const handleDetailData = (data: DetailData) => {
+    console.log("dtat===", data);
     setDetailData((prevData) => {
       const exists = prevData.some((item) => item.id === data.id);
       if (exists) {

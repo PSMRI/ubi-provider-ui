@@ -28,13 +28,13 @@ import { useNavigate } from "react-router-dom";
 const columns = [
   { key: "name", title: "Name", dataType: DataType.String },
   { key: "applicants", title: "Applicants", dataType: DataType.Number },
-  // { key: "approved", title: "Approved", dataType: DataType.Number },
-  // { key: "rejected", title: "Rejected", dataType: DataType.Number },
-  // {
-  //   key: "disbursalPending",
-  //   title: "Disbursal Pending",
-  //   dataType: DataType.Number,
-  // },
+  /* { key: "approved", title: "Approved", dataType: DataType.Number },
+  { key: "rejected", title: "Rejected", dataType: DataType.Number },
+  {
+    key: "disbursalPending",
+    title: "Disbursal Pending",
+    dataType: DataType.Number,
+  },*/
   { key: "deadline", title: "Deadline", dataType: DataType.String },
   {
     key: "actions",
