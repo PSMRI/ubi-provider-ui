@@ -113,16 +113,19 @@ export const convertDocumentFields = (
         e.documentType ? e.documentType : e?.criteria?.name || ""
       )
       .join(", ")}`;
+    let enumValuesToUse: string[] = [];
+    if (enumValues.length > 0) {
+      enumValuesToUse = enumValues as string[];
+    } else if (field.isRequired) {
+      enumValuesToUse = [];
+    } else {
+      enumValuesToUse = [""];
+    }
     schema.properties![field?.name] = {
       type: "string",
       title: fieldLabel,
       required: field.isRequired,
-      enum:
-        enumValues.length > 0
-          ? (enumValues as string[])
-          : field.isRequired
-          ? []
-          : [""],
+      enum: enumValuesToUse,
       enumNames: (enumNames as string[]) || [],
       default: enumValues[0] || "",
     };

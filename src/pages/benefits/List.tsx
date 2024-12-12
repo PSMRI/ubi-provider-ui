@@ -207,7 +207,7 @@ const BenefitsList: React.FC<{
               const detailRowItem = detailData.find(
                 (item) => item?.id === props?.rowData?.id
               );
-              return detailsRow({
+              return DetailsRow({
                 detailData: detailRowItem,
               });
             },
@@ -240,7 +240,7 @@ const customCellText = (
   }
 };
 
-const detailsRow = ({
+const DetailsRow = ({
   detailData,
 }: {
   detailData: DetailData | null | undefined;
