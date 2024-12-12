@@ -40,6 +40,9 @@ const columns = [
 
 interface Benefit {
   name: string;
+  id: string | number;
+  applicants: number;
+  deadline: string;
 }
 const DeadLineCell = (prop: ICellTextProps) => {
   return (
@@ -99,9 +102,18 @@ const PaginationControls: React.FC<{
 
   return (
     <Box textAlign="center" mt={4}>
-      <HStack spacing={2} justify="center">
+      <HStack
+        spacing={2}
+        justify="center"
+        role="navigation"
+        aria-label="Pagination"
+      >
         {currentPage > 0 && (
-          <Button onClick={handlePrev} colorScheme="blue">
+          <Button
+            onClick={handlePrev}
+            colorScheme="blue"
+            aria-label="Go to previous page"
+          >
             Previous
           </Button>
         )}
@@ -114,6 +126,8 @@ const PaginationControls: React.FC<{
               onClick={() => onPageChange(pageIndex)}
               colorScheme={currentPage === pageIndex ? "blue" : "gray"}
               mx={1}
+              aria-label={`Go to page ${pageIndex + 1}`}
+              aria-current={currentPage === pageIndex ? "page" : undefined}
             >
               {pageIndex + 1}
             </Button>
@@ -121,7 +135,11 @@ const PaginationControls: React.FC<{
         })}
 
         {currentPage < totalPages - 1 && (
-          <Button onClick={handleNext} colorScheme="blue">
+          <Button
+            onClick={handleNext}
+            colorScheme="blue"
+            aria-label="Go to next page"
+          >
             Next
           </Button>
         )}
@@ -150,13 +168,13 @@ const ViewAllBenefits = () => {
     };
 
     const payload = {
-      name: searchTerm || null,
+      name: searchTerm.toLowerCase() || null,
       valid_till: validTill ?? null,
       created_start: createdAt ?? null,
       created_end: createdAt ?? null,
       status: statusValues[activeTab as 0 | 1 | 2],
-      page_no: 0,
-      page_size: 10,
+      page_no: pageIndex,
+      page_size: pageSize,
       sort_by: "benefit_name",
       sort_order: sortOrder,
     };
@@ -206,7 +224,7 @@ const ViewAllBenefits = () => {
     setPageIndex(newPageIndex);
   };
   const filteredData = data?.filter((item: Benefit) =>
-    item?.name?.toLowerCase().includes(searchTerm)
+    item?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const sortedData = [...filteredData].sort((a: Benefit, b: Benefit) => {
     if (sortOrder === "asc") {
