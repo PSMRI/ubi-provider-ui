@@ -38,6 +38,7 @@ export default function UserRegister() {
   const [showAlert, setShowAlert] = React.useState(false);
   const [message, setMessage] = React.useState("");
   const [showTooltip, setShowTooltip] = React.useState(false);
+
   const [errors, setErrors] = React.useState({
     email: "",
     name: "",
@@ -281,6 +282,8 @@ export default function UserRegister() {
                 <Input
                   type="password"
                   value={password}
+                  autoComplete="new-password"
+                  data-private
                   onChange={(e) =>
                     handleInputChange("password", e.target.value)
                   }
@@ -355,11 +358,6 @@ export default function UserRegister() {
                   }
                   onClick={() => handleRegister()}
                 >
-                  {/* {
-                  localStorage.setItem("token", "true");
-                  
-                  navigate("/otp");
-                } */}
                   <Text fontSize="14px" fontWeight="400">
                     {t("REGISTER_PROCEED_BUTTON")}
                   </Text>
