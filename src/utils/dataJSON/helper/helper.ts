@@ -116,6 +116,5 @@ export function getPreviewDetails(applicationData: any) {
       });
     }
   }
-
   return result;
 }
