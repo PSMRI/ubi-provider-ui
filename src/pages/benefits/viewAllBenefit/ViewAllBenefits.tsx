@@ -102,18 +102,9 @@ const PaginationControls: React.FC<{
 
   return (
     <Box textAlign="center" mt={4}>
-      <HStack
-        spacing={2}
-        justify="center"
-        role="navigation"
-        aria-label="Pagination"
-      >
+      <HStack spacing={2} justify="center">
         {currentPage > 0 && (
-          <Button
-            onClick={handlePrev}
-            colorScheme="blue"
-            aria-label="Go to previous page"
-          >
+          <Button onClick={handlePrev} colorScheme="blue">
             Previous
           </Button>
         )}
@@ -126,8 +117,6 @@ const PaginationControls: React.FC<{
               onClick={() => onPageChange(pageIndex)}
               colorScheme={currentPage === pageIndex ? "blue" : "gray"}
               mx={1}
-              aria-label={`Go to page ${pageIndex + 1}`}
-              aria-current={currentPage === pageIndex ? "page" : undefined}
             >
               {pageIndex + 1}
             </Button>
@@ -226,15 +215,7 @@ const ViewAllBenefits = () => {
   const filteredData = data?.filter((item: Benefit) =>
     item?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  const sortedData = [...filteredData].sort((a: Benefit, b: Benefit) => {
-    if (sortOrder === "asc") {
-      return a?.name?.localeCompare(b.name);
-    } else if (sortOrder === "desc") {
-      return b?.name?.localeCompare(a.name);
-    }
-    return 0;
-  });
-  const paginatedData = sortedData?.slice(
+  const paginatedData = filteredData?.slice(
     pageIndex * pageSize,
     pageIndex * pageSize + pageSize
   );
