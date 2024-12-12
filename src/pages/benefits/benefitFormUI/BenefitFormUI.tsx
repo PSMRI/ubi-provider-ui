@@ -188,5 +188,10 @@ const BenefitFormUI: React.FC = () => {
 export default BenefitFormUI;
 
 function encodeToBase64(str: string) {
-  return `base64,${btoa(encodeURIComponent(str))}`;
+  try {
+    return `base64,${btoa(encodeURIComponent(str))}`;
+  } catch (error) {
+    console.error("Failed to encode string to base64:", error);
+    throw new Error("Failed to encode string to base64");
+  }
 }
