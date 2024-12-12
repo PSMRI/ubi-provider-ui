@@ -4,6 +4,7 @@ import {
   SearchIcon,
 } from "@chakra-ui/icons";
 import {
+  Button,
   HStack,
   IconButton,
   Input,
@@ -12,6 +13,7 @@ import {
   Select,
   Text,
   VStack,
+  Box,
 } from "@chakra-ui/react";
 import Tab from "../../../components/common/Tab";
 import Table from "../../../components/common/table/Table";
@@ -35,6 +37,10 @@ const columns = [
     dataType: DataType.String,
   },
 ];
+
+interface Benefit {
+  name: string;
+}
 const DeadLineCell = (prop: ICellTextProps) => {
   return (
     <HStack>
@@ -68,6 +74,61 @@ const ActionCell = ({ rowData }: ICellTextProps) => {
     </HStack>
   );
 };
+const PaginationControls: React.FC<{
+  total: number;
+  pageSize: number;
+  currentPage: number;
+  onPageChange: (page: number) => void;
+}> = ({ total, pageSize, currentPage, onPageChange }) => {
+  const totalPages = Math.ceil(total / pageSize);
+  const pageLimit = 3;
+  const startPage = Math.floor(currentPage / pageLimit) * pageLimit;
+  const endPage = Math.min(startPage + pageLimit, totalPages);
+
+  const handleNext = () => {
+    if (currentPage < totalPages - 1) {
+      onPageChange(currentPage + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentPage > 0) {
+      onPageChange(currentPage - 1);
+    }
+  };
+
+  return (
+    <Box textAlign="center" mt={4}>
+      <HStack spacing={2} justify="center">
+        {currentPage > 0 && (
+          <Button onClick={handlePrev} colorScheme="blue">
+            Previous
+          </Button>
+        )}
+
+        {Array.from({ length: endPage - startPage }, (_, index) => {
+          const pageIndex = startPage + index;
+          return (
+            <Button
+              key={pageIndex}
+              onClick={() => onPageChange(pageIndex)}
+              colorScheme={currentPage === pageIndex ? "blue" : "gray"}
+              mx={1}
+            >
+              {pageIndex + 1}
+            </Button>
+          );
+        })}
+
+        {currentPage < totalPages - 1 && (
+          <Button onClick={handleNext} colorScheme="blue">
+            Next
+          </Button>
+        )}
+      </HStack>
+    </Box>
+  );
+};
 
 const ViewAllBenefits = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -79,7 +140,8 @@ const ViewAllBenefits = () => {
   const { t } = useTranslation();
   const datePickerRef = useRef<DatePicker | null>(null);
   const datePickerCreatedRef = useRef<DatePicker | null>(null);
-
+  const [pageIndex, setPageIndex] = useState(0);
+  const pageSize = 10;
   const fetchBenefitsData = async () => {
     const statusValues = {
       0: "ACTIVE",
@@ -116,6 +178,7 @@ const ViewAllBenefits = () => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
+    setPageIndex(0);
   };
 
   const handleValidTillChange = (date: Date | null) => {
@@ -132,12 +195,31 @@ const ViewAllBenefits = () => {
     } else {
       setCreatedAt(null);
     }
+    setPageIndex(0);
   };
 
   const handleSortOrderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortOrder(e.target.value);
+    setPageIndex(0);
   };
-
+  const handlePageChange = (newPageIndex: number) => {
+    setPageIndex(newPageIndex);
+  };
+  const filteredData = data?.filter((item: Benefit) =>
+    item?.name?.toLowerCase().includes(searchTerm)
+  );
+  const sortedData = [...filteredData].sort((a: Benefit, b: Benefit) => {
+    if (sortOrder === "asc") {
+      return a?.name?.localeCompare(b.name);
+    } else if (sortOrder === "desc") {
+      return b?.name?.localeCompare(a.name);
+    }
+    return 0;
+  });
+  const paginatedData = sortedData?.slice(
+    pageIndex * pageSize,
+    pageIndex * pageSize + pageSize
+  );
   return (
     <Layout
       _titleBar={{
@@ -270,7 +352,7 @@ const ViewAllBenefits = () => {
         {data?.length > 0 ? (
           <Table
             columns={columns}
-            data={data}
+            data={paginatedData}
             rowKeyField={"id"}
             childComponents={{
               cellText: {
@@ -283,6 +365,12 @@ const ViewAllBenefits = () => {
             {t("BENEFIT_LIST_TABLE_NO_DATA_MESSAGE")}
           </Text>
         )}
+        <PaginationControls
+          total={data.length}
+          pageSize={pageSize}
+          currentPage={pageIndex}
+          onPageChange={handlePageChange}
+        />
       </VStack>
     </Layout>
   );
