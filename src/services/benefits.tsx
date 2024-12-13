@@ -122,7 +122,7 @@ export const updateForm = async (
 
 export const viewAllBenefitsData = async (payload: ViewAllBenefits) => {
   try {
-    const response = await axios.post(`/benefits/v1/_search`, payload);
+    const response = await axios.post(`${apiUrl}/benefits/v1/_search`, payload);
     return response?.data;
   } catch (error) {
     console.log(error);
