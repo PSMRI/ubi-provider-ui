@@ -79,11 +79,11 @@ const BenefitFormUI: React.FC = () => {
 
         const documentTag =
           result?.responses?.[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
-            (tag: any) => tag?.descriptor?.code === "eligibility"
+            (tag: any) => tag?.descriptor?.code === "required-docs"
           );
         const eligibilityTag =
           result?.responses?.[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
-            (tag: any) => tag?.descriptor?.code === "required-docs"
+            (tag: any) => tag?.descriptor?.code === "eligibility"
           );
 
         const parsedValues = schemaTag.list.map((item: EligibilityItem) =>
