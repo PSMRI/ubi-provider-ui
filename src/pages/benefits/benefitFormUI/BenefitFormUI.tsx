@@ -13,7 +13,7 @@ import {
   convertApplicationFormFields,
   convertDocumentFields,
 } from "./ConvertToRJSF";
-import { userInfo } from "../../../assets/MockData";
+
 const Form = withTheme(ChakraTheme);
 const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
   const { uiSchema } = props;
@@ -86,7 +86,7 @@ const BenefitFormUI: React.FC = () => {
             (tag: any) => tag?.descriptor?.code === "required-docs"
           );
 
-        const parsedValues = schemaTag.list.map((item) =>
+        const parsedValues = schemaTag.list.map((item: EligibilityItem) =>
           JSON.parse(item.value)
         );
 
