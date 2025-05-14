@@ -57,8 +57,8 @@ const ApplicationDetails: React.FC = () => {
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedStatus, setSelectedStatus] = useState<
-    "approved" | "rejected" | null
-  >(null);
+    "approved" | "rejected"
+  >();
 
   const openConfirmationModal = (status: "approved" | "rejected") => {
     setSelectedStatus(status);
@@ -76,7 +76,6 @@ const ApplicationDetails: React.FC = () => {
       });
       return;
     }
-
     try {
       setLoading(true);
 
