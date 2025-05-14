@@ -318,6 +318,11 @@ const ApplicationDetails: React.FC = () => {
                 width="200px"
                 onClick={() => openConfirmationModal("approved")}
                 borderRadius="50px"
+                _hover={{
+                  bg: "#3C5FDD",
+                  transform: "none",
+                  boxShadow: "none",
+                }}
               >
                 Accept
               </Button>
