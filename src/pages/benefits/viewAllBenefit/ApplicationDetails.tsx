@@ -50,6 +50,7 @@ const ApplicationDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [applicant, setApplicant] = useState<Record<string, any> | null>(null);
+  const [benefitName, setBenefitName] = useState<string>("");
   const [comment, setComment] = useState<string>("");
   const [showActionButtons, setShowActionButtons] = useState<boolean>(true); // To hide action buttons after
   //confirmation
@@ -124,7 +125,9 @@ const ApplicationDetails: React.FC = () => {
     try {
       setLoading(true);
       const applicationData = await getApplicationDetails(id);
-
+      if (applicationData?.benefit?.title) {
+        setBenefitName(applicationData?.benefit?.title);
+      }
       const applicantDetails = applicationData.applicationData;
 
       setApplicant(applicantDetails);
@@ -205,7 +208,7 @@ const ApplicationDetails: React.FC = () => {
 
   return (
     <Layout
-      _titleBar={{ title: `Application Detail : ${id}` }}
+      _titleBar={{ title: `Application Detail For : ${benefitName}` }}
       showMenu={true}
       showSearchBar={true}
       showLanguage={false}
