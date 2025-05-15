@@ -15,6 +15,7 @@ import {
   ModalCloseButton,
   useDisclosure,
   Textarea,
+  useToast,
 } from "@chakra-ui/react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 import Layout from "../../../components/layout/Layout";
@@ -25,7 +26,7 @@ import ApplicationInfo from "../../../components/ApplicationInfo";
 import DocumentList from "../../../components/DocumentList";
 import { getApplicationDetails } from "../../../services/applicationService";
 import { updateApplicationStatus } from "../../../services/benefits";
-import { useToast } from "@chakra-ui/react";
+
 // Types
 interface ApplicantData {
   id: number;
@@ -68,9 +69,19 @@ const ApplicationDetails: React.FC = () => {
   const confirmStatusChange = async () => {
     if (!selectedStatus) {
       toast({
-        title: "Missing status",
+        title: "Missing status ",
         description: "Please select a status before submitting.",
         status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+    if (!id) {
+      toast({
+        title: "Invalid action",
+        description: "Application ID is missing.",
+        status: "error",
         duration: 3000,
         isClosable: true,
       });
@@ -94,7 +105,6 @@ const ApplicationDetails: React.FC = () => {
           isClosable: true,
         });
         fetchApplicationData();
-        setSelectedStatus(selectedStatus);
         setComment("");
         onClose(); // or navigate away
       } else {
