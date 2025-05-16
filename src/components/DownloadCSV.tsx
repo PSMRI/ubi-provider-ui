@@ -19,17 +19,21 @@ interface DownloadCSVProps {
   benefitName: string;
 }
 
-const options = [
-  { label: "SBI to SBI", value: "sbiToSbi" },
-  { label: "SBI to Other Bank", value: "sbiToOtherBanks" },
-];
-
 const DownloadCSV: React.FC<DownloadCSVProps> = ({
   benefitId,
   benefitName,
 }) => {
   const [loadingOption, setLoadingOption] = useState<string | null>(null);
   const toast = useToast();
+  const rawOptions = import.meta.env.VITE_APP_CSV_OPTIONS || "[]";
+
+  let options;
+  try {
+    options = JSON.parse(rawOptions);
+  } catch (e) {
+    options = [];
+    console.error("Invalid CSV options JSON in env", e);
+  }
 
   const handleDownload = async (selectedOption: string) => {
     setLoadingOption(selectedOption);
