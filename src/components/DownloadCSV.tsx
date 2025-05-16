@@ -68,14 +68,17 @@ const DownloadCSV: React.FC<DownloadCSVProps> = ({
         {({ isOpen }) => (
           <>
             <MenuButton
-              as={Button}
-              rightIcon={<ChevronDownIcon />}
-              colorScheme="blue"
-              width="200px"
-              isActive={isOpen}
+              {...({
+                as: Button,
+                rightIcon: <ChevronDownIcon />,
+                colorScheme: "blue",
+                width: "200px",
+                isActive: isOpen,
+              } as any)}
             >
               Download CSV
             </MenuButton>
+
             <MenuList minW="200px" zIndex={100}>
               {options.map((option) => (
                 <MenuItem

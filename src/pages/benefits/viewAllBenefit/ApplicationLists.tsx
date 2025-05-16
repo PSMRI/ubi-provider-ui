@@ -23,6 +23,7 @@ import DownloadCSV from "../../../components/DownloadCSV";
 const columns = [
   { key: "studentName", title: "Name", dataType: DataType.String },
   { key: "applicationId", title: "Application ID", dataType: DataType.Number },
+  { key: "orderId", title: "Order ID", dataType: DataType.String },
   { key: "status", title: "Status", dataType: DataType.String },
   { key: "actions", title: "Actions", dataType: DataType.String },
 ];
@@ -73,8 +74,9 @@ const ApplicationLists: React.FC = () => {
               studentName: `${item?.applicationData?.firstName || "N/A"} ${
                 item?.applicationData?.middleName || ""
               } ${item?.applicationData?.lastName || "N/A"}`.trim(),
-              applicationId: item?.id || "N/A",
-              status: item?.status || "N/A",
+              applicationId: item?.id || "-",
+              orderId: item?.orderId || "-",
+              status: item?.status || "-",
             })
           );
           setApplicationData(processedData);
@@ -153,7 +155,7 @@ const ApplicationLists: React.FC = () => {
             <option value="asc">Ascending</option>
             <option value="desc">Descending</option>
           </Select>
-          <DownloadCSV benefitId={id} benefitName={benefitName} />
+          {id && <DownloadCSV benefitId={id} benefitName={benefitName} />}
         </HStack>
         <Table
           columns={columns}
