@@ -168,8 +168,8 @@ const BenefitApplicationForm: React.FC = () => {
 
     // --- ORDERING AND HEADING FOR DOCUMENT FIELDS ---
     // Get field names for application and document fields
-    const appFieldNames = Object.keys(applicationFormSchema?.properties || {});
-    const docFieldNames = Object.keys(docSchemaData?.properties || {});
+    const appFieldNames = Object.keys(applicationFormSchema?.properties ?? {});
+    const docFieldNames = Object.keys(docSchemaData?.properties ?? {});
     // Remove any app fields that are also document fields
     const appOnlyFields = appFieldNames.filter(
       (name) => !docFieldNames.includes(name)
