@@ -153,7 +153,11 @@ export const viewApplicationByApplicationId = async (id: string) => {
 
 export const submitForm = async (payload: PrefillData) => {
   try {
-    const response = await apiClient.post(`/applications`, payload);
+    const payloadWithBapId = {
+      ...payload,
+      bap_id: import.meta.env.VITE_BAP_ID,
+    };
+    const response = await apiClient.post(`/applications`, payloadWithBapId);
     return response?.data;
   } catch (error) {
     console.log(error);
