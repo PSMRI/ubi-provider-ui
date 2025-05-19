@@ -162,8 +162,6 @@ export const convertDocumentFields = (
     // Use / as separator for allowedProofs in the label
     const allowedProofsLabel = allowedProofs.join(" / ");
     // If all allowedProofs are present in required-docs, render as required single select
-    console.log("allPresent", allPresent);
-    console.log("criteriaNames", criteriaNames);
 
     if (allPresent && criteriaNames.length > 0) {
       // If only one criterion in the group, use its name as the field name
@@ -183,14 +181,14 @@ export const convertDocumentFields = (
         title: fieldLabel,
         required: true,
         enum: enumValues.length > 0 ? enumValues : [""],
-        enumNames: (enumNames as string[]) || [],
+        enumNames: enumNames || [],
         default: enumValues[0] || "",
       };
       requiredFields.push(fieldName);
     } else {
       // Fallback: for each eligibility criterion
       eligs.forEach((elig) => {
-        const { allowedProofs, criteria } = elig as EligItem;
+        const { allowedProofs, criteria } = elig;
         if (allowedProofs.length > 1) {
           // Render a single select for all allowedProofs for this criterion
           const matchingDocs = userDocs?.filter((doc: Doc) =>
@@ -213,7 +211,7 @@ export const convertDocumentFields = (
             title: `Choose document for ${criteria.name} (${allowedProofsLabel})`,
             required: true,
             enum: enumValues.length > 0 ? enumValues : [""],
-            enumNames: (enumNames as string[]) || [],
+            enumNames: enumNames || [],
             default: enumValues[0] || "",
           };
           requiredFields.push(`${criteria.name}_doc`);
@@ -239,7 +237,7 @@ export const convertDocumentFields = (
               title: `Choose document for ${criteria.name} (${proof})`,
               required: true,
               enum: proofEnumValues.length > 0 ? proofEnumValues : [""],
-              enumNames: (proofEnumNames as string[]) || [],
+              enumNames: proofEnumNames || [],
               default: proofEnumValues[0] || "",
             };
             requiredFields.push(`${criteria.name}_${proof}_doc`);
@@ -291,9 +289,9 @@ export const convertDocumentFields = (
         schema.properties![proof] = {
           type: "string",
           title: `Choose ${proof}`,
-          required: doc.isRequired || false,
+          required: doc.isRequired,
           enum: enumValues.length > 0 ? enumValues : [""],
-          enumNames: (enumNames as string[]) || [],
+          enumNames: enumNames || [],
           default: enumValues[0] || "",
         };
 
