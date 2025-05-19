@@ -99,8 +99,14 @@ const createDocumentFieldSchema = (
   title: string,
   isRequired: boolean,
   enumValues: string[],
-  enumNames: string[]
+  enumNames: string[],
+  isProofType?: string
 ): any => {
+  // For income proof documents, ensure we label it clearly as income proof
+  if (isProofType === "income") {
+    title = title.includes("income proof") ? title : `${title} (Income Proof)`;
+  }
+
   return {
     type: "string",
     title,
@@ -255,41 +261,42 @@ export const convertDocumentFields = (
   });
 
   // Add required-docs (mandatory/optional) that are not already handled
-  requiredDocsArr
-    .sort((a, b) => Number(b.isRequired) - Number(a.isRequired))
-    .forEach((doc) => {
-      if (!Array.isArray(doc.allowedProofs)) return;
+  const sortedRequiredDocsArr = [...requiredDocsArr].sort(
+    (a, b) => Number(b.isRequired) - Number(a.isRequired)
+  );
 
-      doc.allowedProofs.forEach((proof: string) => {
-        // Check if this proof should be shown as a separate document field
-        let showAsSeparateDocField = Object.values(eligProofGroups).some(
-          (group) =>
-            group.allowedProofs.length > 1 &&
-            group.allowedProofs.includes(proof)
+  sortedRequiredDocsArr.forEach((doc) => {
+    if (!Array.isArray(doc.allowedProofs)) return;
+
+    doc.allowedProofs.forEach((proof: string) => {
+      // Check if this proof should be shown as a separate document field
+      let showAsSeparateDocField = Object.values(eligProofGroups).some(
+        (group) =>
+          group.allowedProofs.length > 1 && group.allowedProofs.includes(proof)
+      );
+
+      // If not mandatory, or not in eligibility, skip if already handled
+      if (!showAsSeparateDocField) {
+        const alreadyHandled = Object.values(eligProofGroups).some((group) =>
+          group.allowedProofs.includes(proof)
         );
+        if (alreadyHandled) return;
+      }
 
-        // If not mandatory, or not in eligibility, skip if already handled
-        if (!showAsSeparateDocField) {
-          const alreadyHandled = Object.values(eligProofGroups).some((group) =>
-            group.allowedProofs.includes(proof)
-          );
-          if (alreadyHandled) return;
-        }
+      // Prepare select options from userDocs for this proof
+      const proofDocs = filterDocsByProofs(userDocs, [proof]);
+      const [enumValues, enumNames] = createDocumentEnums(proofDocs);
 
-        // Prepare select options from userDocs for this proof
-        const proofDocs = filterDocsByProofs(userDocs, [proof]);
-        const [enumValues, enumNames] = createDocumentEnums(proofDocs);
+      schema.properties![proof] = createDocumentFieldSchema(
+        `Choose ${proof}`,
+        !!doc.isRequired,
+        enumValues,
+        enumNames
+      );
 
-        schema.properties![proof] = createDocumentFieldSchema(
-          `Choose ${proof}`,
-          !!doc.isRequired,
-          enumValues,
-          enumNames
-        );
-
-        if (doc.isRequired) requiredFields.push(proof);
-      });
+      if (doc.isRequired) requiredFields.push(proof);
     });
+  });
 
   // Set the required fields at the root of the schema
   schema.required = requiredFields;
