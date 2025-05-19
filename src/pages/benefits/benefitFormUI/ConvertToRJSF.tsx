@@ -167,7 +167,11 @@ export const convertDocumentFields = (
     if (!Array.isArray(allowedProofs) || !criteria?.name) return;
 
     // Use sorted allowedProofs as key for grouping
-    const key = JSON.stringify([...allowedProofs].sort());
+
+    const key = JSON.stringify(
+      [...allowedProofs].sort((a, b) => a.localeCompare(b))
+    );
+
     if (!eligProofGroups[key]) {
       eligProofGroups[key] = { criteriaNames: [], allowedProofs, eligs: [] };
     }
@@ -176,7 +180,6 @@ export const convertDocumentFields = (
   });
 
   // Debug: log the eligibility proof groups
-  console.log("eligProofGroups", eligProofGroups);
 
   // Render grouped eligibility fields
   Object.values(eligProofGroups).forEach((group) => {
@@ -207,8 +210,6 @@ export const convertDocumentFields = (
       const fieldLabel = `Choose document for ${criteriaNames.join(
         ", "
       )} (${allowedProofsLabel})`;
-
-      console.log("fieldLabel", fieldLabel);
 
       schema.properties![fieldName] = createDocumentFieldSchema(
         fieldLabel,
