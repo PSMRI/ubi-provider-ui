@@ -184,23 +184,7 @@ const BenefitApplicationForm: React.FC = () => {
     const uiSchema: any = {
       "ui:order": uiOrder,
     };
-    if (docFieldNames.length > 0) {
-      uiSchema["__doc_section_heading__"] = {
-        "ui:field": () => (
-          <div
-            style={{
-              margin: "2em 0 1em",
-              fontWeight: "bold",
-              fontSize: "1.1em",
-              borderTop: "1px solid #ccc",
-              paddingTop: "1em",
-            }}
-          >
-            Document Selection
-          </div>
-        ),
-      };
-    }
+
     setUiSchema(uiSchema);
     // --- END ORDERING ---
   };
