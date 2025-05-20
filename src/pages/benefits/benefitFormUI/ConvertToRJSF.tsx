@@ -114,12 +114,12 @@ const createDocumentFieldSchema = (
   // Add document type to the title if provided
   if (proof) {
     proof = proof
-      .split(/(?:\s*\/\s*)/) // Split by '/' with optional spaces
-      .map(
-        (segment) =>
-          segment
-            .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase to words
-            .replace(/\b\w/g, (char) => char.toUpperCase()) // Capitalize each word
+      .split("/")
+      .map((segment) =>
+        segment
+          .trim()
+          .replace(/([a-z])([A-Z])/g, "$1 $2")
+          .replace(/\b\w/g, (char) => char.toUpperCase())
       )
       .join(" / "); // Join back
 
