@@ -33,6 +33,13 @@ interface EligItem {
   isRequired?: boolean;
 }
 
+// Add interface for required docs items
+interface RequiredDoc {
+  allowedProofs: string[];
+  isRequired?: boolean;
+  documentType: string; // Added to track document type
+}
+
 // Convert application form fields to RJSF schema
 export const convertApplicationFormFields = (
   applicationForm: ApplicationFormField[]
@@ -100,11 +107,23 @@ const createDocumentFieldSchema = (
   isRequired: boolean,
   enumValues: string[],
   enumNames: string[],
-  isProofType?: string
+  proof?: string
 ): any => {
   // For income proof documents, ensure we label it clearly as income proof
-  if (isProofType === "income") {
-    title = title.includes("income proof") ? title : `${title} (Income Proof)`;
+
+  // Add document type to the title if provided
+  if (proof) {
+    proof = proof
+      .split(/\s*\/\s*/) // Split by '/' with optional spaces
+      .map(
+        (segment) =>
+          segment
+            .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase to words
+            .replace(/\b\w/g, (char) => char.toUpperCase()) // Capitalize each word
+      )
+      .join(" / "); // Join back
+
+    title = `${title} (${proof})`;
   }
 
   return {
@@ -142,18 +161,34 @@ export const convertDocumentFields = (
   );
   const requiredDocsArr = schemaArr.filter(
     (item) => !item.criteria && item.allowedProofs
-  );
+  ) as RequiredDoc[];
+
+  type ProofEntry = {
+    documentType: string;
+    proof: string;
+  };
 
   // Build sets for optional-docs and mandatory-docs for quick lookup
-  const optionalDocsProofs = new Set<string>();
-  const mandatoryDocsProofs = new Set<string>();
+  const optionalDocsProofs: ProofEntry[] = [];
+  const mandatoryDocsProofs: ProofEntry[] = [];
 
   requiredDocsArr.forEach((doc) => {
     if (!Array.isArray(doc.allowedProofs)) return;
 
-    const targetSet =
+    const targetArray =
       doc.isRequired === true ? mandatoryDocsProofs : optionalDocsProofs;
-    doc.allowedProofs.forEach((proof: string) => targetSet.add(proof));
+
+    doc.allowedProofs.forEach((proof: string) => {
+      const entry = { documentType: doc.documentType, proof };
+      if (
+        !targetArray.some(
+          (e) =>
+            e.documentType === entry.documentType && e.proof === entry.proof
+        )
+      ) {
+        targetArray.push(entry);
+      }
+    });
   });
 
   // Group eligibility criteria by their allowedProofs set
@@ -167,7 +202,6 @@ export const convertDocumentFields = (
     if (!Array.isArray(allowedProofs) || !criteria?.name) return;
 
     // Use sorted allowedProofs as key for grouping
-
     const key = JSON.stringify(
       [...allowedProofs].sort((a, b) => a.localeCompare(b))
     );
@@ -186,10 +220,27 @@ export const convertDocumentFields = (
     const { criteriaNames, allowedProofs, eligs } = group;
 
     // Check if all allowedProofs are present as either optional-doc or mandatory-doc
-    const allPresent = allowedProofs.every(
-      (proof: string) =>
-        optionalDocsProofs.has(proof) || mandatoryDocsProofs.has(proof)
-    );
+    const matchedProofs: ProofEntry[] = [];
+
+    const allPresent = allowedProofs.every((proof: string) => {
+      const optionalMatch = optionalDocsProofs.find(
+        (entry) => entry.proof === proof
+      );
+      if (optionalMatch) {
+        matchedProofs.push(optionalMatch);
+        return true;
+      }
+
+      const mandatoryMatch = mandatoryDocsProofs.find(
+        (entry) => entry.proof === proof
+      );
+      if (mandatoryMatch) {
+        matchedProofs.push(mandatoryMatch);
+        return true;
+      }
+
+      return false; // not found in either
+    });
 
     // Find matching documents for these proofs
     const matchingDocs = filterDocsByProofs(userDocs, allowedProofs);
@@ -207,15 +258,30 @@ export const convertDocumentFields = (
           ? criteriaNames[0]
           : criteriaNames.join("_")) + "_doc";
 
-      const fieldLabel = `Choose document for ${criteriaNames.join(
-        ", "
-      )} (${allowedProofsLabel})`;
+      // Look for document types from matchedProofs
+      const documentTypes = matchedProofs
+        .map((entry) => entry.documentType)
+        .filter(Boolean)
+        .filter((value, index, self) => self.indexOf(value) === index); // unique values
 
+      // Use document type if all proofs have the same type
+      const documentType =
+        documentTypes.length === 1 ? documentTypes[0] : undefined;
+
+      let fieldLabel;
+      if (documentType) {
+        fieldLabel = `Choose document for ${criteriaNames.join(
+          ", "
+        )}, ${documentType}`;
+      } else {
+        fieldLabel = `Choose document for ${criteriaNames.join(", ")}`;
+      }
       schema.properties![fieldName] = createDocumentFieldSchema(
         fieldLabel,
         true,
         enumValues,
-        enumNames
+        enumNames,
+        allowedProofsLabel
       );
 
       requiredFields.push(fieldName);
@@ -230,12 +296,15 @@ export const convertDocumentFields = (
           const [enumValues, enumNames] = createDocumentEnums(matchingDocs);
           const allowedProofsLabel = allowedProofs.join(" / ");
 
+          // Find document type from required docs if available
+
           schema.properties![`${criteria.name}_doc`] =
             createDocumentFieldSchema(
-              `Choose document for ${criteria.name} (${allowedProofsLabel})`,
+              `Choose document for ${criteria.name}`,
               true,
               enumValues,
-              enumNames
+              enumNames,
+              allowedProofsLabel
             );
 
           requiredFields.push(`${criteria.name}_doc`);
@@ -248,10 +317,11 @@ export const convertDocumentFields = (
 
             schema.properties![`${criteria.name}_${proof}_doc`] =
               createDocumentFieldSchema(
-                `Choose document for ${criteria.name} (${proof})`,
+                `Choose document for ${criteria.name}`,
                 true,
                 proofEnumValues,
-                proofEnumNames
+                proofEnumNames,
+                proof
               );
 
             requiredFields.push(`${criteria.name}_${proof}_doc`);
@@ -288,13 +358,15 @@ export const convertDocumentFields = (
       const proofDocs = filterDocsByProofs(userDocs, [proof]);
       const [enumValues, enumNames] = createDocumentEnums(proofDocs);
 
+      // Include the document type in the label for fields coming from requiredDocsArr
       schema.properties![proof] = createDocumentFieldSchema(
-        `Choose ${proof}`,
+        `Choose document for ${doc.documentType}`,
         !!doc.isRequired,
         enumValues,
-        enumNames
+        enumNames,
+        proof // Pass the document type to be included in the label
       );
-
+      //Choose document for idProof (otrCertificate)
       if (doc.isRequired) requiredFields.push(proof);
     });
   });
