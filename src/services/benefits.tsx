@@ -255,7 +255,7 @@ export const exportApplicationsCsv = async ({
     throw error;
   }
 };
-export const calculateBenefitAmount = async (applicationId: number) => {
+export const calculateBenefitAmount = async (applicationId: string) => {
   try {
     const response = await apiClient.get(
       `/applications/calculate-benefit/${applicationId}`,

@@ -358,19 +358,21 @@ const ApplicationDetails: React.FC = () => {
                     />
                   </Box>
                 </Box>
-                <Box flex="1 1 100%" mb={0}>
-                  <Text
-                    fontSize="2xl"
-                    fontWeight="bold"
-                    color="gray.700"
-                    textAlign="left"
-                    mt={8}
-                    mb={4}
-                  >
-                    Amount
-                  </Text>
-                  <ApplicationInfo details={amountDetail} showAmount={true} />
-                </Box>
+                {amountDetail && (
+                  <Box flex="1 1 100%" mb={0}>
+                    <Text
+                      fontSize="2xl"
+                      fontWeight="bold"
+                      color="gray.700"
+                      textAlign="left"
+                      mt={8}
+                      mb={4}
+                    >
+                      Amount
+                    </Text>
+                    <ApplicationInfo details={amountDetail} showAmount={true} />
+                  </Box>
+                )}
               </HStack>
             </>
           ) : (
