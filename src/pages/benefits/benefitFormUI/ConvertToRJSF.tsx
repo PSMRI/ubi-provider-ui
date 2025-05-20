@@ -114,7 +114,7 @@ const createDocumentFieldSchema = (
   // Add document type to the title if provided
   if (proof) {
     proof = proof
-      .split(/\s*\/\s*/) // Split by '/' with optional spaces
+      .split(/(?:\s*\/\s*)/) // Split by '/' with optional spaces
       .map(
         (segment) =>
           segment
