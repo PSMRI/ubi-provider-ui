@@ -28,10 +28,7 @@ import {
   getApplicationDetails,
   verifyAllDocuments,
 } from "../../../services/applicationService";
-import {
-  calculateBenefitAmount,
-  updateApplicationStatus,
-} from "../../../services/benefits";
+import { updateApplicationStatus } from "../../../services/benefits";
 // Types
 interface ApplicantData {
   id: number;
