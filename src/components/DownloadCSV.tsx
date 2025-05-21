@@ -44,8 +44,9 @@ const DownloadCSV: React.FC<DownloadCSVProps> = ({
       });
 
       const blob = new Blob([data], {
-        type: "text/csv;charset=utf-8;",
+        type: "text/csv;charset=utf-8",
       });
+
       saveAs(blob, `${benefitName}-${selectedOption}.csv`);
 
       toast({
