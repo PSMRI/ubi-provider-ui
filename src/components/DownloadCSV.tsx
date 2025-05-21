@@ -43,11 +43,19 @@ const DownloadCSV: React.FC<DownloadCSVProps> = ({
         type: selectedOption,
       });
 
-      const blob = new Blob([data], {
-        type: "text/csv;charset=utf-8",
-      });
+      // Sanitize file name for Windows - Remove or replace any characters not allowed in Windows file names (\ / : * ? " < > |).
+      const sanitizeFileName = (name: string) =>
+        name.replace(/[\\/:*?"<>|]/g, "_");
+      const safeBenefitName = sanitizeFileName(benefitName);
+      const safeOption = sanitizeFileName(selectedOption);
+      const fileName = `${safeBenefitName}-${safeOption}.csv`;
 
-      saveAs(blob, `${benefitName}-${selectedOption}.csv`);
+      // Add UTF-8 BOM for Excel compatibility
+      const BOM = "\uFEFF";
+      const blob = new Blob([BOM + data], {
+        type: "text/csv;charset=utf-8;",
+      });
+      saveAs(blob, fileName);
 
       toast({
         title: "CSV downloaded successfully",
