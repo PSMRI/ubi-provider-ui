@@ -192,8 +192,19 @@ const ApplicationDetails: React.FC = () => {
         setBenefitName(applicationData?.benefitDetails?.title);
       }
       const applicantDetails = applicationData.applicationData;
-      const finalAmount = await calculateBenefitAmount(id);
-      setAmountDetail(finalAmount);
+      if (applicationData?.calculatedAmount) {
+        ///Moves "Total Payout" to the end, without affecting anything else.
+        const { ["totalPayout"]: totalPayout, ...rest } =
+          applicationData.calculatedAmount;
+
+        const reorderedAmount =
+          totalPayout !== undefined
+            ? { ...rest, "Total Payout": totalPayout }
+            : { ...rest };
+
+        setAmountDetail(reorderedAmount);
+      }
+
       setApplicant(applicantDetails);
       if (applicationData.status !== "pending") {
         setShowActionButtons(false); // Hide action buttons if status is not pending

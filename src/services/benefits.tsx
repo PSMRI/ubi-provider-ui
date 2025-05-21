@@ -255,16 +255,3 @@ export const exportApplicationsCsv = async ({
     throw error;
   }
 };
-export const calculateBenefitAmount = async (applicationId: string) => {
-  try {
-    const response = await apiClient.get(
-      `/applications/calculate-benefit/${applicationId}`,
-      {} // empty body as per your cURL
-    );
-    console.log(response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Error calculating benefit:", error);
-    throw error;
-  }
-};
