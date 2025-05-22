@@ -17,9 +17,9 @@ import {
   Textarea,
   useToast,
 } from "@chakra-ui/react";
-import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
+import { CheckIcon, CloseIcon, ArrowBackIcon } from "@chakra-ui/icons";
 import Layout from "../../../components/layout/Layout";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Loading from "../../../components/common/Loading";
 import Table from "../../../components/common/table/Table";
 import ApplicationInfo from "../../../components/ApplicationInfo";
@@ -52,6 +52,7 @@ interface Document {
 }
 
 const ApplicationDetails: React.FC = () => {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [applicantData, setApplicantData] = useState<ApplicantData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,6 +73,9 @@ const ApplicationDetails: React.FC = () => {
     "approved" | "rejected"
   >();
 
+  const [amountDetail, setAmountDetail] = useState<Record<string, any> | null>(
+    null
+  );
   const openConfirmationModal = (status: "approved" | "rejected") => {
     setSelectedStatus(status);
     onOpen();
@@ -196,6 +200,18 @@ const ApplicationDetails: React.FC = () => {
       console.log("final Amount", finalAmount);
       setAmountDetail(finalAmount);
       const applicantDetails = applicationData.applicationData;
+      if (applicationData?.calculatedAmount) {
+        ///Moves "Total Payout" to the end, without affecting anything else.
+        const { ["totalPayout"]: totalPayout, ...rest } =
+          applicationData.calculatedAmount;
+
+        const reorderedAmount =
+          totalPayout !== undefined
+            ? { ...rest, "Total Payout": totalPayout }
+            : { ...rest };
+
+        setAmountDetail(reorderedAmount);
+      }
 
       setApplicant(applicantDetails);
       if (applicationData.status !== "pending") {
@@ -220,7 +236,7 @@ const ApplicationDetails: React.FC = () => {
         content: file,
         fileContent: file.fileContent,
         status: file?.verificationStatus?.status,
-        verificationErrors: file?.verificationStatus?.verificationErrors || [
+        verificationErrors: file?.verificationStatus?.verificationErrors ?? [
           "Some error occurred in verification",
         ],
       }));
@@ -287,7 +303,21 @@ const ApplicationDetails: React.FC = () => {
 
   return (
     <Layout
-      _titleBar={{ title: `Application Detail For : ${benefitName}` }}
+      _titleBar={{
+        title: (
+          <HStack spacing={4}>
+            <ArrowBackIcon
+              w={6}
+              h={6}
+              cursor="pointer"
+              onClick={() => navigate(-1)}
+              color="white"
+              fontWeight="bold"
+            />
+            <Text fontWeight="bold">Application Detail For: {benefitName}</Text>
+          </HStack>
+        ),
+      }}
       showMenu={true}
       showSearchBar={true}
       showLanguage={false}
@@ -377,6 +407,21 @@ const ApplicationDetails: React.FC = () => {
                     </Box>
                   </Box>
                 </Box>
+                {amountDetail && (
+                  <Box flex="1 1 100%" mb={0}>
+                    <Text
+                      fontSize="2xl"
+                      fontWeight="bold"
+                      color="gray.700"
+                      textAlign="left"
+                      mt={8}
+                      mb={4}
+                    >
+                      Amount
+                    </Text>
+                    <ApplicationInfo details={amountDetail} showAmount={true} />
+                  </Box>
+                )}
               </HStack>
             </>
           ) : (
@@ -464,7 +509,7 @@ const ApplicationDetails: React.FC = () => {
                   boxShadow: "none",
                 }}
               >
-                Accept
+                Approve
               </Button>
             </HStack>
           )}
