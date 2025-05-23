@@ -100,28 +100,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
         };
       });
 
-      // Remove duplicates based on newTitle
-      const uniqueDocs = processedDocs.reduce(
-        (acc: Document[], current: Document) => {
-          // Only check for duplicates if newTitle exists and is not empty
-          if (current.newTitle && current.newTitle.trim() !== "") {
-            const existingDoc = acc.find(
-              (doc) => doc.newTitle === current.newTitle
-            );
-            if (!existingDoc) {
-              acc.push(current);
-            }
-          } else {
-            // If no newTitle, keep the document (you might want to adjust this logic)
-            acc.push(current);
-          }
-          return acc;
-        },
-        []
-      );
-
       console.log("Processed documents with newTitle:", processedDocs);
-      console.log("Unique documents after duplicate removal:", uniqueDocs);
 
       setDocList(processedDocs);
     } else {
