@@ -20,7 +20,7 @@ interface DownloadCSVProps {
 }
 
 const options = [
-  { label: "For ALl Bank", value: "sbiToSbi" },
+  { label: "For All Bank", value: "sbiToSbi" },
   // { label: "SBI to Other Bank", value: "sbiToOtherBanks" },
   { label: "All Application Data Fields", value: "allApplicationDataFields" },
   // { label: "De Duplication NSP", value: "de_duplication_nsp" },
