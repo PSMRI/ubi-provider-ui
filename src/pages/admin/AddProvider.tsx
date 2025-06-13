@@ -60,6 +60,7 @@ const AddProvider: React.FC = () => {
       setName("");
       setDescription("");
     } catch (error) {
+      console.error("Error creating provider:", error);
       showToast(
         "Error",
         "Failed to create provider. Please try again.",

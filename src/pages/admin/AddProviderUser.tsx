@@ -52,6 +52,7 @@ const AddProviderUser: React.FC = () => {
         const rolesData = await getRoles();
         setRoles(rolesData);
       } catch (error) {
+        console.error("Error fetching roles:", error);
         showToast("Error", "Failed to fetch roles. Please try again.", "error");
       } finally {
         setIsLoadingRoles(false);
@@ -114,6 +115,8 @@ const AddProviderUser: React.FC = () => {
       setConfirmPassword("");
       setRole("");
     } catch (error) {
+      console.log(" Error in create user :", error);
+
       showToast("Error", "Failed to create user. Please try again.", "error");
     } finally {
       setIsLoading(false);
@@ -314,13 +317,13 @@ const AddProviderUser: React.FC = () => {
                   width="full"
                   isLoading={isLoading}
                   isDisabled={
-                    !firstname ||
-                    !lastname ||
-                    !email ||
-                    !password ||
-                    !confirmPassword ||
-                    !role ||
-                    isLoadingRoles ||
+                    (!firstname ||
+                      !lastname ||
+                      !email ||
+                      !password ||
+                      !confirmPassword ||
+                      !role ||
+                      isLoadingRoles) ??
                     !!passwordError
                   }
                   _hover={{ transform: "translateY(-1px)", boxShadow: "lg" }}
