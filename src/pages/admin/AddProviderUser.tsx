@@ -52,13 +52,7 @@ const AddProviderUser: React.FC = () => {
         const rolesData = await getRoles();
         setRoles(rolesData);
       } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to fetch roles. Please try again.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
+        showToast("Error", "Failed to fetch roles. Please try again.", "error");
       } finally {
         setIsLoadingRoles(false);
       }
@@ -68,7 +62,7 @@ const AddProviderUser: React.FC = () => {
   }, [toast]);
 
   // Redirect if not super admin
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isSuperAdmin) {
       navigate("/");
     }
@@ -82,30 +76,36 @@ const AddProviderUser: React.FC = () => {
       setPasswordError("");
     }
   }, [password, confirmPassword]);
+  const showToast = (
+    title: string,
+    description: string,
+    status: "success" | "error"
+  ) => {
+    toast({
+      title,
+      description,
+      status,
+      duration: 5000,
+      isClosable: true,
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      showToast("Error", "Passwords do not match.", "error");
       return;
     }
 
     setIsLoading(true);
     try {
       await createUser(firstname, lastname, email, password, role);
-      toast({
-        title: "User created",
-        description: "The user has been created successfully",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
+      showToast(
+        "User created",
+        "The user has been created successfully",
+        "success"
+      );
+
       // Reset form
       setFirstname("");
       setLastname("");
@@ -114,13 +114,7 @@ const AddProviderUser: React.FC = () => {
       setConfirmPassword("");
       setRole("");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create user. Please try again.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      showToast("Error", "Failed to create user. Please try again.", "error");
     } finally {
       setIsLoading(false);
     }

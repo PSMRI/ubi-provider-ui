@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -25,35 +25,46 @@ const AddProvider: React.FC = () => {
   const toast = useToast();
 
   // Redirect if not super admin
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isSuperAdmin) {
       navigate("/");
     }
   }, [isSuperAdmin, navigate]);
+  const showToast = (
+    title: string,
+    description: string,
+    status: "success" | "error"
+  ) => {
+    toast({
+      title,
+      description,
+      status,
+      duration: 5000,
+      isClosable: true,
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
       await createRole(name, description);
-      toast({
-        title: "Provider created",
-        description: "The provider has been created successfully",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
+
+      showToast(
+        "Provider created",
+        "The provider has been created successfully",
+        "success"
+      );
+
       // Reset form
       setName("");
       setDescription("");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create provider. Please try again.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      showToast(
+        "Error",
+        "Failed to create provider. Please try again.",
+        "error"
+      );
     } finally {
       setIsLoading(false);
     }
