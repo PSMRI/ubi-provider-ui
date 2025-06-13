@@ -79,11 +79,10 @@ const Header: React.FC<HeaderProps> = ({
       },
     },
   ];
-
   // Conditionally render the Provider Management menu if userRole is "super admin"
-  if (!isSuperAdmin) {
-    menuNames.pop(); // Remove Provider Management if not super admin
-  }
+  const filteredMenuNames = isSuperAdmin
+    ? menuNames
+    : menuNames.filter((menu) => menu.label !== "Provider Management");
 
   return (
     <Box
@@ -117,7 +116,7 @@ const Header: React.FC<HeaderProps> = ({
           showMenu={showMenu}
           showSearchBar={showSearchBar}
           showLanguage={showLanguage}
-          menuNames={menuNames}
+          menuNames={filteredMenuNames}
         />
       </HStack>
     </Box>
