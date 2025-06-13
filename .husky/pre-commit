@@ -3,7 +3,7 @@ echo ">>> Running pre-commit hook... <<<"
 echo "1. 🛠️  Running build dry run to check compilation..."
 
 # Run build build dry run (TypeScript compilation check)
-if npm run build --silent > /dev/null 2>&1; then
+if yarn build > /dev/null 2>&1; then
   echo "✅ Build dry run successful - code compiles without errors"
   
   # Clean up build artifacts if they were created
@@ -18,7 +18,7 @@ else
   echo "❌ Build dry run failed - code has compilation errors"
   echo ""
   echo "Please fix the TypeScript compilation errors before committing."
-  echo "Run 'npm run build' to see detailed error messages."
+  echo "Run 'yarn build' to see detailed error messages."
   echo ""
   exit 1
 fi
