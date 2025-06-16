@@ -57,13 +57,13 @@ const Header: React.FC<HeaderProps> = ({
       label: "Provider Management",
       option: [
         {
-          name: "Add Provider",
+          name: "Add Provider User",
           onClick: () => {
             navigate("/admin/add-user");
           },
         },
         {
-          name: "Add Provider Role",
+          name: "Add Provider",
           onClick: () => {
             navigate("/admin/add-role");
           },
