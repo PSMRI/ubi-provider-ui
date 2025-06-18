@@ -480,7 +480,14 @@ const ApplicationDetails: React.FC = () => {
   if (loading) return <Loading />;
 
   const docStatus = getDocumentStatusCount();
+  const applicationStatus = applicantData[0]?.applicationStatus;
 
+  const statusColor =
+    applicationStatus === "approved"
+      ? "green.600"
+      : applicationStatus === "rejected"
+      ? "red.600"
+      : "orange.600";
   return (
     <Layout
       _titleBar={{
@@ -681,17 +688,7 @@ const ApplicationDetails: React.FC = () => {
           {/* Status Message for Non-Pending Applications */}
           {!showActionButtons && applicantData.length > 0 && (
             <Box textAlign="center" p={4} bg="gray.100" borderRadius="lg">
-              <Text
-                fontSize="lg"
-                fontWeight="bold"
-                color={
-                  applicantData[0]?.applicationStatus === "approved"
-                    ? "green.600"
-                    : applicantData[0]?.applicationStatus === "rejected"
-                    ? "red.600"
-                    : "orange.600"
-                }
-              >
+              <Text fontSize="lg" fontWeight="bold" color={statusColor}>
                 Application Status:{" "}
                 {applicantData[0]?.applicationStatus.toUpperCase()}
               </Text>

@@ -107,7 +107,7 @@ const EligibilityTable: React.FC<EligibilityTableProps> = ({
     }
 
     const reasons =
-      criteria.reasons?.map((r) => r.reason).join("; ") ||
+      criteria.reasons?.map((r) => r.reason).join("; ") ??
       "No specific reason provided";
 
     return {
