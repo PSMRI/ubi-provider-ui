@@ -39,7 +39,7 @@ export const verifySelectedDocuments = async (
 };
 export const checkEligibility = async (
   applicationId: string | number,
-  strictCheck = true
+  strictCheck: boolean = true
 ) => {
   try {
     const response = await apiClient.get(

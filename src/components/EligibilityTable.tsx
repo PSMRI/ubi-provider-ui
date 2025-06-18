@@ -37,7 +37,7 @@ interface TableRowData {
 }
 
 // Helper function to get profile value dynamically from applicant data
-const formatLabel = (value: any): string => {
+const formatLabel = (value: unknown): string => {
   if (typeof value !== "string") return value?.toString?.() ?? "Not provided";
 
   return value
@@ -106,9 +106,9 @@ const EligibilityTable: React.FC<EligibilityTableProps> = ({
       profileValue = `${verifiedDocs}/${totalDocs} verified`;
     }
 
-    const reasons =
-      criteria.reasons?.map((r) => r.reason).join("; ") ??
-      "No specific reason provided";
+    const reasons = criteria.reasons
+      ? criteria.reasons.map((r) => r.reason).join("; ")
+      : "No specific reason provided";
 
     return {
       id: index, // Add unique id for ka-table
