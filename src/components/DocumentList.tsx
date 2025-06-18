@@ -18,7 +18,6 @@ import {
   Text,
   useDisclosure,
   useToast,
-  Image,
   Button,
 } from "@chakra-ui/react";
 import {
@@ -30,13 +29,13 @@ import {
 import PreviewTable from "./common/previewTable/previewTable";
 import {
   decodeBase64ToJson,
-  isBase64,
   isDateString,
   formatDate,
   convertKeysToTitleCase,
   formatTitle,
 } from "../services/helperService";
 import { omit } from "lodash";
+import ImagePreview from "./ImagePreview";
 
 export interface Document {
   id: number;
@@ -59,11 +58,6 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
     onOpen: onPreviewOpen,
     onClose: onPreviewClose,
   } = useDisclosure();
-  const {
-    isOpen: isImageOpen,
-    onOpen: onImageOpen,
-    onClose: onImageClose,
-  } = useDisclosure();
   const toast = useToast();
 
   // Define a type for the selected document preview content
@@ -74,8 +68,18 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
   const [selectedDocument, setSelectedDocument] =
     useState<SelectedDocumentPreview>(null);
   const [docList, setDocList] = useState<Document[]>([]);
-  const [imageSrc, setImageSrc] = useState<string[] | null>(null);
   const [errorModalDoc, setErrorModalDoc] = useState<Document | null>(null);
+  const [selectedImageSrc, setSelectedImageSrc] = useState<string[] | null>(
+    null
+  );
+  const [selectedImageTitle, setSelectedImageTitle] = useState<string | null>(
+    null
+  );
+  const {
+    isOpen: isZoomOpen,
+    onOpen: onZoomOpen,
+    onClose: onZoomClose,
+  } = useDisclosure();
 
   useEffect(() => {
     if (documents && documents.length > 0) {
@@ -156,44 +160,67 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
     onPreviewOpen();
   };
 
-  const handleImagePreview = (doc: Document) => {
-    const decodedData = decodeBase64ToJson(doc.fileContent);
-    console.log("Decoded Document for Image:", decodedData);
-
-    const images: string[] = []; // Explicitly define the type as string[]
-    const possibleKeys = [
-      "originalvc",
-      "original_vc",
-      "originalvc1",
-      "original_vc1",
-    ];
-
-    possibleKeys.forEach((key) => {
-      const content = decodedData?.credentialSubject?.[key]?.content;
-      const mimeType =
-        decodedData?.credentialSubject?.[key]?.mimetype ?? "image/png";
-
-      if (content && isBase64(content)) {
-        images.push(`data:${mimeType};base64,${content}`);
+  const handleImagePreview = (_doc: Document) => {
+    try {
+      console.log("Handling image preview for document:", _doc);
+      if (_doc.newTitle) {
+        setSelectedImageTitle(_doc.newTitle);
       }
-    });
+      const decodedData = decodeBase64ToJson(_doc.fileContent);
+      const credentialSubject = decodedData?.credentialSubject;
 
-    if (images.length > 0) {
-      setImageSrc(images);
-      onImageOpen();
-    } else {
+      const images: string[] = [];
+
+      if (credentialSubject && typeof credentialSubject === "object") {
+        Object.values(credentialSubject).forEach((entry) => {
+          if (
+            typeof entry === "object" &&
+            entry !== null &&
+            "url" in entry &&
+            typeof (entry as { url: unknown }).url === "string"
+          ) {
+            images.push((entry as { url: string }).url);
+          }
+        });
+      }
+
+      if (images.length > 0) {
+        setSelectedImageSrc(images);
+        onZoomOpen();
+      } else {
+        toast({
+          title: "No images found in uploaded document",
+          status: "info",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch {
       toast({
-        title: "Unable to Preview Images",
-        description: "The image content is either missing or invalid.",
+        title: "Invalid JSON in document data",
         status: "error",
-        duration: 5000,
+        duration: 3000,
         isClosable: true,
       });
     }
   };
 
   return (
+
     <VStack spacing={6} align="center" p="20px" width="full">
+      {selectedImageSrc && selectedImageTitle && (
+        <ImagePreview
+          imageSrc={selectedImageSrc}
+          isOpen={isZoomOpen}
+          docType={selectedImageTitle}
+          onClose={() => {
+            setSelectedImageSrc(null);
+            setSelectedImageTitle(null);
+            onZoomClose();
+          }}
+        />
+      )}
+
       <Table variant="simple" width="100%">
         <Thead>
           <Tr>
@@ -302,7 +329,8 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
           <ModalHeader>Document Data</ModalHeader>
           <ModalCloseButton />
           <ModalBody overflowY="auto">
-            {selectedDocument?.content && Object.keys(selectedDocument.content).length > 0 ? (
+            {selectedDocument?.content &&
+            Object.keys(selectedDocument.content).length > 0 ? (
               <PreviewTable
                 rowKeyField="name"
                 data={Object.entries(selectedDocument.content).map(
@@ -339,43 +367,6 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
         </ModalContent>
       </Modal>
 
-      {/* Image Modal */}
-      <Modal
-        isOpen={isImageOpen}
-        onClose={onImageClose}
-        size="2xl"
-        motionPreset="scale"
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Document Image</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            {imageSrc && imageSrc.length > 0 ? (
-              <VStack spacing={4}>
-                {imageSrc.map((src) => (
-                  <Image
-                    key={src}
-                    src={src}
-                    alt="Document Image"
-                    width="100%"
-                    objectFit="contain"
-                    style={{
-                      imageRendering: "auto",
-                      border: "2px solid #ccc", // Add a border
-                      borderRadius: "8px", // Optional: Add rounded corners
-                      padding: "4px", // Optional: Add padding inside the border
-                    }}
-                  />
-                ))}
-              </VStack>
-            ) : (
-              <Text>No images available.</Text>
-            )}
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-
       {/* Error Details Modal */}
       <Modal
         isOpen={!!errorModalDoc}
@@ -390,23 +381,25 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
             {errorModalDoc?.verificationErrors &&
             errorModalDoc.verificationErrors.length > 0 ? (
               <VStack align="start" spacing={4}>
-                {errorModalDoc.verificationErrors.map((err: { raw: string; error: string }) => (
-                  <VStack
-                    key={err.raw}
-                    align="start"
-                    spacing={1}
-                    p={3}
-                    borderBottom="1px solid #eee"
-                    w="100%"
-                  >
-                    <Text fontWeight="bold" color="red.600" fontSize="md">
-                      {err.raw}
-                    </Text>
-                    <Text color="gray.800" fontSize="sm">
-                      {err.error}
-                    </Text>
-                  </VStack>
-                ))}
+                {errorModalDoc.verificationErrors.map(
+                  (err: { raw: string; error: string }) => (
+                    <VStack
+                      key={err.raw}
+                      align="start"
+                      spacing={1}
+                      p={3}
+                      borderBottom="1px solid #eee"
+                      w="100%"
+                    >
+                      <Text fontWeight="bold" color="red.600" fontSize="md">
+                        {err.raw}
+                      </Text>
+                      <Text color="gray.800" fontSize="sm">
+                        {err.error}
+                      </Text>
+                    </VStack>
+                  )
+                )}
               </VStack>
             ) : (
               <Text>No errors found.</Text>
