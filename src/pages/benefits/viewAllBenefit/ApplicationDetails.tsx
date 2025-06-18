@@ -395,7 +395,6 @@ const ApplicationDetails: React.FC = () => {
 
       // Call checkEligibility API
       const eligibilityResponse = await checkEligibility(id, true);
-      console.log("Eligibility Response:", eligibilityResponse);
 
       // Handle eligibility data
       if (
@@ -406,6 +405,13 @@ const ApplicationDetails: React.FC = () => {
           eligibilityResponse.ineligibleUsers[0].details;
 
         setCriteriaResults(ineligibleDetails.criteriaResults);
+      } else if (
+        eligibilityResponse?.eligibleUsers?.length &&
+        eligibilityResponse.eligibleUsers[0]?.details
+      ) {
+        const eligibleDetails = eligibilityResponse.eligibleUsers[0].details;
+
+        setCriteriaResults(eligibleDetails.criteriaResults);
       }
     } catch (err) {
       console.error("Error fetching application data:", err);
