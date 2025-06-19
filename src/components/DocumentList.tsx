@@ -43,7 +43,10 @@ export interface Document {
   fileContent: string;
   newTitle?: string;
 }
-
+interface CellProps {
+  column: { key: string; [key: string]: any };
+  rowData: TableRowData;
+}
 interface DocumentListProps {
   documents: Document[];
 }
@@ -288,7 +291,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
               }),
             },
             cellText: {
-              content: (props: any) => {
+              content: (props: CellProps) => {
                 const { column, rowData } = props;
 
                 if (column.key === "documentDetails") {
