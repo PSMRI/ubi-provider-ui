@@ -90,6 +90,20 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
     onOpen: onZoomOpen,
     onClose: onZoomClose,
   } = useDisclosure();
+  // Extract cell renderers into separate functions
+  const renderDocumentDetailsCell = (
+    rowData: TableRowData,
+    handlePreview: (doc: Document) => void
+  ) => (
+    <Button
+      leftIcon={<ViewIcon />}
+      aria-label="Preview Details"
+      size="sm"
+      onClick={() => handlePreview(rowData.doc)}
+    >
+      View Data
+    </Button>
+  );
 
   useEffect(() => {
     if (documents && documents.length > 0) {
@@ -259,6 +273,89 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
       style: { width: "200px" },
     },
   ];
+  const renderOriginalDocumentCell = (
+    rowData: TableRowData,
+    handleImagePreview: (doc: Document) => void
+  ) => (
+    <Button
+      leftIcon={<ViewIcon />}
+      aria-label="Preview Original Document"
+      size="sm"
+      onClick={() => handleImagePreview(rowData.doc)}
+    >
+      View Original Document
+    </Button>
+  );
+
+  const renderVerificationStatusCell = (
+    rowData: TableRowData,
+    setErrorModalDoc: (doc: Document) => void
+  ) => {
+    const doc = rowData.doc;
+    console.log("Rendering verification status for document:", doc);
+
+    if (doc.status === "Verified") {
+      return (
+        <HStack align="center" spacing={2}>
+          <Tooltip
+            label="Document is verified"
+            hasArrow
+            bg="green.500"
+            color="white"
+          >
+            <CheckIcon color="green.500" />
+          </Tooltip>
+          <Text color="green.500" fontWeight="bold">
+            Verified
+          </Text>
+        </HStack>
+      );
+    }
+
+    if (doc.status === "Unverified") {
+      return (
+        <HStack align="center" spacing={2}>
+          <Tooltip
+            label="Click to view verification errors"
+            hasArrow
+            bg="red.500"
+            color="white"
+          >
+            <Button
+              leftIcon={<CloseIcon color="red.500" />}
+              size="sm"
+              variant="ghost"
+              color="red.500"
+              onClick={() => setErrorModalDoc(doc)}
+            >
+              Unverified
+            </Button>
+          </Tooltip>
+        </HStack>
+      );
+    }
+    return (
+      <HStack align="center" spacing={2}>
+        <Tooltip
+          label="Document is not verified"
+          hasArrow
+          bg="yellow.500"
+          color="white"
+        >
+          <InfoOutlineIcon color="yellow.500" />
+        </Tooltip>
+        <Text color="yellow.500" fontWeight="bold">
+          Pending
+        </Text>
+      </HStack>
+    );
+  };
+
+  const renderDocumentNameCell = (rowData: TableRowData) => (
+    <Text maxW="400px" whiteSpace="normal" wordBreak="break-word">
+      {rowData.documentName}
+    </Text>
+  );
 
   return (
     <VStack spacing={6} align="center" p="20px" width="full">
@@ -294,105 +391,24 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
               content: (props: CellProps) => {
                 const { column, rowData } = props;
 
-                if (column.key === "documentDetails") {
-                  return (
-                    <Button
-                      leftIcon={<ViewIcon />}
-                      aria-label="Preview Details"
-                      size="sm"
-                      onClick={() => handlePreview(rowData.doc)}
-                    >
-                      View Data
-                    </Button>
-                  );
-                }
-
-                if (column.key === "originalDocument") {
-                  return (
-                    <Button
-                      leftIcon={<ViewIcon />}
-                      aria-label="Preview Original Document"
-                      size="sm"
-                      onClick={() => handleImagePreview(rowData.doc)}
-                    >
-                      View Original Document
-                    </Button>
-                  );
-                }
-
-                if (column.key === "verificationStatus") {
-                  const doc = rowData.doc;
-                  if (doc.status === "Verified") {
-                    return (
-                      <HStack align="center" spacing={2}>
-                        <Tooltip
-                          label="Document is verified"
-                          hasArrow
-                          bg="green.500"
-                          color="white"
-                        >
-                          <CheckIcon color="green.500" />
-                        </Tooltip>
-                        <Text color="green.500" fontWeight="bold">
-                          Verified
-                        </Text>
-                      </HStack>
+                switch (column.key) {
+                  case "documentDetails":
+                    return renderDocumentDetailsCell(rowData, handlePreview);
+                  case "originalDocument":
+                    return renderOriginalDocumentCell(
+                      rowData,
+                      handleImagePreview
                     );
-                  }
-
-                  if (doc.status === "Unverified") {
-                    return (
-                      <HStack align="center" spacing={2}>
-                        <Tooltip
-                          label="Click to view verification errors"
-                          hasArrow
-                          bg="red.500"
-                          color="white"
-                        >
-                          <Button
-                            leftIcon={<CloseIcon color="red.500" />}
-                            size="sm"
-                            variant="ghost"
-                            color="red.500"
-                            onClick={() => setErrorModalDoc(doc)}
-                          >
-                            Unverified
-                          </Button>
-                        </Tooltip>
-                      </HStack>
+                  case "verificationStatus":
+                    return renderVerificationStatusCell(
+                      rowData,
+                      setErrorModalDoc
                     );
-                  }
-
-                  // Pending or no status
-                  return (
-                    <HStack align="center" spacing={2}>
-                      <Tooltip
-                        label="Document is not verified"
-                        hasArrow
-                        bg="yellow.500"
-                        color="white"
-                      >
-                        <InfoOutlineIcon color="yellow.500" />
-                      </Tooltip>
-                      <Text color="yellow.500" fontWeight="bold">
-                        Pending
-                      </Text>
-                    </HStack>
-                  );
+                  case "documentName":
+                    return renderDocumentNameCell(rowData);
+                  default:
+                    return rowData[column.key as keyof TableRowData];
                 }
-
-                if (column.key === "documentName") {
-                  return (
-                    <Text
-                      maxW="400px"
-                      whiteSpace="normal"
-                      wordBreak="break-word"
-                    >
-                      {rowData.documentName}
-                    </Text>
-                  );
-                }
-
                 // Safe property access with type assertion
                 const value = rowData[column.key as keyof TableRowData];
                 return value;
