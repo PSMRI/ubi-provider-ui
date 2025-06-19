@@ -409,9 +409,6 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
                   default:
                     return rowData[column.key as keyof TableRowData];
                 }
-                // Safe property access with type assertion
-                const value = rowData[column.key as keyof TableRowData];
-                return value;
               },
             },
           }}
