@@ -76,7 +76,6 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
           col1Label: item.label,
           col1Value: item.value,
         }));
-  console.log("entries", groupedEntries);
 
   // Define table columns based on layout
   const columns = [
@@ -109,7 +108,6 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
         ]
       : []),
   ];
-  console.log("columns", columns);
 
   // Render the table with custom styles
   return (
