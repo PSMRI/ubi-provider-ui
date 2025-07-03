@@ -495,6 +495,38 @@ const ApplicationDetails: React.FC = () => {
       : applicationStatus === "rejected"
       ? "red.600"
       : "orange.600";
+
+  const getModalTitle = () => {
+    if (selectedStatus === "approved") return "Confirm Approval";
+    if (selectedStatus === "rejected") return "Confirm Rejection";
+    return "Send Back for Changes";
+  };
+
+  const getConfirmationText = () => {
+    if (selectedStatus === "resubmit") {
+      return "Are you sure you want to send this application back for changes?";
+    }
+    return `Are you sure you want to ${selectedStatus} this application?`;
+  };
+
+  const getTextareaPlaceholder = () => {
+    if (selectedStatus === "approved") return "Enter reason for approval...";
+    if (selectedStatus === "rejected") return "Enter reason for rejection...";
+    return "Enter reason for sending back...";
+  };
+
+  const getButtonColorScheme = () => {
+    if (selectedStatus === "approved") return "blue";
+    if (selectedStatus === "rejected") return "red";
+    return "orange";
+  };
+
+  const getButtonLabel = () => {
+    if (selectedStatus === "approved") return "Confirm Approval";
+    if (selectedStatus === "rejected") return "Confirm Rejection";
+    return "Send Back";
+  };
+
   return (
     <Layout
       _titleBar={{
@@ -759,31 +791,15 @@ const ApplicationDetails: React.FC = () => {
       <Modal isOpen={isOpen} onClose={onClose} isCentered size="md">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>
-            {selectedStatus === "approved"
-              ? "Confirm Approval"
-              : selectedStatus === "rejected"
-              ? "Confirm Rejection"
-              : "Send Back for Changes"}
-          </ModalHeader>
+          <ModalHeader>{getModalTitle()}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text mb={4}>
-              {selectedStatus === "resubmit"
-                ? "Are you sure you want to send this application back for changes?"
-                : `Are you sure you want to ${selectedStatus} this application?`}
-            </Text>
+            <Text mb={4}>{getConfirmationText()}</Text>
             <Text mb={3} fontWeight="medium">
               Please provide a comment:
             </Text>
             <Textarea
-              placeholder={`Enter reason for ${
-                selectedStatus === "approved"
-                  ? "approval"
-                  : selectedStatus === "rejected"
-                  ? "rejection"
-                  : "sending back"
-              }...`}
+              placeholder={getTextareaPlaceholder()}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               size="md"
@@ -795,20 +811,10 @@ const ApplicationDetails: React.FC = () => {
               Cancel
             </Button>
             <Button
-              colorScheme={
-                selectedStatus === "approved"
-                  ? "blue"
-                  : selectedStatus === "rejected"
-                  ? "red"
-                  : "orange"
-              }
+              colorScheme={getButtonColorScheme()}
               onClick={confirmStatusChange}
             >
-              {selectedStatus === "approved"
-                ? "Confirm Approval"
-                : selectedStatus === "rejected"
-                ? "Confirm Rejection"
-                : "Send Back"}
+              {getButtonLabel()}
             </Button>
           </ModalFooter>
         </ModalContent>
