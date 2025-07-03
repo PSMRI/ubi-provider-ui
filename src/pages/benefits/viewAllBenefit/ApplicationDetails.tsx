@@ -103,11 +103,12 @@ const ApplicationDetails: React.FC = () => {
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedStatus, setSelectedStatus] = useState<
-    "approved" | "rejected"
+    "approved" | "rejected" | "resubmit"
   >();
   const [criteriaResults, setCriteriaResults] = useState<any[]>([]);
-
-  const openConfirmationModal = (status: "approved" | "rejected") => {
+  const openConfirmationModal = (
+    status: "approved" | "rejected" | "resubmit"
+  ) => {
     setSelectedStatus(status);
     onOpen();
   };
@@ -703,7 +704,13 @@ const ApplicationDetails: React.FC = () => {
 
           {/* Action Buttons for Pending Applications */}
           {showActionButtons && (
-            <HStack justify="space-between" spacing={6} pt={4} width="100%">
+            <HStack
+              justify="space-between"
+              spacing={6}
+              pt={4}
+              width="100%"
+              flexWrap="wrap"
+            >
               <Button
                 colorScheme="red"
                 variant="outline"
@@ -732,6 +739,17 @@ const ApplicationDetails: React.FC = () => {
               >
                 Approve
               </Button>
+
+              <Button
+                colorScheme="orange"
+                variant="outline"
+                width="260px"
+                size="lg"
+                borderRadius="50px"
+                onClick={() => openConfirmationModal("resubmit")}
+              >
+                Send Back for Changes
+              </Button>
             </HStack>
           )}
         </VStack>
@@ -742,21 +760,29 @@ const ApplicationDetails: React.FC = () => {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
-            Confirm {selectedStatus === "approved" ? "Approval" : "Rejection"}
+            {selectedStatus === "approved"
+              ? "Confirm Approval"
+              : selectedStatus === "rejected"
+              ? "Confirm Rejection"
+              : "Send Back for Changes"}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Text mb={4}>
-              Are you sure you want to{" "}
-              {selectedStatus === "approved" ? "approve" : "reject"} this
-              application?
+              {selectedStatus === "resubmit"
+                ? "Are you sure you want to send this application back for changes?"
+                : `Are you sure you want to ${selectedStatus} this application?`}
             </Text>
             <Text mb={3} fontWeight="medium">
               Please provide a comment:
             </Text>
             <Textarea
               placeholder={`Enter reason for ${
-                selectedStatus === "approved" ? "approval" : "rejection"
+                selectedStatus === "approved"
+                  ? "approval"
+                  : selectedStatus === "rejected"
+                  ? "rejection"
+                  : "sending back"
               }...`}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -769,10 +795,20 @@ const ApplicationDetails: React.FC = () => {
               Cancel
             </Button>
             <Button
-              colorScheme={selectedStatus === "approved" ? "blue" : "red"}
+              colorScheme={
+                selectedStatus === "approved"
+                  ? "blue"
+                  : selectedStatus === "rejected"
+                  ? "red"
+                  : "orange"
+              }
               onClick={confirmStatusChange}
             >
-              Confirm {selectedStatus === "approved" ? "Approval" : "Rejection"}
+              {selectedStatus === "approved"
+                ? "Confirm Approval"
+                : selectedStatus === "rejected"
+                ? "Confirm Rejection"
+                : "Send Back"}
             </Button>
           </ModalFooter>
         </ModalContent>
