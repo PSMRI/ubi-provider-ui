@@ -394,7 +394,7 @@ export const extractUserDataForSchema = (
     result['orderId'] = String(formData['external_application_id']);
   }
 
- console.log("result", result);
+
   return result;
 };
 
