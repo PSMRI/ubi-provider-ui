@@ -391,10 +391,10 @@ export const extractUserDataForSchema = (
 
   // Ensure external_application_id is added if it exists in formData
   if ('external_application_id' in formData) {
-    result['external_application_id'] = String(formData['external_application_id']);
+    result['orderId'] = String(formData['external_application_id']);
   }
 
- 
+ console.log("result", result);
   return result;
 };
 
