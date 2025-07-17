@@ -45,6 +45,7 @@ const BenefitApplicationForm: React.FC = () => {
   const [extraErrors, setExtraErrors] = useState<any>(null);
   const [disableSubmit, setDisableSubmit] = useState(false);
   const [uiSchema, setUiSchema] = useState({});
+  const [reviewerComment, setReviewerComment] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch and process schema data when id changes
@@ -107,6 +108,9 @@ const BenefitApplicationForm: React.FC = () => {
         // Use window.name for pre-filled data if available
         const useData = window.name ? JSON.parse(window.name) : null;
 
+        if (useData?.remark) {
+          setReviewerComment(useData.remark);
+        }
         getApplicationSchemaData(
           useData,
           parsedValues,
@@ -241,6 +245,23 @@ const BenefitApplicationForm: React.FC = () => {
   // Render the form
   return (
     <Box p={4}>
+      {reviewerComment?.trim() && (
+        <Box
+          bg="orange.50"
+          border="1px"
+          borderColor="orange.300"
+          p={4}
+          borderRadius="md"
+          mb={4}
+        >
+          <p style={{ fontWeight: "bold", color: "#DD6B20" }}>
+            Reviewer Comment:
+          </p>
+          <p style={{ marginTop: 2, color: "orange.700" }}>
+            {reviewerComment as string}
+          </p>
+        </Box>
+      )}
       <Form
         ref={formRef}
         showErrorList={false}
