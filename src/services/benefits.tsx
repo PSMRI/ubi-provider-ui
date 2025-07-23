@@ -163,9 +163,9 @@ export const submitForm = async (payload: PrefillData) => {
 export const getSchema = async (id: string) => {
   const payload = {
     context: {
-      domain: "onest:financial-support",
+      domain: "ubi:financial-support",
       action: "select",
-      timestamp: "2023-08-02T07:21:58.448Z",
+      timestamp: new Date().toISOString(),
       ttl: "PT10M",
       version: "1.1.0",
       bap_id: import.meta.env.VITE_BAP_ID,
