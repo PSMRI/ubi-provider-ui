@@ -174,6 +174,16 @@ export const getSchema = async (id: string) => {
       bpp_uri: import.meta.env.VITE_BPP_URI,
       transaction_id: generateUUID(),
       message_id: generateUUID(),
+      location: {
+        country: {
+          name: "India",
+          code: "IND",
+        },
+        city: {
+          name: "Bangalore",
+          code: "std:080",
+        },
+      },
     },
     message: {
       order: {
