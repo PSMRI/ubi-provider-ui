@@ -44,6 +44,40 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.600");
 
+  // Common Timeline Content Component
+  const TimelineContent = ({ item, isLeft }: { item: any; isLeft: boolean }) => (
+    <Box 
+      width="45%" 
+      pr={isLeft ? 8 : 0} 
+      pl={isLeft ? 0 : 8} 
+      textAlign={isLeft ? "right" : "left"}
+    >
+      <Flex justify={isLeft ? "flex-end" : "flex-start"} mb={2}>
+        <Badge
+          colorScheme={getStatusColor(item.status)}
+          variant="solid"
+          borderRadius="full"
+          px={3}
+          py={1}
+          fontSize="sm"
+          fontWeight="medium"
+        >
+          {getStatusDisplayText(item.status)}
+        </Badge>
+      </Flex>
+      
+      <Text fontSize="sm" color="gray.600" mb={1}>
+        {formatDate(item.date)}
+      </Text>
+      
+      {item.remark && (
+        <Text fontSize="sm" color="gray.700" fontStyle="italic">
+          {item.remark}
+        </Text>
+      )}
+    </Box>
+  );
+
   // Helper function to format date
   const formatDate = (dateString: string): string => {
     try {
@@ -217,37 +251,12 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
                   position="relative"
                   minHeight="80px"
                 >
-                  {/* Left side content */}
-                  {isLeft && (
-                    <Box width="45%" pr={8} textAlign="right">
-                      <Flex justify="flex-end" mb={2}>
-                        <Badge
-                          colorScheme={getStatusColor(item.status)}
-                          variant="solid"
-                          borderRadius="full"
-                          px={3}
-                          py={1}
-                          fontSize="sm"
-                          fontWeight="medium"
-                        >
-                          {getStatusDisplayText(item.status)}
-                        </Badge>
-                      </Flex>
-
-                      <Text fontSize="sm" color="gray.600" mb={1}>
-                        {formatDate(item.date)}
-                      </Text>
-
-                      {item.remark && (
-                        <Text fontSize="sm" color="gray.700" fontStyle="italic">
-                          {item.remark}
-                        </Text>
-                      )}
-                    </Box>
+                                    {/* Left side content */}
+                  {isLeft ? (
+                    <TimelineContent item={item} isLeft={true} />
+                  ) : (
+                    <Box width="45%" />
                   )}
-
-                  {/* Empty space for right-aligned items */}
-                  {!isLeft && <Box width="45%" />}
 
                   {/* Central icon */}
                   <Box
@@ -269,36 +278,11 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
                     </Circle>
                   </Box>
 
-                  {/* Empty space for left-aligned items */}
-                  {isLeft && <Box width="45%" />}
-
-                  {/* Right side content */}
-                  {!isLeft && (
-                    <Box width="45%" pl={8} textAlign="left">
-                      <Flex justify="flex-start" mb={2}>
-                        <Badge
-                          colorScheme={getStatusColor(item.status)}
-                          variant="solid"
-                          borderRadius="full"
-                          px={3}
-                          py={1}
-                          fontSize="sm"
-                          fontWeight="medium"
-                        >
-                          {getStatusDisplayText(item.status)}
-                        </Badge>
-                      </Flex>
-
-                      <Text fontSize="sm" color="gray.600" mb={1}>
-                        {formatDate(item.date)}
-                      </Text>
-
-                      {item.remark && (
-                        <Text fontSize="sm" color="gray.700" fontStyle="italic">
-                          {item.remark}
-                        </Text>
-                      )}
-                    </Box>
+                                    {/* Right side content */}
+                  {!isLeft ? (
+                    <TimelineContent item={item} isLeft={false} />
+                  ) : (
+                    <Box width="45%" />
                   )}
                 </Flex>
               </Box>
