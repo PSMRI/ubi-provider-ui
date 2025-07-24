@@ -72,6 +72,16 @@ interface ApplicantData {
   disabilityStatus?: string;
 }
 
+interface ApplicationData {
+  actionLog: string[];
+  createdAt: string;
+  status?: string;
+  benefitDetails?: { title: string };
+  calculatedAmount?: Record<string, unknown>;
+  applicationData?: Record<string, unknown>;
+  applicationFiles?: unknown[];
+  benefitId?: string;
+}
 interface Document {
   id: number;
   type: string;
@@ -108,7 +118,7 @@ const ApplicationDetails: React.FC = () => {
     "approved" | "rejected" | "resubmit"
   >();
   const [criteriaResults, setCriteriaResults] = useState<any[]>([]);
-  const [fullApplicationData, setFullApplicationData] = useState<any>(null);
+  const [fullApplicationData, setFullApplicationData] = useState<ApplicationData | null>(null);
   const openConfirmationModal = (
     status: "approved" | "rejected" | "resubmit"
   ) => {

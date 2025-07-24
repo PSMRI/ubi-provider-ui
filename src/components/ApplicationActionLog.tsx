@@ -27,13 +27,15 @@ interface ActionLogEntry {
   remark?: string;
 }
 
+interface ApplicationData {
+  actionLog: string[];
+  createdAt: string;
+  status?: string;
+  benefitDetails?: { title: string };
+  calculatedAmount?: Record<string, unknown>;
+}
 interface ApplicationActionLogProps {
-  applicationData: {
-    actionLog: string[];
-    createdAt: string;
-    status?: string;
-    [key: string]: any;
-  };
+  applicationData: ApplicationData;
 }
 
 const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
@@ -238,7 +240,7 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
 
                       {item.remark && (
                         <Text fontSize="sm" color="gray.700" fontStyle="italic">
-                          "{item.remark}"
+                          {item.remark}
                         </Text>
                       )}
                     </Box>
