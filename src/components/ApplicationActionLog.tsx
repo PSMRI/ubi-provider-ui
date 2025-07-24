@@ -64,16 +64,16 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
       case "approved":
-        return <CheckIcon color="green.500"  />;
+        return <CheckIcon color="green.500" />;
       case "rejected":
-        return <CloseIcon color="red.500"  />;
+        return <CloseIcon color="red.500" />;
       case "resubmit":
-        return <RepeatIcon color="orange.500"  />;
+        return <RepeatIcon color="orange.500" />;
       case "pending":
       case "application submitted":
         return <EditIcon color="blue.500" />;
       default:
-            return <TimeIcon color="gray.500"  />;
+        return <TimeIcon color="gray.500" />;
     }
   };
 
@@ -94,14 +94,13 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
     }
   };
 
-
   // Helper function to get status display text
   const getStatusDisplayText = (status: string): string => {
     switch (status.toLowerCase()) {
       case "resubmit":
-        return "Sent Back for Changes";
+        return "Asked for resubmit";
       case "pending":
-        return "Application Submitted";
+        return "Submitted";
       default:
         return status.charAt(0).toUpperCase() + status.slice(1);
     }
@@ -109,7 +108,10 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
 
   // Parse action log entries
   const parseActionLogEntries = (): ActionLogEntry[] => {
-    if (!applicationData.actionLog || !Array.isArray(applicationData.actionLog)) {
+    if (
+      !applicationData.actionLog ||
+      !Array.isArray(applicationData.actionLog)
+    ) {
       return [];
     }
 
@@ -123,7 +125,10 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
         }
       })
       .filter((entry): entry is ActionLogEntry => entry !== null)
-      .sort((a, b) => new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime());
+      .sort(
+        (a, b) =>
+          new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
+      );
   };
 
   // Create timeline items
@@ -142,13 +147,14 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
     }
 
     // Add action log entries
-    
+
     actionLogEntries.forEach((entry) => {
-      const reviewerComment = entry.remark || `Application status changed to ${entry.status}`;
+      const reviewerComment =
+        entry.remark || `Application status changed to ${entry.status}`;
       items.push({
         date: entry.updatedAt,
         status: entry.status,
-        remark:`Reviewer Comment: "${reviewerComment}"`,
+        remark: `Reviewer Comment: "${reviewerComment}"`,
         isFirst: false,
       });
     });
@@ -183,7 +189,6 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
       borderRadius="lg"
       p={6}
     >
-  
       <Box position="relative" width="100%">
         {/* Central vertical line */}
         <Box
@@ -196,13 +201,14 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
           transform="translateX(-50%)"
           zIndex={1}
         />
-        
+
         <VStack align="stretch" spacing={8}>
           {timelineItems.map((item, index) => {
             const isLeft = index % 2 === 0;
-            
+            const uniqueKey = `${item.date}-${item.status}`;
+
             return (
-              <Box key={index} position="relative" width="100%">
+              <Box key={uniqueKey} position="relative" width="100%">
                 <Flex
                   justify="center"
                   align="center"
@@ -211,11 +217,7 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
                 >
                   {/* Left side content */}
                   {isLeft && (
-                    <Box
-                      width="45%"
-                      pr={8}
-                      textAlign="right"
-                    >
+                    <Box width="45%" pr={8} textAlign="right">
                       <Flex justify="flex-end" mb={2}>
                         <Badge
                           colorScheme={getStatusColor(item.status)}
@@ -229,11 +231,11 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
                           {getStatusDisplayText(item.status)}
                         </Badge>
                       </Flex>
-                      
+
                       <Text fontSize="sm" color="gray.600" mb={1}>
                         {formatDate(item.date)}
                       </Text>
-                      
+
                       {item.remark && (
                         <Text fontSize="sm" color="gray.700" fontStyle="italic">
                           "{item.remark}"
@@ -241,10 +243,10 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
                       )}
                     </Box>
                   )}
-                  
+
                   {/* Empty space for right-aligned items */}
                   {!isLeft && <Box width="45%" />}
-                  
+
                   {/* Central icon */}
                   <Box
                     position="absolute"
@@ -264,17 +266,13 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
                       {getStatusIcon(item.status)}
                     </Circle>
                   </Box>
-                  
+
                   {/* Empty space for left-aligned items */}
                   {isLeft && <Box width="45%" />}
-                  
+
                   {/* Right side content */}
                   {!isLeft && (
-                    <Box
-                      width="45%"
-                      pl={8}
-                      textAlign="left"
-                    >
+                    <Box width="45%" pl={8} textAlign="left">
                       <Flex justify="flex-start" mb={2}>
                         <Badge
                           colorScheme={getStatusColor(item.status)}
@@ -288,11 +286,11 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
                           {getStatusDisplayText(item.status)}
                         </Badge>
                       </Flex>
-                      
+
                       <Text fontSize="sm" color="gray.600" mb={1}>
                         {formatDate(item.date)}
                       </Text>
-                      
+
                       {item.remark && (
                         <Text fontSize="sm" color="gray.700" fontStyle="italic">
                           {item.remark}
@@ -310,4 +308,4 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
   );
 };
 
-export default ApplicationActionLog; 
+export default ApplicationActionLog;
