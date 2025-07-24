@@ -326,7 +326,8 @@ const ApplicationDetails: React.FC = () => {
       setBenefitName(applicationData.benefitDetails.title);
     }
     if (applicationData?.calculatedAmount) {
-      const { ["totalPayout"]: totalPayout, ...rest } = applicationData.calculatedAmount;
+      const { ["totalPayout"]: totalPayout, ...rest } =
+        applicationData.calculatedAmount;
       const reorderedAmount =
         totalPayout !== undefined
           ? { ...rest, "Total Payout": totalPayout }
@@ -343,7 +344,7 @@ const ApplicationDetails: React.FC = () => {
       setShowActionButtons(false);
     }
 
-    const hasDisabilityType = 'disabilityType' in applicantDetails;
+    const hasDisabilityType = "disabilityType" in applicantDetails;
     setShowDisabilityStatus(hasDisabilityType);
 
     const applicantRecord: ApplicantData = {
@@ -355,7 +356,9 @@ const ApplicationDetails: React.FC = () => {
     };
 
     if (hasDisabilityType) {
-      applicantRecord.disabilityStatus = applicantDetails.disabilityType ? "Yes" : "No";
+      applicantRecord.disabilityStatus = applicantDetails.disabilityType
+        ? "Yes"
+        : "No";
     }
 
     setApplicantData([applicantRecord]);
@@ -443,7 +446,13 @@ const ApplicationDetails: React.FC = () => {
       dataType: "string",
     },
     ...(showDisabilityStatus
-      ? [{ key: "disabilityStatus", title: "Disability Status", dataType: "string" }]
+      ? [
+          {
+            key: "disabilityStatus",
+            title: "Disability Status",
+            dataType: "string",
+          },
+        ]
       : []),
   ];
 
@@ -738,7 +747,9 @@ const ApplicationDetails: React.FC = () => {
               <TabPanel>
                 <VStack spacing={6} align="stretch">
                   {fullApplicationData ? (
-                    <ApplicationActionLog applicationData={fullApplicationData} />
+                    <ApplicationActionLog
+                      applicationData={fullApplicationData}
+                    />
                   ) : (
                     <Box
                       p={8}
