@@ -30,6 +30,7 @@ import Loading from "../../../components/common/Loading";
 import Table from "../../../components/common/table/Table";
 import ApplicationInfo from "../../../components/ApplicationInfo";
 import DocumentList from "../../../components/DocumentList";
+import ApplicationActionLog from "../../../components/ApplicationActionLog";
 import {
   checkEligibility,
   getApplicationDetails,
@@ -107,6 +108,7 @@ const ApplicationDetails: React.FC = () => {
     "approved" | "rejected" | "resubmit"
   >();
   const [criteriaResults, setCriteriaResults] = useState<any[]>([]);
+  const [fullApplicationData, setFullApplicationData] = useState<any>(null);
   const openConfirmationModal = (
     status: "approved" | "rejected" | "resubmit"
   ) => {
@@ -408,6 +410,7 @@ const ApplicationDetails: React.FC = () => {
       }
 
       const applicationData = await getApplicationDetails(id);
+      setFullApplicationData(applicationData);
       setBenefitAndAmount(applicationData);
       setApplicantInfo(applicationData);
       setDocumentsAndButtons(applicationData.applicationFiles);
@@ -589,6 +592,7 @@ const ApplicationDetails: React.FC = () => {
               <Tab {...tabStyles}>Supporting Documents</Tab>
               <Tab {...tabStyles}>Eligibility Criteria</Tab>
               <Tab {...tabStyles}>Amount Breakdown</Tab>
+              <Tab {...tabStyles}>Action History</Tab>
             </TabList>
 
             <TabPanels>
@@ -724,6 +728,28 @@ const ApplicationDetails: React.FC = () => {
                     >
                       <Text fontSize="lg" color="gray.500">
                         No amount breakdown available
+                      </Text>
+                    </Box>
+                  )}
+                </VStack>
+              </TabPanel>
+
+              {/* Tab 5: Action History */}
+              <TabPanel>
+                <VStack spacing={6} align="stretch">
+                  {fullApplicationData ? (
+                    <ApplicationActionLog applicationData={fullApplicationData} />
+                  ) : (
+                    <Box
+                      p={8}
+                      textAlign="center"
+                      border="2px dashed"
+                      borderColor="gray.300"
+                      borderRadius="lg"
+                      bg="gray.50"
+                    >
+                      <Text fontSize="lg" color="gray.500">
+                        No action history available
                       </Text>
                     </Box>
                   )}
