@@ -38,109 +38,118 @@ interface ApplicationActionLogProps {
   applicationData: ApplicationData;
 }
 
+// Helper function to format date
+const formatDate = (dateString: string): string => {
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return dateString;
+  }
+};
+
+// Helper function to get icon for status
+const getStatusIcon = (status: string) => {
+  switch (status.toLowerCase()) {
+    case "approved":
+      return <CheckIcon color="green.500" />;
+    case "rejected":
+      return <CloseIcon color="red.500" />;
+    case "resubmit":
+      return <RepeatIcon color="orange.500" />;
+    case "pending":
+    case "application submitted":
+      return <EditIcon color="blue.500" />;
+    default:
+      return <TimeIcon color="gray.500" />;
+  }
+};
+
+// Helper function to get status color
+const getStatusColor = (status: string): string => {
+  switch (status.toLowerCase()) {
+    case "approved":
+      return "green";
+    case "rejected":
+      return "red";
+    case "resubmit":
+      return "orange";
+    case "pending":
+    case "application submitted":
+      return "blue";
+    default:
+      return "gray";
+  }
+};
+
+// Helper function to get status display text
+const getStatusDisplayText = (status: string): string => {
+  switch (status.toLowerCase()) {
+    case "resubmit":
+      return "Asked for resubmit";
+    case "pending":
+      return "Application Submitted";
+    default:
+      return status.charAt(0).toUpperCase() + status.slice(1);
+  }
+};
+
+// Timeline Content Component
+interface TimelineContentProps {
+  item: {
+    date: string;
+    status: string;
+    remark?: string;
+  };
+  isLeft: boolean;
+}
+
+const TimelineContent: React.FC<TimelineContentProps> = ({ item, isLeft }) => (
+  <Box
+    width="45%"
+    pr={isLeft ? 8 : 0}
+    pl={isLeft ? 0 : 8}
+    textAlign={isLeft ? "right" : "left"}
+  >
+    <Flex justify={isLeft ? "flex-end" : "flex-start"} mb={2}>
+      <Badge
+        colorScheme={getStatusColor(item.status)}
+        variant="solid"
+        borderRadius="full"
+        px={3}
+        py={1}
+        fontSize="sm"
+        fontWeight="medium"
+      >
+        {getStatusDisplayText(item.status)}
+      </Badge>
+    </Flex>
+
+    <Text fontSize="sm" color="gray.600" mb={1}>
+      {formatDate(item.date)}
+    </Text>
+
+    {item.remark && (
+      <Text fontSize="sm" color="gray.700" fontStyle="italic">
+        {item.remark}
+      </Text>
+    )}
+  </Box>
+);
+
 const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
   applicationData,
 }) => {
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.600");
-
-  // Common Timeline Content Component
-  const TimelineContent = ({ item, isLeft }: { item: any; isLeft: boolean }) => (
-    <Box 
-      width="45%" 
-      pr={isLeft ? 8 : 0} 
-      pl={isLeft ? 0 : 8} 
-      textAlign={isLeft ? "right" : "left"}
-    >
-      <Flex justify={isLeft ? "flex-end" : "flex-start"} mb={2}>
-        <Badge
-          colorScheme={getStatusColor(item.status)}
-          variant="solid"
-          borderRadius="full"
-          px={3}
-          py={1}
-          fontSize="sm"
-          fontWeight="medium"
-        >
-          {getStatusDisplayText(item.status)}
-        </Badge>
-      </Flex>
-      
-      <Text fontSize="sm" color="gray.600" mb={1}>
-        {formatDate(item.date)}
-      </Text>
-      
-      {item.remark && (
-        <Text fontSize="sm" color="gray.700" fontStyle="italic">
-          {item.remark}
-        </Text>
-      )}
-    </Box>
-  );
-
-  // Helper function to format date
-  const formatDate = (dateString: string): string => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return dateString;
-    }
-  };
-
-  // Helper function to get icon for status
-  const getStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "approved":
-        return <CheckIcon color="green.500" />;
-      case "rejected":
-        return <CloseIcon color="red.500" />;
-      case "resubmit":
-        return <RepeatIcon color="orange.500" />;
-      case "pending":
-      case "application submitted":
-        return <EditIcon color="blue.500" />;
-      default:
-        return <TimeIcon color="gray.500" />;
-    }
-  };
-
-  // Helper function to get status color
-  const getStatusColor = (status: string): string => {
-    switch (status.toLowerCase()) {
-      case "approved":
-        return "green";
-      case "rejected":
-        return "red";
-      case "resubmit":
-        return "orange";
-      case "pending":
-      case "application submitted":
-        return "blue";
-      default:
-        return "gray";
-    }
-  };
-
-  // Helper function to get status display text
-  const getStatusDisplayText = (status: string): string => {
-    switch (status.toLowerCase()) {
-      case "resubmit":
-        return "Asked for resubmit";
-      case "pending":
-        return "Submitted";
-      default:
-        return status.charAt(0).toUpperCase() + status.slice(1);
-    }
-  };
 
   // Parse action log entries
   const parseActionLogEntries = (): ActionLogEntry[] => {
@@ -251,7 +260,7 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
                   position="relative"
                   minHeight="80px"
                 >
-                                    {/* Left side content */}
+                  {/* Left side content */}
                   {isLeft ? (
                     <TimelineContent item={item} isLeft={true} />
                   ) : (
@@ -278,7 +287,7 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
                     </Circle>
                   </Box>
 
-                                    {/* Right side content */}
+                  {/* Right side content */}
                   {!isLeft ? (
                     <TimelineContent item={item} isLeft={false} />
                   ) : (
