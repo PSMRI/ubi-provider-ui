@@ -162,9 +162,9 @@ export const submitForm = async (payload: PrefillData) => {
 export const getSchema = async (id: string) => {
   const payload = {
     context: {
-      domain: "onest:financial-support",
+      domain: "ubi:financial-support",
       action: "select",
-      timestamp: "2023-08-02T07:21:58.448Z",
+      timestamp: new Date().toISOString(),
       ttl: "PT10M",
       version: "1.1.0",
       bap_id: import.meta.env.VITE_BAP_ID,
@@ -173,6 +173,16 @@ export const getSchema = async (id: string) => {
       bpp_uri: import.meta.env.VITE_BPP_URI,
       transaction_id: generateUUID(),
       message_id: generateUUID(),
+      location: {
+        country: {
+          name: "India",
+          code: "IND",
+        },
+        city: {
+          name: "Bangalore",
+          code: "std:080",
+        },
+      },
     },
     message: {
       order: {
