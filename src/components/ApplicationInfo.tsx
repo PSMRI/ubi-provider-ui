@@ -8,7 +8,7 @@ interface Field {
   name: string;
   label: string;
   type?: string;
-  options?: { label: string; value: any }[];
+  options?: { label: string; value: string | number | boolean }[];
 }
 
 // Group interface for new format
@@ -66,14 +66,14 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
   };
 
   // Helper: Check if mapping is grouped format
-  const isGroupedFormat = (mapping: any[]): mapping is FieldGroup[] => {
+  const isGroupedFormat = (mapping: Field[] | FieldGroup[]): mapping is FieldGroup[] => {
     return mapping.length > 0 && 'fieldsGroupName' in mapping[0] && 'fields' in mapping[0];
   };
 
   // Helper: Create entry objects from data keys
   const createEntries = (keys: string[], fieldMap: { [key: string]: Field } = {}) => {
     return keys
-      .filter((key) => data.hasOwnProperty(key))
+      .filter((key) => Object.prototype.hasOwnProperty.call(data, key))
       .map((key) => {
         const field = fieldMap[key];
         const label = field?.label ?? camelToTitle(key);
@@ -187,6 +187,7 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
       style={{ display: "flex", justifyContent: "center", marginTop: "24px" }}
     >
       <div style={{ width: columnsLayout === "two" ? "100%" : "50%" }}>
+
         <VStack spacing={6} align="stretch">
           {processedData.map((group, index) => {
             const groupKey = group.groupId || `group-${index}`;
