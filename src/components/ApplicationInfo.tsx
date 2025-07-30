@@ -1,16 +1,28 @@
 import React from "react";
 import { Table, DataType } from "ka-table";
+import { Box, Text, VStack } from "@chakra-ui/react";
 import "ka-table/style.css";
+
+// Field interface
+interface Field {
+  name: string;
+  label: string;
+  type?: string;
+  options?: { label: string; value: any }[];
+}
+
+// Group interface for new format
+interface FieldGroup {
+  id: number;
+  fieldsGroupName: string;
+  fieldsGroupLabel: string;
+  fields: Field[];
+}
 
 // Props interface for the component
 interface ApplicationInfoProps {
   data: { [key: string]: any };
-  mapping?: Array<{
-    name: string;
-    label: string;
-    type?: string;
-    options?: { label: string; value: any }[];
-  }>;
+  mapping?: Field[] | FieldGroup[]; // Can be either flat or grouped
   columnsLayout?: "one" | "two";
 }
 
@@ -38,29 +50,25 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
     return value?.toString() ?? "N/A";
   };
 
-  // Create a map for quick field lookup by name (if mapping provided)
-  const mappingMap = React.useMemo(() => {
-    if (!mapping) return {};
-    return Object.fromEntries(mapping.map((field) => [field.name, field]));
-  }, [mapping]);
+  // Helper: Check if mapping is grouped format
+  const isGroupedFormat = (mapping: any[]): mapping is FieldGroup[] => {
+    return mapping.length > 0 && 'fieldsGroupName' in mapping[0] && 'fields' in mapping[0];
+  };
 
-  // Prepare entries: [{ label, value }]
-  const entries = React.useMemo(() => {
-    // Use mapping order if provided, else all keys from data
-    const keys = mapping ? mapping.map((m) => m.name) : Object.keys(data);
-    return keys
+  // Helper: Create table data for a group of fields
+  const createTableData = (fields: Field[], fieldMap: { [key: string]: Field }) => {
+    const keys = fields.map(f => f.name);
+    const entries = keys
       .filter((key) => data.hasOwnProperty(key))
       .map((key) => {
-        const field = mappingMap[key];
+        const field = fieldMap[key];
         const label = field?.label ?? camelToTitle(key);
         const displayValue = getDisplayValue(field, data[key]);
         return { label, value: displayValue };
       });
-  }, [data, mapping, mappingMap]);
 
-  // Group entries for one or two column layout
-  const groupedEntries =
-    columnsLayout === "two"
+    // Group entries for one or two column layout
+    return columnsLayout === "two"
       ? entries.reduce((rows: any[], item, idx) => {
           if (idx % 2 === 0) {
             rows.push({ col1Label: item.label, col1Value: item.value });
@@ -76,6 +84,57 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
           col1Label: item.label,
           col1Value: item.value,
         }));
+  };
+
+  // Process mapping based on format
+  const processedData = React.useMemo(() => {
+    if (!mapping) {
+      // No mapping provided, use all keys from data
+      const keys = Object.keys(data);
+      const entries = keys.map((key) => {
+        const label = camelToTitle(key);
+        const displayValue = getDisplayValue(null, data[key]);
+        return { label, value: displayValue };
+      });
+
+      const groupedEntries = columnsLayout === "two"
+        ? entries.reduce((rows: any[], item, idx) => {
+            if (idx % 2 === 0) {
+              rows.push({ col1Label: item.label, col1Value: item.value });
+            } else {
+              Object.assign(rows[rows.length - 1], {
+                col2Label: item.label,
+                col2Value: item.value,
+              });
+            }
+            return rows;
+          }, [])
+        : entries.map((item) => ({
+            col1Label: item.label,
+            col1Value: item.value,
+          }));
+
+      return [{ groupLabel: null, data: groupedEntries }];
+    }
+
+    if (isGroupedFormat(mapping)) {
+      // New grouped format
+      const allFields = mapping.flatMap(group => group.fields);
+      const fieldMap = Object.fromEntries(allFields.map(field => [field.name, field]));
+
+      return mapping.map(group => ({
+        groupLabel: group.fieldsGroupLabel,
+        data: createTableData(group.fields, fieldMap)
+      }));
+    } else {
+      // Old flat format
+      const fieldMap = Object.fromEntries(mapping.map(field => [field.name, field]));
+      return [{
+        groupLabel: null,
+        data: createTableData(mapping, fieldMap)
+      }];
+    }
+  }, [data, mapping, columnsLayout]);
 
   // Define table columns based on layout
   const columns = [
@@ -115,18 +174,38 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
       style={{ display: "flex", justifyContent: "center", marginTop: "24px" }}
     >
       <div style={{ width: columnsLayout === "two" ? "100%" : "50%" }}>
-        <Table
-          rowKeyField="col1Label"
-          data={groupedEntries}
-          columns={columns}
-          childComponents={{
-            table: {
-              elementAttributes: () => ({
-                style: { width: "100%", borderCollapse: "collapse" },
-              }),
-            },
-          }}
-        />
+        <VStack spacing={6} align="stretch">
+          {processedData.map((group, index) => (
+            <Box key={index}>
+              {group.groupLabel && (
+                <Text
+                  fontSize="lg"
+                  fontWeight="bold"
+                  mb={4}
+                  color="blue.600"
+                  borderBottom="2px solid"
+                  borderColor="blue.200"
+                  pb={2}
+                >
+                  {group.groupLabel}
+                </Text>
+              )}
+              <Table
+                rowKeyField="col1Label"
+                data={group.data}
+                columns={columns}
+                childComponents={{
+                  table: {
+                    elementAttributes: () => ({
+                      style: { width: "100%", borderCollapse: "collapse" },
+                    }),
+                  },
+                }}
+              />
+            </Box>
+          ))}
+        </VStack>
+
         {/* Inline styles for table header and cells */}
         <style>
           {`
