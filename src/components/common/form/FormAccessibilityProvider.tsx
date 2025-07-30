@@ -63,7 +63,7 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     Object.keys(uiSchema).forEach((fieldName) => {
       if (fieldName === "ui:order") return;
 
-      const fieldConfig = (uiSchema as any)[fieldName];
+      const fieldConfig = (uiSchema)[fieldName];
       if (fieldConfig?.["ui:group"] && fieldConfig?.["ui:groupFirst"]) {
         const groupName = fieldConfig["ui:group"];
         const groupLabel = fieldConfig["ui:groupLabel"];
@@ -78,7 +78,7 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     Object.keys(uiSchema).forEach((fieldName) => {
       if (fieldName === "ui:order") return;
 
-      const fieldConfig = (uiSchema as any)[fieldName];
+      const fieldConfig = (uiSchema)[fieldName];
       if (fieldConfig?.["ui:group"]) {
         const groupName = fieldConfig["ui:group"];
 
@@ -114,21 +114,16 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
           ".chakra-form__group, .form-group, .field, div[data-field]"
         ) || null;
 
-    if (!fieldElement) {
-      fieldElement =
-        formElement
-          .querySelector(`[id*="${fieldName}"]`)
-          ?.closest(
-            ".chakra-form__group, .form-group, .field, div[data-field]"
-          ) || null;
-    }
+    // Use nullish coalescing assignment for cleaner fallback logic
+    fieldElement ??= formElement
+      .querySelector(`[id*="${fieldName}"]`)
+      ?.closest(
+        ".chakra-form__group, .form-group, .field, div[data-field]"
+      ) || null;
 
-    if (!fieldElement) {
-      fieldElement =
-        formElement
-          .querySelector(`[name*="${fieldName}"]`)
-          ?.closest(".chakra-form__group, .form-group, .field, div") || null;
-    }
+    fieldElement ??= formElement
+      .querySelector(`[name*="${fieldName}"]`)
+      ?.closest(".chakra-form__group, .form-group, .field, div") || null;
 
     if (!fieldElement) {
       // Try finding by label text
