@@ -20,7 +20,7 @@ import { useAuth } from "../../context/AuthContext";
 export default function Login() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { setUserRole } = useAuth();
+  const { setUserRole, setUser } = useAuth();
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{
@@ -56,11 +56,19 @@ export default function Login() {
       const loginResponse = await LoginProvider(userName, password);
       if (loginResponse?.token) {
         localStorage.setItem("token", loginResponse?.token);
+        
+        // Store complete user data
+        if (loginResponse?.user) {
+          localStorage.setItem("userData", JSON.stringify(loginResponse.user));
+          setUser(loginResponse.user);
+        }
+        
         if (loginResponse?.user?.s_roles?.[0]) {
           const userRole = loginResponse.user.s_roles[0];
           localStorage.setItem("userRole", userRole);
           setUserRole(userRole);
         }
+        
         setIsLoading(false);
         setMessage("Login successfully!");
         // Notify App component that token has been set
@@ -86,6 +94,7 @@ export default function Login() {
       {isLoading ? (
         <Loading />
       ) : (
+
         <HStack w="full" h="89vh" spacing={8} align="stretch" overflow="hidden">
           <LeftSideBar />
 
@@ -171,6 +180,7 @@ export default function Login() {
             </Stack>
           </VStack>
         </HStack>
+
       )}
 
       {showAlert && (
