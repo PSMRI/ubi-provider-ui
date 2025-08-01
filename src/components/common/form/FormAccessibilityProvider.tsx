@@ -156,7 +156,7 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     group: { label: string; fields: Element[] },
     groupName: string,
   ) => {
-    const fieldset = document.createElement("div");
+    const fieldset = document.createElement("fieldset");
     fieldset.className = "field-group";
     fieldset.setAttribute("data-group", groupName);
 
@@ -173,7 +173,7 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     `;
 
     // Create legend
-    const legend = document.createElement("div");
+    const legend = document.createElement("legend");
     legend.textContent = group.label;
     legend.className = "field-group-legend";
     legend.style.cssText = `
@@ -183,7 +183,7 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
       background-color: #FFFFFF;
       margin-bottom: 16px;
       padding: 4px 8px;
-      border-bottom: 2px solid #CAC4D0;
+     
     `;
 
     fieldset.appendChild(legend);
