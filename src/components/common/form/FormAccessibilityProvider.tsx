@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 
 interface FormAccessibilityProviderProps {
-  formRef: React.RefObject<any>;
-  uiSchema: any;
-  formSchema: any;
+  formRef: React.RefObject<HTMLFormElement>;
+  uiSchema: Record<string, any>;
+  formSchema: Record<string, any>;
   children: React.ReactNode;
 }
 
