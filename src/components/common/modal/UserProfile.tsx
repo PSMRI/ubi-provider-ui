@@ -17,6 +17,7 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { FiUser, FiMail, FiShield } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../context/AuthContext";
 
 interface UserProfileProps {
@@ -25,6 +26,7 @@ interface UserProfileProps {
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   const { user, getUserDisplayName, getUserOrganization } = useAuth();
 
   if (!user) {
@@ -38,7 +40,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
     <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>User Profile</ModalHeader>
+        <ModalHeader>{t("USER_PROFILE_TITLE")}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={6} align="stretch">
@@ -72,7 +74,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
                 <HStack spacing={3} mb={2}>
                   <Icon as={FiUser} color="gray.500" boxSize={4} />
                   <Text fontSize="sm" fontWeight="medium" color="gray.600">
-                    Full Name
+                    {t("USER_PROFILE_FULL_NAME_LABEL")}
                   </Text>
                 </HStack>
                 <Text fontSize="md" color="gray.800" pl={7}>
@@ -85,7 +87,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
                 <HStack spacing={3} mb={2}>
                   <Icon as={FiMail} color="gray.500" boxSize={4} />
                   <Text fontSize="sm" fontWeight="medium" color="gray.600">
-                    Email Address
+                    {t("USER_PROFILE_EMAIL_LABEL")}
                   </Text>
                 </HStack>
                 <Text fontSize="md" color="gray.800" pl={7}>
@@ -98,12 +100,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
                 <HStack spacing={3} mb={2}>
                   <Icon as={FiShield} color="gray.500" boxSize={4} />
                   <Text fontSize="sm" fontWeight="medium" color="gray.600">
-                    Role / Organization
+                    {t("USER_PROFILE_ROLE_LABEL")}
                   </Text>
                 </HStack>
                 <HStack spacing={2} pl={7}>
                   {user.s_roles.map((role, index) => (
-                    <Badge key={index} borderColor="#06164B" color="#06164B" variant="outline">
+                    <Badge key={`role-${role}-${index}`} borderColor="#06164B" color="#06164B" variant="outline">
                       {role}
                     </Badge>
                   ))}
@@ -117,7 +119,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
 
         <ModalFooter>
           <Button bg="#06164B" color="white" _hover={{ bg: "#051244" }} onClick={onClose}>
-            Close
+            {t("USER_PROFILE_CLOSE_BUTTON")}
           </Button>
         </ModalFooter>
       </ModalContent>

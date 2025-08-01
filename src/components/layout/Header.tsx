@@ -14,7 +14,7 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { FiUser, FiLogOut} from "react-icons/fi";
+import { FiUser, FiLogOut } from "react-icons/fi";
 import Logo from "../../assets/Images/logo.png";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -240,6 +240,7 @@ const LanguageDropdown: React.FC = () => (
 
 // Simple and Compact User Profile Dropdown
 const UserProfileDropdown: React.FC = () => {
+  const { t } = useTranslation();
   const { getUserDisplayName, getUserOrganization } = useAuth();
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -321,7 +322,7 @@ const UserProfileDropdown: React.FC = () => {
             color="red.600"
             onClick={handleLogout}
           >
-            Sign Out
+            {t("HEADER_LOGOUT_BUTTON")}
           </MenuItem>
         </MenuList>
       </Menu>

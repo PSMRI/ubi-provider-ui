@@ -53,13 +53,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const isSuperAdmin = userRole === "Super Admin";
 
   const getUserDisplayName = () => {
-    if (!user) return "";
-    return `${user.firstname} ${user.lastname}`.trim();
+    return user ? `${user.firstname} ${user.lastname}`.trim() : "";
   };
 
   const getUserOrganization = () => {
-    if (!user || !user.s_roles || user.s_roles.length === 0) return "";
-    return user.s_roles[0];
+    return user?.s_roles?.[0] || "";
   };
 
   const authContextValue = useMemo(

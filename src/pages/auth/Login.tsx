@@ -117,7 +117,7 @@ export default function Login() {
               >
                 {t("LOGIN_TITLE")}
               </Text>
-              <FormControl id="email" mt={60}>
+              <FormControl id="username" mt={4}>
                 <Text fontSize={"16px"} fontWeight={400}>
                   {t("LOGIN_EMAIL_ID_LABEL")}
                 </Text>
@@ -134,7 +134,7 @@ export default function Login() {
                   <FormErrorMessage>{errors.username}</FormErrorMessage>
                 )}
               </FormControl>
-              <FormControl id="email" mt={60}>
+              <FormControl id="password" mt={4}>
                 <Text fontSize={"16px"} fontWeight={400}>
                   {t("LOGIN_PASSWORD_LABEL")}
                 </Text>
@@ -152,7 +152,7 @@ export default function Login() {
                 )}
               </FormControl>
 
-              <Stack spacing={6}>
+              <Stack spacing={6} mt={4}>
                 <Button
                   colorScheme={"blue"}
                   variant={"solid"}
