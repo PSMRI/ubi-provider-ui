@@ -41,9 +41,8 @@ const Header: React.FC<HeaderProps> = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  // Get user role from local storage
-
-  const { isSuperAdmin } = useAuth();
+  // Use logout from context instead of manual localStorage manipulation
+  const { isSuperAdmin, logout } = useAuth();
 
   // Array of menu names
   const menuNames = [
@@ -73,9 +72,8 @@ const Header: React.FC<HeaderProps> = ({
     {
       label: "Log out",
       onClick: () => {
-        localStorage.removeItem("token");
-        navigate("/");
-        window.location.reload();
+        // FIXED: Use context logout with 'manual' reason (no expiry message)
+        logout('manual');
       },
     },
   ];
