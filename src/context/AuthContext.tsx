@@ -4,7 +4,15 @@ import React, {
   useState,
   useEffect,
   useMemo,
+  useCallback,
 } from "react";
+
+interface User {
+  firstname?: string;
+  lastname?: string;
+  email?: string;
+  s_roles?: string[];
+}
 
 interface AuthContextType {
   userRole: string | null;
@@ -14,8 +22,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   getUserDisplayName: () => string;
   getUserOrganization: () => string;
-  setUser: (user: any) => void;
-  user: any;
+  setUser: (user: User | null) => void;
+ user: User | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const role = localStorage.getItem("userRole");
@@ -48,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const isAuthenticated = !!localStorage.getItem("token");
 
   // Centralized logout function that updates context and handles cleanup
-  const logout = (reason: 'expired' | 'unauthorized' | 'manual' = 'manual') => {
+  const logout = useCallback((reason: 'expired' | 'unauthorized' | 'manual' = 'manual') => {
     console.log(`Logout initiated: ${reason}`);
     
     // Update context state
@@ -61,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.removeItem("safeUserData");
     window.dispatchEvent(new Event("tokenChanged"));
     window.location.href = "/";
-  };
+  }, []);
 
   // Simple functions for user profile display (required by Header)
   const getUserDisplayName = () => {

@@ -2,6 +2,13 @@ import axios from "axios";
 import { createStandaloneToast } from '@chakra-ui/react';
 import i18n from 'i18next'; // Import i18n instance
 
+// Type augmentation for better type safety
+declare global {
+  interface Window {
+    authLogout?: (reason: 'expired' | 'unauthorized' | 'manual') => void;
+  }
+}
+
 // Create standalone toast (works outside React components)
 const { toast } = createStandaloneToast();
 
@@ -20,8 +27,8 @@ const handleTokenExpiry = () => {
   });
   
   // Call context logout if available, otherwise fallback to direct cleanup
-  if ((window as any).authLogout) {
-    (window as any).authLogout('expired');
+  if (window.authLogout) {
+    window.authLogout('expired');
   } else {
     // Fallback cleanup
     localStorage.removeItem("token");
