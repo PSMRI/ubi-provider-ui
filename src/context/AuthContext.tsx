@@ -45,7 +45,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (safeUserData) {
       try {
         const parsedUserData = JSON.parse(safeUserData);
-        setUser(parsedUserData);
+        // Validate the structure matches User interface
+        if (parsedUserData && typeof parsedUserData === 'object') {
+          const validatedUser: User = {
+            firstname: typeof parsedUserData.firstname === 'string' ? parsedUserData.firstname : undefined,
+            lastname: typeof parsedUserData.lastname === 'string' ? parsedUserData.lastname : undefined,
+            email: typeof parsedUserData.email === 'string' ? parsedUserData.email : undefined,
+            s_roles: Array.isArray(parsedUserData.s_roles) ? parsedUserData.s_roles : undefined,
+          };
+          setUser(validatedUser);
+        }
       } catch (error) {
         console.error("Error parsing user data:", error);
       }
