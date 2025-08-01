@@ -251,7 +251,7 @@ const UserProfileDropdown: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userRole");
-    localStorage.removeItem("userData");
+    localStorage.removeItem("safeUserData");
     navigate("/");
     window.location.reload();
   };

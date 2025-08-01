@@ -14,6 +14,12 @@ interface User {
   s_roles: string[];
 }
 
+// Safe user data that can be persisted in localStorage (non-sensitive)
+interface SafeUserData {
+  id: number;
+  s_roles: string[];
+}
+
 interface AuthContextType {
   userRole: string | null;
   setUserRole: (role: string) => void;
@@ -34,18 +40,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const role = localStorage.getItem("userRole");
-    const userData = localStorage.getItem("userData");
+    const safeUserData = localStorage.getItem("safeUserData");
     
     if (role) {
       setUserRole(role);
     }
     
-    if (userData) {
+    if (safeUserData) {
       try {
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
+        const parsedSafeData: SafeUserData = JSON.parse(safeUserData);
+        // Create a partial user object with only the safe data
+        const partialUser: Partial<User> = {
+          id: parsedSafeData.id,
+          s_roles: parsedSafeData.s_roles,
+          // Other fields (firstname, lastname, email) will be undefined
+          // but the app should handle this gracefully
+        };
+        setUser(partialUser as User);
       } catch (error) {
-        console.error("Error parsing user data:", error);
+        console.error("Error parsing safe user data:", error);
       }
     }
   }, []);
@@ -53,7 +66,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const isSuperAdmin = userRole === "Super Admin";
 
   const getUserDisplayName = () => {
-    return user ? `${user.firstname} ${user.lastname}`.trim() : "";
+    if (!user?.firstname && !user?.lastname) {
+      return "User"; // Fallback when personal info is not available
+    }
+    return user ? `${user.firstname || ""} ${user.lastname || ""}`.trim() : "";
   };
 
   const getUserOrganization = () => {

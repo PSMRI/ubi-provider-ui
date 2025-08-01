@@ -57,9 +57,13 @@ export default function Login() {
       if (loginResponse?.token) {
         localStorage.setItem("token", loginResponse?.token);
         
-        // Store complete user data
+        // Store only non-sensitive user data for security
         if (loginResponse?.user) {
-          localStorage.setItem("userData", JSON.stringify(loginResponse.user));
+          const safeUserData = {
+            id: loginResponse.user.id,
+            s_roles: loginResponse.user.s_roles
+          };
+          localStorage.setItem("safeUserData", JSON.stringify(safeUserData));
           setUser(loginResponse.user);
         }
         

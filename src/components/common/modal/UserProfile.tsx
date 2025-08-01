@@ -78,7 +78,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
                   </Text>
                 </HStack>
                 <Text fontSize="md" color="gray.800" pl={7}>
-                  {user.firstname} {user.lastname}
+                  {user.firstname && user.lastname 
+                    ? `${user.firstname} ${user.lastname}` 
+                    : getUserDisplayName() || t("USER_PROFILE_NAME_NOT_AVAILABLE")}
                 </Text>
               </Box>
 
@@ -91,7 +93,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
                   </Text>
                 </HStack>
                 <Text fontSize="md" color="gray.800" pl={7}>
-                  {user.email}
+                  {user.email || t("USER_PROFILE_EMAIL_NOT_AVAILABLE")}
                 </Text>
               </Box>
 
