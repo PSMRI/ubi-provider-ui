@@ -111,19 +111,19 @@ const BenefitApplicationForm: React.FC = () => {
     const getSchemaData = async () => {
       if (id) {
          const result = await getSchema(id);
-        // Extract relevant tags from the schema response
+        // Extract relevant tags from the schema response       
         const schemaTag =
-          result?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
+          result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
             (tag: any) => tag?.descriptor?.code === "applicationForm"
           );
 
         const documentTag =
-          result?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
+          result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
             (tag: any) => tag?.descriptor?.code === "required-docs"
           );
 
         const eligibilityTag =
-          result?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
+          result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
             (tag: any) => tag?.descriptor?.code === "eligibility"
           );
 
@@ -158,6 +158,7 @@ const BenefitApplicationForm: React.FC = () => {
     applicationFormSchema: any
   ) => {
     // Parse eligibility and document schema arrays
+   
     const eligSchemaStatic = eligibilityTag.list.map((item: EligibilityItem) =>
       JSON.parse(item.value)
     );
@@ -228,19 +229,28 @@ const BenefitApplicationForm: React.FC = () => {
     // Create UI order with fieldset grouping
     let uiOrder: string[] = [];
 
-    // Define the preferred group order
-    const groupOrder = ["personalDetails", "educationDetails", "documents"];
+    // Separate document groups from other groups
+    const documentGroups: string[] = [];
+    const otherGroups: string[] = [];
 
-    // Add grouped fields in preferred order
-    groupOrder.forEach((groupName) => {
+    Object.keys(fieldGroups).forEach((groupName) => {
+      if (groupName === "documents") {
+        documentGroups.push(groupName);
+      } else {
+        otherGroups.push(groupName);
+      }
+    });
+
+    // Add non-document groups first (in natural order)
+    otherGroups.forEach((groupName) => {
       if (fieldGroups[groupName]) {
         uiOrder = uiOrder.concat(fieldGroups[groupName].fields);
       }
     });
 
-    // Add any remaining grouped fields not in preferred order
-    Object.keys(fieldGroups).forEach((groupName) => {
-      if (!groupOrder.includes(groupName)) {
+    // Add document groups at the end
+    documentGroups.forEach((groupName) => {
+      if (fieldGroups[groupName]) {
         uiOrder = uiOrder.concat(fieldGroups[groupName].fields);
       }
     });
