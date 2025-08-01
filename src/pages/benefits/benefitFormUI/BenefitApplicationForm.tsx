@@ -111,9 +111,7 @@ const BenefitApplicationForm: React.FC = () => {
     const getSchemaData = async () => {
       if (id) {
          const result = await getSchema(id);
-        // Extract relevant tags from the schema response
-        console.log("result", result?.responses[0]);
-        
+        // Extract relevant tags from the schema response       
         const schemaTag =
           result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
             (tag: any) => tag?.descriptor?.code === "applicationForm"
