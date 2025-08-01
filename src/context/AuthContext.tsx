@@ -8,9 +8,9 @@ import React, {
 
 interface User {
   id: number;
-  firstname: string;
-  lastname: string;
-  email: string;
+  firstname?: string;
+  lastname?: string
+  email?: string;
   s_roles: string[];
 }
 
@@ -26,6 +26,7 @@ interface AuthContextType {
   isSuperAdmin: boolean;
   user: User | null;
   setUser: (user: User) => void;
+  setSafeUser: (safeData: SafeUserData) => void;
   getUserDisplayName: () => string;
   getUserOrganization: () => string;
 }
@@ -38,6 +39,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [userRole, setUserRole] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
+  // Function to set user from safe data (from localStorage)
+  const setSafeUser = (safeData: SafeUserData) => {
+    const safeUser: User = {
+      id: safeData.id,
+      s_roles: safeData.s_roles,
+      // firstname, lastname, email will be undefined
+    };
+    setUser(safeUser);
+  };
+
   useEffect(() => {
     const role = localStorage.getItem("userRole");
     const safeUserData = localStorage.getItem("safeUserData");
@@ -49,14 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (safeUserData) {
       try {
         const parsedSafeData: SafeUserData = JSON.parse(safeUserData);
-        // Create a partial user object with only the safe data
-        const partialUser: Partial<User> = {
-          id: parsedSafeData.id,
-          s_roles: parsedSafeData.s_roles,
-          // Other fields (firstname, lastname, email) will be undefined
-          // but the app should handle this gracefully
-        };
-        setUser(partialUser as User);
+        setSafeUser(parsedSafeData);
       } catch (error) {
         console.error("Error parsing safe user data:", error);
       }
@@ -66,10 +70,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const isSuperAdmin = userRole === "Super Admin";
 
   const getUserDisplayName = () => {
-    if (!user?.firstname && !user?.lastname) {
+    if (!user) return "";
+    if (!user.firstname && !user.lastname) {
       return "User"; // Fallback when personal info is not available
     }
-    return user ? `${user.firstname || ""} ${user.lastname || ""}`.trim() : "";
+    return `${user.firstname || ""} ${user.lastname || ""}`.trim();
   };
 
   const getUserOrganization = () => {
@@ -83,6 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       isSuperAdmin,
       user,
       setUser,
+      setSafeUser,
       getUserDisplayName,
       getUserOrganization,
     }),
