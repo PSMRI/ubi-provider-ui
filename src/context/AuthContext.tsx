@@ -34,30 +34,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [userRole, setUserRole] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
+  // Helper function to parse and validate user data
+  const parseAndValidateUserData = (safeUserData: string | null): User | null => {
+    if (!safeUserData) return null;
+    try {
+      const parsedUserData = JSON.parse(safeUserData);
+      if (parsedUserData && typeof parsedUserData === 'object') {
+        return {
+          firstname: typeof parsedUserData.firstname === 'string' ? parsedUserData.firstname : undefined,
+          lastname: typeof parsedUserData.lastname === 'string' ? parsedUserData.lastname : undefined,
+          email: typeof parsedUserData.email === 'string' ? parsedUserData.email : undefined,
+          s_roles: Array.isArray(parsedUserData.s_roles) ? parsedUserData.s_roles : undefined,
+        };
+      }
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+    }
+    return null;
+  };
+
   useEffect(() => {
     const role = localStorage.getItem("userRole");
-    const safeUserData = localStorage.getItem("safeUserData");
-    
     if (role) {
       setUserRole(role);
     }
-    
-    if (safeUserData) {
-      try {
-        const parsedUserData = JSON.parse(safeUserData);
-        // Validate the structure matches User interface
-        if (parsedUserData && typeof parsedUserData === 'object') {
-          const validatedUser: User = {
-            firstname: typeof parsedUserData.firstname === 'string' ? parsedUserData.firstname : undefined,
-            lastname: typeof parsedUserData.lastname === 'string' ? parsedUserData.lastname : undefined,
-            email: typeof parsedUserData.email === 'string' ? parsedUserData.email : undefined,
-            s_roles: Array.isArray(parsedUserData.s_roles) ? parsedUserData.s_roles : undefined,
-          };
-          setUser(validatedUser);
-        }
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-      }
+
+    const safeUserData = localStorage.getItem("safeUserData");
+    const validatedUser = parseAndValidateUserData(safeUserData);
+    if (validatedUser) {
+      setUser(validatedUser);
     }
   }, []);
 
