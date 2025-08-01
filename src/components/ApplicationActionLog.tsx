@@ -64,10 +64,10 @@ const getStatusIcon = (status: string) => {
     case "rejected":
       return <CloseIcon color="red.500" />;
     case "resubmit":
-      return <RepeatIcon color="orange.500" />;
+      return <RepeatIcon color="blue.500" />;
     case "application_submitted":
     case "application_resubmitted":
-      return <EditIcon color="blue.500" />;
+      return <EditIcon color="orange.500" />;
     default:
       return <TimeIcon color="gray.500" />;
   }
@@ -82,7 +82,7 @@ const getStatusColor = (status: string): string => {
       return "red";
     case "resubmit":
       return "blue";
-    case "submit":
+    case "application_resubmitted":
     case "application_submitted":
       return "orange";
     default:
@@ -97,6 +97,8 @@ const getStatusDisplayText = (status: string): string => {
       return "Asked for resubmit";
     case "application_submitted":
       return "Application Submitted";
+    case "application_resubmitted":
+      return "Application Resubmitted";
     default:
       return status.charAt(0).toUpperCase() + status.slice(1);
   }
