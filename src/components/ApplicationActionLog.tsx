@@ -197,7 +197,7 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
 
     actionLogEntries.forEach((entry) => {
       const reviewerComment =
-        entry.remark || `Application status changed to ${entry.status}`;
+        entry.remark;
       
       const item = {
         date: entry.updatedAt,
