@@ -95,11 +95,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Make logout available globally for API interceptor
   useEffect(() => {
-    (window as any).authLogout = logout;
+    window.authLogout = logout;
     return () => {
-      delete (window as any).authLogout;
+      delete window.authLogout;
     };
-  }, [logout]);
+  }, []); // Empty deps since logout is stable (useCallback with empty deps)
 
   const authContextValue = useMemo(
     () => ({
