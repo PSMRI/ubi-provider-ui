@@ -6,29 +6,16 @@ import React, {
   useMemo,
 } from "react";
 
-interface User {
-  id: number;
-  firstname?: string;
-  lastname?: string
-  email?: string;
-  s_roles: string[];
-}
-
-// Safe user data that can be persisted in localStorage (non-sensitive)
-interface SafeUserData {
-  id: number;
-  s_roles: string[];
-}
-
 interface AuthContextType {
   userRole: string | null;
   setUserRole: (role: string) => void;
   isSuperAdmin: boolean;
-  user: User | null;
-  setUser: (user: User) => void;
-  setSafeUser: (safeData: SafeUserData) => void;
+  logout: (reason?: 'expired' | 'unauthorized' | 'manual') => void;
+  isAuthenticated: boolean;
   getUserDisplayName: () => string;
   getUserOrganization: () => string;
+  setUser: (user: any) => void;
+  user: any;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,17 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-
-  // Function to set user from safe data (from localStorage)
-  const setSafeUser = (safeData: SafeUserData) => {
-    const safeUser: User = {
-      id: safeData.id,
-      s_roles: safeData.s_roles,
-      // firstname, lastname, email will be undefined
-    };
-    setUser(safeUser);
-  };
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const role = localStorage.getItem("userRole");
@@ -59,40 +36,76 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     
     if (safeUserData) {
       try {
-        const parsedSafeData: SafeUserData = JSON.parse(safeUserData);
-        setSafeUser(parsedSafeData);
+        const parsedUserData = JSON.parse(safeUserData);
+        setUser(parsedUserData);
       } catch (error) {
-        console.error("Error parsing safe user data:", error);
+        console.error("Error parsing user data:", error);
       }
     }
   }, []);
 
   const isSuperAdmin = userRole === "Super Admin";
+  const isAuthenticated = !!localStorage.getItem("token");
 
+  // Centralized logout function that updates context and handles cleanup
+  const logout = (reason: 'expired' | 'unauthorized' | 'manual' = 'manual') => {
+    console.log(`Logout initiated: ${reason}`);
+    
+    // Update context state
+    setUserRole(null);
+    setUser(null);
+    
+    // Clear storage and redirect for all logout scenarios
+    localStorage.removeItem("token");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("safeUserData");
+    window.dispatchEvent(new Event("tokenChanged"));
+    window.location.href = "/";
+  };
+
+  // Simple functions for user profile display (required by Header)
   const getUserDisplayName = () => {
-    if (!user) return "";
-    if (!user.firstname && !user.lastname) {
-      return "User"; // Fallback when personal info is not available
+    if (!user) return "User";
+
+    // Try to build name from firstname and lastname
+    const fullName = `${user.firstname || ""} ${user.lastname || ""}`.trim();
+    if (fullName) return fullName;
+
+    // Fallback to email username part
+    if (user.email) {
+      const emailUsername = user.email.split('@')[0];
+      return emailUsername.charAt(0).toUpperCase() + emailUsername.slice(1);
     }
-    return `${user.firstname || ""} ${user.lastname || ""}`.trim();
+
+    // Final fallback
+    return "User";
   };
 
   const getUserOrganization = () => {
-    return user?.s_roles?.[0] || "";
+    return user?.s_roles?.[0] || userRole || "";
   };
+
+  // Make logout available globally for API interceptor
+  useEffect(() => {
+    (window as any).authLogout = logout;
+    return () => {
+      delete (window as any).authLogout;
+    };
+  }, [logout]);
 
   const authContextValue = useMemo(
     () => ({
       userRole,
       setUserRole,
       isSuperAdmin,
-      user,
-      setUser,
-      setSafeUser,
+      logout,
+      isAuthenticated,
       getUserDisplayName,
       getUserOrganization,
+      setUser,
+      user,
     }),
-    [userRole, isSuperAdmin, user] // only re-compute if these change
+    [userRole, isSuperAdmin, isAuthenticated, user]
   );
 
   return (

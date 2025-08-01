@@ -29,12 +29,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
   const { user, getUserDisplayName, getUserOrganization } = useAuth();
 
-  if (!user) {
-    return null;
-  }
-
-  const userName = getUserDisplayName();
-  const userOrg = getUserOrganization();
+  const userName = getUserDisplayName() || "User";
+  const userOrg = getUserOrganization() || "";
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
@@ -78,9 +74,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
                   </Text>
                 </HStack>
                 <Text fontSize="md" color="gray.800" pl={7}>
-                  {user.firstname && user.lastname 
+                  {user?.firstname && user?.lastname
                     ? `${user.firstname} ${user.lastname}` 
-                    : getUserDisplayName() || t("USER_PROFILE_NAME_NOT_AVAILABLE")}
+                    : userName || t("USER_PROFILE_NAME_NOT_AVAILABLE")}
                 </Text>
               </Box>
 
@@ -93,7 +89,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
                   </Text>
                 </HStack>
                 <Text fontSize="md" color="gray.800" pl={7}>
-                  {user.email || t("USER_PROFILE_EMAIL_NOT_AVAILABLE")}
+                  {user?.email || t("USER_PROFILE_EMAIL_NOT_AVAILABLE")}
                 </Text>
               </Box>
 
@@ -106,11 +102,15 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
                   </Text>
                 </HStack>
                 <HStack spacing={2} pl={7}>
-                  {user.s_roles.map((role, index) => (
+                  {user?.s_roles?.map((role: string, index: number) => (
                     <Badge key={`role-${role}-${index}`} borderColor="#06164B" color="#06164B" variant="outline">
                       {role}
                     </Badge>
-                  ))}
+                  )) || (
+                    <Text fontSize="sm" color="gray.500">
+                      {userOrg || t("USER_PROFILE_ROLE_NOT_AVAILABLE")}
+                    </Text>
+                  )}
                 </HStack>
               </Box>
 

@@ -45,6 +45,8 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  // Use isSuperAdmin from context for filtering menu items
   const { isSuperAdmin } = useAuth();
 
   // Updated menu names - remove logout from here since it's now in user dropdown
@@ -241,19 +243,14 @@ const LanguageDropdown: React.FC = () => (
 // Simple and Compact User Profile Dropdown
 const UserProfileDropdown: React.FC = () => {
   const { t } = useTranslation();
-  const { getUserDisplayName, getUserOrganization } = useAuth();
-  const navigate = useNavigate();
+  const { getUserDisplayName, getUserOrganization, logout } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   
   const userName = getUserDisplayName();
   const userOrg = getUserOrganization();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("safeUserData");
-    navigate("/");
-    window.location.reload();
+    logout('manual'); // Use context logout with manual reason
   };
 
   const handleProfileClick = () => {
@@ -264,9 +261,9 @@ const UserProfileDropdown: React.FC = () => {
     setIsProfileOpen(false);
   };
 
-  if (!userName && !userOrg) {
-    return null;
-  }
+  // Always show the dropdown, even if user data is not available
+  const displayName = userName || "User";
+  const displayOrg = userOrg || "";
 
   return (
     <>
@@ -284,7 +281,7 @@ const UserProfileDropdown: React.FC = () => {
         >
           <Avatar
             size="sm"
-            name={userName}
+            name={displayName}
             bg="#06164B"
             color="white"
             fontSize="xs"
@@ -296,11 +293,11 @@ const UserProfileDropdown: React.FC = () => {
           {/* User Info Header - Compact */}
           <Box px={3} py={2} bg="gray.50">
             <Text fontSize="sm" fontWeight="medium" color="gray.800" noOfLines={1}>
-              {userName}
+              {displayName}
             </Text>
-            {userOrg && (
+            {displayOrg && (
               <Text fontSize="xs" color="gray.600" noOfLines={1}>
-                {userOrg}
+                {displayOrg}
               </Text>
             )}
           </Box>

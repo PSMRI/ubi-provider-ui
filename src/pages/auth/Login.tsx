@@ -61,7 +61,10 @@ export default function Login() {
         if (loginResponse?.user) {
           const safeUserData = {
             id: loginResponse.user.id,
-            s_roles: loginResponse.user.s_roles
+            s_roles: loginResponse.user.s_roles,
+            firstname: loginResponse.user.firstname,
+            lastname: loginResponse.user.lastname,
+            email: loginResponse.user.email
           };
           localStorage.setItem("safeUserData", JSON.stringify(safeUserData));
           setUser(loginResponse.user);
@@ -80,12 +83,13 @@ export default function Login() {
         navigate("/", { replace: true });
       } else {
         setIsLoading(false);
-        setMessage(loginResponse?.response?.data?.error_description);
+        const errorDesc = loginResponse?.response?.data?.error_description;
+        setMessage(typeof errorDesc === 'string' ? errorDesc : 'Login failed. Please try again.');
         setShowAlert(true);
       }
     } catch (err) {
       setIsLoading(false);
-      setMessage(err as string);
+      setMessage(err instanceof Error ? err.message : String(err));
       setShowAlert(true);
     }
   };
