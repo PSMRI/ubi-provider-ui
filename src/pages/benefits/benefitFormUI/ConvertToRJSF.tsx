@@ -40,9 +40,11 @@ interface RequiredDoc {
   documentType: string; // Added to track document type
 }
 
-// Convert application form fields to RJSF schema
+// Convert application form fields to RJSF schema with fieldset support
 export const convertApplicationFormFields = (
-  applicationForm: ApplicationFormField[]
+  groupedFields:
+    | Record<string, { label: string; fields: ApplicationFormField[] }>
+    | ApplicationFormField[]
 ) => {
   // Initialize the RJSF schema object
   const rjsfSchema: any = {
@@ -51,40 +53,73 @@ export const convertApplicationFormFields = (
     properties: {},
   };
 
-  // Iterate over each application form field and build its schema
-  applicationForm.forEach((field) => {
-    // Build the schema for each field
-    let fieldSchema: any = {
-      type: "string",
-      title: field.label,
-    };
-
-    // Handle specific field validations
-    if (field.name === "bankAccountNumber") {
-      fieldSchema.minLength = 9;
-      fieldSchema.maxLength = 18;
-      fieldSchema.pattern = "^[0-9]+$";
-    } else if (field.name === "bankIfscCode") {
-      fieldSchema.pattern = "^[A-Z]{4}0[A-Z0-9]{6}$";
-      fieldSchema.title = field.label || "Enter valid IFSC code";
-    }
-
-    // Handle radio/select fields with options
-    if (field.type === "radio" || field.type === "select") {
-      fieldSchema.enum = field.options?.map((option) => option.value);
-      fieldSchema.enumNames = field.options?.map((option) => option.label);
-    }
-
-    // Mark field as required if applicable
-    if (field.required) {
-      fieldSchema.required = true;
-    }
-
-    // Add the field schema to the properties
-    rjsfSchema.properties[field.name] = fieldSchema;
-  });
+  // Handle both grouped and flat field structures for backward compatibility
+  if (Array.isArray(groupedFields)) {
+    // Flat structure - process fields directly
+    groupedFields.forEach((field) => {
+      const fieldSchema = createFieldSchema(field);
+      rjsfSchema.properties[field.name] = fieldSchema;
+    });
+  } else {
+    // Grouped structure - process each group
+    Object.entries(groupedFields).forEach(([groupName, groupData]) => {
+      // Add group metadata to uiSchema for rendering fieldsets
+      groupData.fields.forEach((field) => {
+        const fieldSchema = createFieldSchema(field);
+        // Add group metadata to field schema for UI rendering
+        fieldSchema.fieldGroup = {
+          groupName,
+          groupLabel: groupData.label,
+        };
+        rjsfSchema.properties[field.name] = fieldSchema;
+      });
+    });
+  }
 
   return rjsfSchema;
+};
+
+// Helper function to create individual field schema
+const createFieldSchema = (field: ApplicationFormField) => {
+  // Build the schema for each field
+  let fieldSchema: any = {
+    type: "string",
+    title: field.label,
+  };
+
+  // Handle specific field validations
+  if (field.name === "bankAccountNumber") {
+    fieldSchema.minLength = 9;
+    fieldSchema.maxLength = 18;
+    fieldSchema.pattern = "^[0-9]+$";
+  } else if (field.name === "bankIfscCode") {
+    fieldSchema.pattern = "^[A-Z]{4}0[A-Z0-9]{6}$";
+    fieldSchema.title = field.label || "Enter valid IFSC code";
+  } else if (field.name === "email") {
+    fieldSchema.pattern = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
+    fieldSchema.title = field.label || "Enter valid email address";
+  } else if (field.name === "phone") {
+    fieldSchema.pattern = "^\\+91[6-9]\\d{9}$";
+    fieldSchema.title =
+      field.label || "Enter valid phone number (+91XXXXXXXXXX)";
+  } else if (field.name === "dateOfBirth") {
+    fieldSchema.type = "string";
+    fieldSchema.format = "date";
+    fieldSchema.title = field.label || "Date of Birth";
+  }
+
+  // Handle radio/select fields with options
+  if (field.type === "radio" || field.type === "select") {
+    fieldSchema.enum = field.options?.map((option) => option.value);
+    fieldSchema.enumNames = field.options?.map((option) => option.label);
+  }
+
+  // Mark field as required if applicable
+  if (field.required) {
+    fieldSchema.required = true;
+  }
+
+  return fieldSchema;
 };
 
 // Helper function to create enum values and names from documents
@@ -276,13 +311,21 @@ export const convertDocumentFields = (
       } else {
         fieldLabel = `Choose document for ${criteriaNames.join(", ")}`;
       }
-      schema.properties![fieldName] = createDocumentFieldSchema(
+      const documentField = createDocumentFieldSchema(
         fieldLabel,
         true,
         enumValues,
         enumNames,
         allowedProofsLabel
       );
+
+      // Add field group metadata for documents
+      documentField.fieldGroup = {
+        groupName: "documents",
+        groupLabel: "Documents",
+      };
+
+      schema.properties![fieldName] = documentField;
 
       requiredFields.push(fieldName);
     } else {
@@ -298,14 +341,21 @@ export const convertDocumentFields = (
 
           // Find document type from required docs if available
 
-          schema.properties![`${criteria.name}_doc`] =
-            createDocumentFieldSchema(
-              `Choose document for ${criteria.name}`,
-              true,
-              enumValues,
-              enumNames,
-              allowedProofsLabel
-            );
+          const documentField = createDocumentFieldSchema(
+            `Choose document for ${criteria.name}`,
+            true,
+            enumValues,
+            enumNames,
+            allowedProofsLabel
+          );
+
+          // Add field group metadata for documents
+          documentField.fieldGroup = {
+            groupName: "documents",
+            groupLabel: "Documents",
+          };
+
+          schema.properties![`${criteria.name}_doc`] = documentField;
 
           requiredFields.push(`${criteria.name}_doc`);
         } else {
@@ -315,14 +365,21 @@ export const convertDocumentFields = (
             const [proofEnumValues, proofEnumNames] =
               createDocumentEnums(proofDocs);
 
-            schema.properties![`${criteria.name}_${proof}_doc`] =
-              createDocumentFieldSchema(
-                `Choose document for ${criteria.name}`,
-                true,
-                proofEnumValues,
-                proofEnumNames,
-                proof
-              );
+            const documentField = createDocumentFieldSchema(
+              `Choose document for ${criteria.name}`,
+              true,
+              proofEnumValues,
+              proofEnumNames,
+              proof
+            );
+
+            // Add field group metadata for documents
+            documentField.fieldGroup = {
+              groupName: "documents",
+              groupLabel: "Documents",
+            };
+
+            schema.properties![`${criteria.name}_${proof}_doc`] = documentField;
 
             requiredFields.push(`${criteria.name}_${proof}_doc`);
           });
@@ -359,13 +416,21 @@ export const convertDocumentFields = (
       const [enumValues, enumNames] = createDocumentEnums(proofDocs);
 
       // Include the document type in the label for fields coming from requiredDocsArr
-      schema.properties![proof] = createDocumentFieldSchema(
+      const documentField = createDocumentFieldSchema(
         `Choose document for ${doc.documentType}`,
         !!doc.isRequired,
         enumValues,
         enumNames,
         proof // Pass the document type to be included in the label
       );
+
+      // Add field group metadata for documents
+      documentField.fieldGroup = {
+        groupName: "documents",
+        groupLabel: "Documents",
+      };
+
+      schema.properties![proof] = documentField;
       //Choose document for idProof (otrCertificate)
       if (doc.isRequired) requiredFields.push(proof);
     });
@@ -395,11 +460,9 @@ export const extractUserDataForSchema = (
   }
 
   // Ensure external_application_id is added if it exists in formData
-  if ('external_application_id' in formData) {
-    result['orderId'] = String(formData['external_application_id']);
+  if ("external_application_id" in formData) {
+    result["orderId"] = String(formData["external_application_id"]);
   }
-
 
   return result;
 };
-

@@ -8,12 +8,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import CommonButton from "../../../components/common/buttons/SubmitButton";
 import Loading from "../../../components/common/Loading";
+import FormAccessibilityProvider from "../../../components/common/form/FormAccessibilityProvider";
 import { getSchema, submitForm } from "../../../services/benefits";
 import {
   convertApplicationFormFields,
   convertDocumentFields,
   extractUserDataForSchema,
 } from "./ConvertToRJSF";
+
 
 const Form = withTheme(ChakraTheme);
 const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
@@ -47,6 +49,27 @@ const BenefitApplicationForm: React.FC = () => {
   const [uiSchema, setUiSchema] = useState({});
   const [reviewerComment, setReviewerComment] = useState<string | null>(null);
 
+  // Helper function to group form fields by fieldsGroupName
+  const groupFieldsByGroup = (benefit: any) => {
+    const groups: Record<string, { label: string; fields: any[] }> = {};
+
+    benefit.forEach((field: any) => {
+      const groupName = field.fieldsGroupName || "default";
+      const groupLabel = field.fieldsGroupLabel || "Form Fields";
+
+      if (!groups[groupName]) {
+        groups[groupName] = {
+          label: groupLabel,
+          fields: [],
+        };
+      }
+
+      groups[groupName].fields.push(field);
+    });
+
+    return groups;
+  };
+
   useEffect(() => {
     // Fetch and process schema data when id changes
     const getApplicationSchemaData = async (
@@ -56,8 +79,12 @@ const BenefitApplicationForm: React.FC = () => {
       eligibilityTag: any
     ) => {
       if (benefit) {
-        // Convert application form fields to RJSF schema
-        const applicationFormSchema = convertApplicationFormFields(benefit);
+        // Parse and group application form fields by fieldsGroupName
+        const groupedFields = groupFieldsByGroup(benefit);
+
+        // Convert grouped application form fields to RJSF schema with fieldsets
+        const applicationFormSchema =
+          convertApplicationFormFields(groupedFields);
 
         const prop = applicationFormSchema?.properties;
 
@@ -83,27 +110,28 @@ const BenefitApplicationForm: React.FC = () => {
     // Fetch schema from API
     const getSchemaData = async () => {
       if (id) {
-        const result = await getSchema(id);
-        // Extract relevant tags from the schema response
+         const result = await getSchema(id);
+        // Extract relevant tags from the schema response       
         const schemaTag =
-          result?.responses?.[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
+          result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
             (tag: any) => tag?.descriptor?.code === "applicationForm"
           );
 
         const documentTag =
-          result?.responses?.[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
+          result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
             (tag: any) => tag?.descriptor?.code === "required-docs"
           );
 
         const eligibilityTag =
-          result?.responses?.[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
+          result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
             (tag: any) => tag?.descriptor?.code === "eligibility"
           );
 
         // Parse application form fields
-        const parsedValues = schemaTag.list.map((item: EligibilityItem) =>
-          JSON.parse(item.value)
-        );
+        const parsedValues =
+          schemaTag?.list?.map((item: EligibilityItem) =>
+            JSON.parse(item.value)
+          ) || [];
 
         // Use window.name for pre-filled data if available
         const useData = window.name ? JSON.parse(window.name) : null;
@@ -130,6 +158,7 @@ const BenefitApplicationForm: React.FC = () => {
     applicationFormSchema: any
   ) => {
     // Parse eligibility and document schema arrays
+   
     const eligSchemaStatic = eligibilityTag.list.map((item: EligibilityItem) =>
       JSON.parse(item.value)
     );
@@ -173,28 +202,86 @@ const BenefitApplicationForm: React.FC = () => {
     console.log("allschema", allSchema);
     setFormSchema(allSchema);
 
-    // --- ORDERING AND HEADING FOR DOCUMENT FIELDS ---
-    // Get field names for application and document fields
+    // --- FIELDSET GROUPING AND ORDERING ---
     const appFieldNames = Object.keys(applicationFormSchema?.properties ?? {});
     const docFieldNames = Object.keys(docSchemaData?.properties ?? {});
-    // Remove any app fields that are also document fields
-    const appOnlyFields = appFieldNames.filter(
-      (name) => !docFieldNames.includes(name)
-    );
-    // The final order: all app-only fields, then all document fields (including overlaps)
-    let uiOrder: string[] = [...appOnlyFields];
-    if (docFieldNames.length > 0) {
-      uiOrder.push("__doc_section_heading__");
-      uiOrder = uiOrder.concat(docFieldNames);
-    }
-    // Build the uiSchema with a heading/divider for document fields
+    const allFieldNames = [...appFieldNames, ...docFieldNames];
+
+    // Group all fields (application + document) by their fieldGroup metadata
+    const fieldGroups: Record<string, { label: string; fields: string[] }> = {};
+    const ungroupedFields: string[] = [];
+
+    allFieldNames.forEach((fieldName) => {
+      const fieldSchema = allSchema.properties[fieldName];
+      if (fieldSchema?.fieldGroup) {
+        const groupName = fieldSchema.fieldGroup.groupName;
+        const groupLabel = fieldSchema.fieldGroup.groupLabel;
+
+        if (!fieldGroups[groupName]) {
+          fieldGroups[groupName] = { label: groupLabel, fields: [] };
+        }
+        fieldGroups[groupName].fields.push(fieldName);
+      } else {
+        ungroupedFields.push(fieldName);
+      }
+    });
+
+    // Create UI order with fieldset grouping
+    let uiOrder: string[] = [];
+
+    // Separate document groups from other groups
+    const documentGroups: string[] = [];
+    const otherGroups: string[] = [];
+
+    Object.keys(fieldGroups).forEach((groupName) => {
+      if (groupName === "documents") {
+        documentGroups.push(groupName);
+      } else {
+        otherGroups.push(groupName);
+      }
+    });
+
+    // Add non-document groups first (in natural order)
+    otherGroups.forEach((groupName) => {
+      if (fieldGroups[groupName]) {
+        uiOrder = uiOrder.concat(fieldGroups[groupName].fields);
+      }
+    });
+
+    // Add document groups at the end
+    documentGroups.forEach((groupName) => {
+      if (fieldGroups[groupName]) {
+        uiOrder = uiOrder.concat(fieldGroups[groupName].fields);
+      }
+    });
+
+    // Add ungrouped fields at the end
+    uiOrder = uiOrder.concat(ungroupedFields);
+
+    // Build the uiSchema with fieldset configuration
     const uiSchema: any = {
       "ui:order": uiOrder,
     };
 
+    // Add fieldset configuration for grouped fields
+    Object.entries(fieldGroups).forEach(([groupName, group]) => {
+      group.fields.forEach((fieldName, index) => {
+        uiSchema[fieldName] = {
+          ...uiSchema[fieldName],
+          "ui:group": groupName,
+          "ui:groupLabel": group.label,
+          "ui:groupFirst": index === 0, // Mark first field in group
+        };
+      });
+    });
+
+    console.log("Final UI Schema:", uiSchema);
+
     setUiSchema(uiSchema);
     // --- END ORDERING ---
   };
+
+  // Note: Field grouping and accessibility styling is now handled by FormAccessibilityProvider
 
   // Handle form data change
   const handleChange = ({ formData }: any) => {
@@ -261,7 +348,7 @@ const BenefitApplicationForm: React.FC = () => {
             backdropFilter="blur(10px)" // apply blur to what's behind
             zIndex={9}
             height={"18%"}
-            mb={"18%"}
+            mb={"10%"}
           />
 
           {/* Fixed Reviewer Comment Box */}
@@ -279,30 +366,36 @@ const BenefitApplicationForm: React.FC = () => {
             mx={4}
             mt={4}
           >
-            <Text fontWeight="bold" color="orange.800">
+            <Text as="p" fontWeight="bold" color="orange.800">
               Reviewer Comment:
             </Text>
-            <Text mt={2} color="orange.700">
+            <Text as="p" mt={2} color="orange.700">
               {reviewerComment}
             </Text>
           </Box>
         </>
       )}
 
-      <Form
-        ref={formRef}
-        showErrorList={false}
-        focusOnFirstError
-        noHtml5Validate
-        schema={formSchema as JSONSchema7}
-        validator={validator}
-        formData={formData}
-        onChange={handleChange}
-        onSubmit={handleFormSubmit}
-        templates={{ ButtonTemplates: { SubmitButton } }}
-        extraErrors={extraErrors}
+      <FormAccessibilityProvider
+        formRef={formRef}
         uiSchema={uiSchema}
-      />
+        formSchema={formSchema}
+      >
+        <Form
+          ref={formRef}
+          showErrorList={false}
+          focusOnFirstError
+          noHtml5Validate
+          schema={formSchema as JSONSchema7}
+          validator={validator}
+          formData={formData}
+          onChange={handleChange}
+          onSubmit={handleFormSubmit}
+          templates={{ ButtonTemplates: { SubmitButton } }}
+          extraErrors={extraErrors}
+          uiSchema={uiSchema}
+        />
+      </FormAccessibilityProvider>
       <CommonButton
         label="Submit Form"
         isDisabled={disableSubmit}
