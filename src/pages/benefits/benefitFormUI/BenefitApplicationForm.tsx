@@ -112,18 +112,20 @@ const BenefitApplicationForm: React.FC = () => {
       if (id) {
          const result = await getSchema(id);
         // Extract relevant tags from the schema response
+        console.log("result", result?.responses[0]);
+        
         const schemaTag =
-          result?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
+          result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
             (tag: any) => tag?.descriptor?.code === "applicationForm"
           );
 
         const documentTag =
-          result?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
+          result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
             (tag: any) => tag?.descriptor?.code === "required-docs"
           );
 
         const eligibilityTag =
-          result?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
+          result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
             (tag: any) => tag?.descriptor?.code === "eligibility"
           );
 
@@ -228,25 +230,20 @@ const BenefitApplicationForm: React.FC = () => {
     // Create UI order with fieldset grouping
     let uiOrder: string[] = [];
 
-    // Define the preferred group order
-    const groupOrder = ["personalDetails", "educationDetails", "documents"];
-
-    // Add grouped fields in preferred order
-    groupOrder.forEach((groupName) => {
-      if (fieldGroups[groupName]) {
-        uiOrder = uiOrder.concat(fieldGroups[groupName].fields);
-      }
-    });
-
-    // Add any remaining grouped fields not in preferred order
+    // Add all grouped fields except documents first (in natural order)
     Object.keys(fieldGroups).forEach((groupName) => {
-      if (!groupOrder.includes(groupName)) {
+      if (groupName !== "documents") {
         uiOrder = uiOrder.concat(fieldGroups[groupName].fields);
       }
     });
 
-    // Add ungrouped fields at the end
+    // Add ungrouped fields
     uiOrder = uiOrder.concat(ungroupedFields);
+
+    // Add document fields at the end
+    if (fieldGroups["documents"]) {
+      uiOrder = uiOrder.concat(fieldGroups["documents"].fields);
+    }
 
     // Build the uiSchema with fieldset configuration
     const uiSchema: any = {
