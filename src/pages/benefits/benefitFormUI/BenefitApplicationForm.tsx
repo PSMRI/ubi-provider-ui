@@ -160,6 +160,7 @@ const BenefitApplicationForm: React.FC = () => {
     applicationFormSchema: any
   ) => {
     // Parse eligibility and document schema arrays
+   
     const eligSchemaStatic = eligibilityTag.list.map((item: EligibilityItem) =>
       JSON.parse(item.value)
     );
@@ -230,20 +231,34 @@ const BenefitApplicationForm: React.FC = () => {
     // Create UI order with fieldset grouping
     let uiOrder: string[] = [];
 
-    // Add all grouped fields except documents first (in natural order)
+    // Separate document groups from other groups
+    const documentGroups: string[] = [];
+    const otherGroups: string[] = [];
+
     Object.keys(fieldGroups).forEach((groupName) => {
-      if (groupName !== "documents") {
+      if (groupName === "documents") {
+        documentGroups.push(groupName);
+      } else {
+        otherGroups.push(groupName);
+      }
+    });
+
+    // Add non-document groups first (in natural order)
+    otherGroups.forEach((groupName) => {
+      if (fieldGroups[groupName]) {
         uiOrder = uiOrder.concat(fieldGroups[groupName].fields);
       }
     });
 
-    // Add ungrouped fields
-    uiOrder = uiOrder.concat(ungroupedFields);
+    // Add document groups at the end
+    documentGroups.forEach((groupName) => {
+      if (fieldGroups[groupName]) {
+        uiOrder = uiOrder.concat(fieldGroups[groupName].fields);
+      }
+    });
 
-    // Add document fields at the end
-    if (fieldGroups["documents"]) {
-      uiOrder = uiOrder.concat(fieldGroups["documents"].fields);
-    }
+    // Add ungrouped fields at the end
+    uiOrder = uiOrder.concat(ungroupedFields);
 
     // Build the uiSchema with fieldset configuration
     const uiSchema: any = {

@@ -110,6 +110,7 @@ export const userRegister = async (otp: number, email: string) => {
     console.log(error);
   }
 };
+
 export const getRoles = async () => {
   try {
     const response = await apiClient.get("/strapi-admin/roles");
@@ -144,21 +145,11 @@ export const createUser = async (
 };
 
 export const createRole = async (name: string, description: string) => {
-  const token = localStorage.getItem("token");
   try {
-    const response = await axios.post(
-      `${apiUrl}/strapi-admin/roles`,
-      {
-        name,
-        description,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await apiClient.post("/strapi-admin/roles", {
+      name,
+      description,
+    });
     return response.data;
   } catch (error) {
     console.error("Error creating role:", error);

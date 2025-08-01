@@ -1,16 +1,43 @@
 import React from "react";
 import { Table, DataType } from "ka-table";
+import { Box, Text, VStack } from "@chakra-ui/react";
 import "ka-table/style.css";
+
+// Field interface
+interface Field {
+  name: string;
+  label: string;
+  type?: string;
+  options?: { label: string; value: string | number | boolean }[];
+}
+
+// Group interface for new format
+interface FieldGroup {
+  id: number;
+  fieldsGroupName: string;
+  fieldsGroupLabel: string;
+  fields: Field[];
+}
+
+// Processed data interface
+interface ProcessedGroup {
+  groupLabel: string | null;
+  data: TableRow[];
+  groupId?: string;
+}
+
+// Table row interface
+interface TableRow {
+  col1Label: string;
+  col1Value: string;
+  col2Label?: string;
+  col2Value?: string;
+}
 
 // Props interface for the component
 interface ApplicationInfoProps {
   data: { [key: string]: any };
-  mapping?: Array<{
-    name: string;
-    label: string;
-    type?: string;
-    options?: { label: string; value: any }[];
-  }>;
+  mapping?: Field[] | FieldGroup[]; // Can be either flat or grouped
   columnsLayout?: "one" | "two";
 }
 
@@ -38,76 +65,121 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
     return value?.toString() ?? "N/A";
   };
 
-  // Create a map for quick field lookup by name (if mapping provided)
-  const mappingMap = React.useMemo(() => {
-    if (!mapping) return {};
-    return Object.fromEntries(mapping.map((field) => [field.name, field]));
-  }, [mapping]);
+  // Helper: Check if mapping is grouped format
+  const isGroupedFormat = (mapping: Field[] | FieldGroup[]): mapping is FieldGroup[] => {
+    return mapping.length > 0 && 'fieldsGroupName' in mapping[0] && 'fields' in mapping[0];
+  };
 
-  // Prepare entries: [{ label, value }]
-  const entries = React.useMemo(() => {
-    // Use mapping order if provided, else all keys from data
-    const keys = mapping ? mapping.map((m) => m.name) : Object.keys(data);
+  // Helper: Create entry objects from data keys
+  const createEntries = (keys: string[], fieldMap: { [key: string]: Field } = {}) => {
     return keys
-      .filter((key) => data.hasOwnProperty(key))
+      .filter((key) => Object.prototype.hasOwnProperty.call(data, key))
       .map((key) => {
-        const field = mappingMap[key];
+        const field = fieldMap[key];
         const label = field?.label ?? camelToTitle(key);
         const displayValue = getDisplayValue(field, data[key]);
         return { label, value: displayValue };
       });
-  }, [data, mapping, mappingMap]);
+  };
 
-  // Group entries for one or two column layout
-  const groupedEntries =
-    columnsLayout === "two"
-      ? entries.reduce((rows: any[], item, idx) => {
-          if (idx % 2 === 0) {
-            rows.push({ col1Label: item.label, col1Value: item.value });
-          } else {
-            Object.assign(rows[rows.length - 1], {
-              col2Label: item.label,
-              col2Value: item.value,
-            });
-          }
-          return rows;
-        }, [])
-      : entries.map((item) => ({
-          col1Label: item.label,
-          col1Value: item.value,
-        }));
+  // Helper: Format entries for table layout (one or two columns)
+  const formatEntriesForTable = (entries: { label: string; value: string }[]): TableRow[] => {
+    if (columnsLayout === "two") {
+      return entries.reduce((rows: TableRow[], item, idx) => {
+        if (idx % 2 === 0) {
+          rows.push({ col1Label: item.label, col1Value: item.value });
+        } else {
+          Object.assign(rows[rows.length - 1], {
+            col2Label: item.label,
+            col2Value: item.value,
+          });
+        }
+        return rows;
+      }, []);
+    }
+    return entries.map((item): TableRow => ({
+      col1Label: item.label,
+      col1Value: item.value,
+    }));
+  };
+
+  // Helper: Create table data for a group of fields
+  const createTableData = (fields: Field[], fieldMap: { [key: string]: Field }): TableRow[] => {
+    const keys = fields.map(f => f.name);
+    const entries = createEntries(keys, fieldMap);
+    return formatEntriesForTable(entries);
+  };
+
+  // Process mapping based on format
+  const processedData = React.useMemo((): ProcessedGroup[] => {
+    if (!mapping) {
+      // No mapping provided, use all keys from data
+      const keys = Object.keys(data);
+      const entries = createEntries(keys);
+      const formattedEntries = formatEntriesForTable(entries);
+      return [{ groupLabel: null, data: formattedEntries, groupId: 'default' }];
+    }
+
+    if (isGroupedFormat(mapping)) {
+      // New grouped format
+      const allFields = mapping.flatMap(group => group.fields);
+      const fieldMap = Object.fromEntries(allFields.map(field => [field.name, field]));
+
+      return mapping.map(group => ({
+        groupLabel: group.fieldsGroupLabel,
+        data: createTableData(group.fields, fieldMap),
+        groupId: group.fieldsGroupName
+      }));
+    } else {
+      // Old flat format
+      const fieldMap = Object.fromEntries(mapping.map(field => [field.name, field]));
+      return [{
+        groupLabel: null,
+        data: createTableData(mapping, fieldMap),
+        groupId: 'flat'
+      }];
+    }
+  }, [data, mapping, columnsLayout]);
 
   // Define table columns based on layout
-  const columns = [
-    {
-      key: "col1Label",
-      title: "Field",
-      dataType: DataType.String,
-      style: { fontWeight: "bold", width: "25%" },
-    },
-    {
-      key: "col1Value",
-      title: "Value",
-      dataType: DataType.String,
-      style: { width: "25%" },
-    },
-    ...(columnsLayout === "two"
-      ? [
-          {
-            key: "col2Label",
-            title: "Field",
-            dataType: DataType.String,
-            style: { fontWeight: "bold", width: "25%" },
-          },
-          {
-            key: "col2Value",
-            title: "Value",
-            dataType: DataType.String,
-            style: { width: "25%" },
-          },
-        ]
-      : []),
-  ];
+  const getColumns = () => {
+    const baseColumns = [
+      {
+        key: "col1Label",
+        title: "Field",
+        dataType: DataType.String,
+        style: { fontWeight: "bold", width: "25%" },
+      },
+      {
+        key: "col1Value",
+        title: "Value",
+        dataType: DataType.String,
+        style: { width: "25%" },
+      },
+    ];
+
+    if (columnsLayout === "two") {
+      return [
+        ...baseColumns,
+        {
+          key: "col2Label",
+          title: "Field",
+          dataType: DataType.String,
+          style: { fontWeight: "bold", width: "25%" },
+        },
+        {
+          key: "col2Value",
+          title: "Value",
+          dataType: DataType.String,
+          style: { width: "25%" },
+        },
+      ];
+    }
+
+    return baseColumns;
+  };
+
+  const columns = getColumns();
 
   // Render the table with custom styles
   return (
@@ -115,18 +187,42 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
       style={{ display: "flex", justifyContent: "center", marginTop: "24px" }}
     >
       <div style={{ width: columnsLayout === "two" ? "100%" : "50%" }}>
-        <Table
-          rowKeyField="col1Label"
-          data={groupedEntries}
-          columns={columns}
-          childComponents={{
-            table: {
-              elementAttributes: () => ({
-                style: { width: "100%", borderCollapse: "collapse" },
-              }),
-            },
-          }}
-        />
+
+        <VStack spacing={6} align="stretch">
+          {processedData.map((group, index) => {
+            const groupKey = group.groupId || `group-${index}`;
+            return (
+              <Box key={groupKey}>
+                {group.groupLabel && (
+                  <Text
+                    fontSize="lg"
+                    fontWeight="bold"
+                    mb={4}
+                    color="blue.600"
+                    borderBottom="2px solid"
+                    borderColor="blue.200"
+                    pb={2}
+                  >
+                    {group.groupLabel}
+                  </Text>
+                )}
+                <Table
+                  rowKeyField="col1Label"
+                  data={group.data}
+                  columns={columns}
+                  childComponents={{
+                    table: {
+                      elementAttributes: () => ({
+                        style: { width: "100%", borderCollapse: "collapse" },
+                      }),
+                    },
+                  }}
+                />
+              </Box>
+            );
+          })}
+        </VStack>
+
         {/* Inline styles for table header and cells */}
         <style>
           {`
