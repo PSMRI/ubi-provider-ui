@@ -293,16 +293,37 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     // Add global CSS for form validation and React Select
     addGlobalStyles();
 
-    // Ensure React Select functionality
+    // Ensure React Select functionality with hidden input
     setTimeout(() => {
-      const selectElements = formElement.querySelectorAll(".css-18h4ju6");
+      const selectElements = formElement.querySelectorAll(".css-18h4ju6, .css-i2418r");
       selectElements.forEach((selectEl: Element) => {
         if (selectEl instanceof HTMLElement) {
           selectEl.style.pointerEvents = "auto";
-          const input = selectEl.querySelector(".css-10wwmqn");
-          if (input instanceof HTMLElement) {
-            input.style.pointerEvents = "auto";
+          selectEl.style.cursor = "pointer";
+          
+          // Make the entire control area clickable
+          const controlArea = selectEl.querySelector(".css-j93siq, .css-18euh9p");
+          if (controlArea instanceof HTMLElement) {
+            controlArea.style.cursor = "pointer";
+            controlArea.style.pointerEvents = "auto";
           }
+          
+          // Handle the hidden input
+          const input = selectEl.querySelector(".css-10wwmqn");
+          if (input instanceof HTMLInputElement) {
+            input.readOnly = true;
+            input.style.pointerEvents = "none";
+            input.tabIndex = -1; // Remove from tab order
+          }
+        }
+      });
+
+      // Make dropdown indicators clickable
+      const dropdownIndicators = formElement.querySelectorAll(".css-xq12md, .css-hfbj6y");
+      dropdownIndicators.forEach((indicator: Element) => {
+        if (indicator instanceof HTMLElement) {
+          indicator.style.cursor = "pointer";
+          indicator.style.pointerEvents = "auto";
         }
       });
     }, 200);
@@ -338,11 +359,14 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
       .css-18h4ju6 .css-10wwmqn {
         color: #1A202C !important;
         background-color: transparent !important;
+        caret-color: transparent !important;
+        cursor: pointer !important;
       }
       .css-18h4ju6 {
         background-color: #FFFFFF !important;
         border: 1px solid #767680 !important;
         border-radius: 6px !important;
+        cursor: pointer !important;
       }
       .css-18h4ju6:hover {
         border-color: #2D3748 !important;
@@ -351,22 +375,94 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
         border-color: #3182CE !important;
         box-shadow: 0 0 0 1px #3182CE !important;
       }
-      /* React Select dropdown menu */
+      /* Hide React Select input completely while preserving functionality */
+      .css-10wwmqn {
+        opacity: 0 !important;
+        width: 0 !important;
+        height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        background: transparent !important;
+        position: absolute !important;
+        pointer-events: none !important;
+        caret-color: transparent !important;
+      }
+      /* React Select dropdown menu - consistent with form styling */
       [class*="menu"] {
         background-color: #FFFFFF !important;
         border: 1px solid #767680 !important;
+        border-radius: 6px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+        z-index: 1000 !important;
+      }
+      [class*="menuList"] {
+        padding: 4px 0 !important;
+        max-height: 200px !important;
+        overflow-y: auto !important;
       }
       [class*="option"] {
         color: #1A202C !important;
         background-color: #FFFFFF !important;
+        padding: 8px 12px !important;
+        cursor: pointer !important;
+        font-size: 14px !important;
+        border-bottom: 1px solid #F7FAFC !important;
+      }
+      [class*="option"]:last-child {
+        border-bottom: none !important;
       }
       [class*="option"]:hover {
         background-color: #EDF2F7 !important;
         color: #1A202C !important;
       }
-      [class*="singleValue"] {
+      [class*="option"]:focus,
+      [class*="option"][aria-selected="true"] {
+        background-color: #E6FFFA !important;
         color: #1A202C !important;
       }
+      [class*="singleValue"] {
+        color: #1A202C !important;
+        font-size: 14px !important;
+        font-weight: 400 !important;
+      }
+      [class*="placeholder"] {
+        color: #767680 !important;
+        font-size: 14px !important;
+      }
+      /* Dropdown control styling to match other form inputs */
+      .css-j93siq {
+        min-height: 40px !important;
+      
+        border: 1px solid #767680 !important;
+        border-right: none !important;
+        
+        box-shadow: none !important;
+      }
+      .css-j93siq:hover {
+        border-color: #2D3748 !important;
+      }
+      .css-i2418r:focus-within .css-j93siq {
+        border-color: #3182CE !important;
+        border-right: none !important;
+        box-shadow: 0 0 0 1px #3182CE !important;
+      }
+             /* Value container styling */
+       .css-18euh9p {
+         padding: 8px 12px !important;
+         font-size: 14px !important;
+       }
+       /* Dropdown indicator styling - borders except left */
+       .css-xq12md {
+         border-top: 1px solid #767680 !important;
+         border-right: 1px solid #767680 !important;
+         border-bottom: 1px solid #767680 !important;
+         border-left: none !important;
+         border-top-right-radius: 6px !important;
+         border-bottom-right-radius: 6px !important;
+         padding: 8px !important;
+         background-color: #FFFFFF !important;
+       }
     `;
     document.head.appendChild(globalStyle);
   };
