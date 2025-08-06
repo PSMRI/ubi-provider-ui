@@ -79,22 +79,12 @@ export const convertKeysToTitleCase = (
   }, {} as Record<string, any>);
 };
 
-export const formatTitle = (title: string): string => {
-  if (!title) return "";
-
-  // Remove .json extension
-  let cleanedTitle = title.replace(/\.json$/g, "");
-
-  // Remove leading numbers and underscore (e.g., "102_")
-  cleanedTitle = cleanedTitle.replace(/^\d+_/, "");
-
-  // Remove trailing timestamp and hash patterns (e.g., "_1747986806292_4e689e5c")
-  cleanedTitle = cleanedTitle.replace(/_\d+_[a-f0-9]+$/, "");
-
-  // Replace underscores with spaces
-  cleanedTitle = cleanedTitle.replace(/_/g, " ");
-
-  console.log("title", cleanedTitle);
-
-  return cleanedTitle.toLowerCase();
+export  const formatTitle = (documentSubmissionReason: string[] = [], documentName: string) => {
+  if (documentSubmissionReason.length === 0) return "";
+  const label= documentName
+  .replace(/([a-z])([A-Z])/g, "$1 $2")
+  .replace(/^./, (str) => str.toUpperCase());
+  if (documentSubmissionReason.length === 1) return `Document for ${documentSubmissionReason[0]} (${label})`;
+  return `Document for ${documentSubmissionReason.slice(0, -1).join(", ")} and ${documentSubmissionReason.at(-1)} (${label})`;
 };
+
