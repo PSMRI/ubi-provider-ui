@@ -3,7 +3,7 @@ import { createStandaloneToast } from '@chakra-ui/react';
 import i18n from 'i18next'; // Import i18n instance
 
 // Create standalone toast (works outside React components)
-const toast = createStandaloneToast();
+const { toast } = createStandaloneToast();
 
 const handleTokenExpiry = () => {
   console.warn("Token expired - cleaning up and redirecting to login");
