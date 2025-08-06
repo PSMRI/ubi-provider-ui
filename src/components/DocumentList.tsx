@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useState } from "react";
 import {
   VStack,
   HStack,
@@ -42,6 +42,7 @@ export interface Document {
   verificationErrors: { raw: string; error: string }[];
   fileContent: string;
   newTitle?: string;
+  documentSubmissionReason?: string[];
 }
 interface CellProps {
   column: { key: string; [key: string]: any };
@@ -77,7 +78,6 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
 
   const [selectedDocument, setSelectedDocument] =
     useState<SelectedDocumentPreview>(null);
-  const [docList, setDocList] = useState<Document[]>([]);
   const [errorModalDoc, setErrorModalDoc] = useState<Document | null>(null);
   const [selectedImageSrc, setSelectedImageSrc] = useState<string[] | null>(
     null
@@ -104,44 +104,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
       View Data
     </Button>
   );
-
-  useEffect(() => {
-    if (documents && documents.length > 0) {
-      // Process documents to extract newTitle and remove duplicates
-      const processedDocs = documents.map((doc) => {
-        let newTitle = "";
-
-        if (doc.fileContent) {
-          try {
-            const decodedContent = decodeBase64ToJson(doc.fileContent);
-            const fullTitle = decodedContent?.credentialSchema?.title ?? "";
-            // Extract string before colon (:)
-            newTitle = fullTitle.includes(":")
-              ? fullTitle.split(":")[0].trim()
-              : fullTitle;
-          } catch (error) {
-            console.error(
-              "Failed to decode fileContent for document:",
-              doc.id,
-              error
-            );
-            newTitle = "";
-          }
-        }
-
-        return {
-          ...doc,
-          newTitle: newTitle,
-        };
-      });
-
-      console.log("Processed documents with newTitle:", processedDocs);
-
-      setDocList(processedDocs);
-    } else {
-      setDocList([]);
-    }
-  }, [documents]);
+ 
 
   const handlePreview = (doc: Document) => {
     let decodedContent;
@@ -150,7 +113,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
       let decoded;
       try {
         decoded = decodeBase64ToJson(doc.fileContent);
-        console.log("Decoded Document:", decoded);
+     
       } catch (e) {
         console.error("Failed to decode base64 content:", e);
         toast({
@@ -174,7 +137,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
           "id",
         ]);
         decodedContent = convertKeysToTitleCase(filteredData);
-        console.log("Decoded Content:", decodedContent);
+     
       } else {
         decodedContent = {};
       }
@@ -186,7 +149,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
 
   const handleImagePreview = (_doc: Document) => {
     try {
-      console.log("Handling image preview for document:", _doc);
+   
       if (_doc.newTitle) {
         setSelectedImageTitle(_doc.newTitle);
       }
@@ -230,10 +193,10 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
   };
 
   // Prepare data for ka-table
-  const tableData: TableRowData[] = docList.map((doc, index) => ({
+  const tableData: TableRowData[] = documents.map((doc, index) => ({
     id: doc.id,
     serialNumber: index + 1,
-    documentName: `${doc.newTitle} (${formatTitle(doc.title)})`,
+    documentName: `${formatTitle(doc.documentSubmissionReason,doc.title)}`,
     documentDetails: doc,
     originalDocument: doc,
     verificationStatus: doc.status,
@@ -292,7 +255,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
     setErrorModalDoc: (doc: Document) => void
   ) => {
     const doc = rowData.doc;
-    console.log("Rendering verification status for document:", doc);
+  
 
     if (doc.status === "Verified") {
       return (
