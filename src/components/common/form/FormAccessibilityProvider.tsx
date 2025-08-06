@@ -162,7 +162,7 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
 
     // Apply fieldset styling - darker border for clear section definition
     fieldset.style.cssText = `
-      border: 1px solid #C6C5D0;
+      border: 1px solid black;
       border-radius: 8px;
       padding: 16px;
       margin: 0 !important;
@@ -182,8 +182,7 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
       color: #1A202C;
       background-color: #FFFFFF;
       margin-bottom: 16px;
-      padding: 4px 8px;
-     
+      padding: 4px 8px;]
     `;
 
     fieldset.appendChild(legend);
