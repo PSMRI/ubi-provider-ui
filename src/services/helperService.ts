@@ -80,8 +80,8 @@ export const convertKeysToTitleCase = (
 };
 
 export const formatTitle = (
-  documentSubmissionReason: string[] = [],
-  documentName: string
+  documentName: string,
+  documentSubmissionReason: string[] = []
 ) => {
   if (documentSubmissionReason.length === 0) return "";
   const label = documentName

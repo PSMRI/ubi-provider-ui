@@ -192,7 +192,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
   const tableData: TableRowData[] = documents.map((doc, index) => ({
     id: doc.id,
     serialNumber: index + 1,
-    documentName: `${formatTitle(doc.documentSubmissionReason, doc.title)}`,
+    documentName: `${formatTitle(doc.title, doc.documentSubmissionReason)}`,
     documentDetails: doc,
     originalDocument: doc,
     verificationStatus: doc.status,

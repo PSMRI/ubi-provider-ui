@@ -425,7 +425,6 @@ const ApplicationDetails: React.FC = () => {
       }
 
       const applicationData = await getApplicationDetails(id);
-      console.log("applicationData", applicationData);
       setFullApplicationData(applicationData);
       setBenefitAndAmount(applicationData);
       setApplicantInfo(applicationData);
