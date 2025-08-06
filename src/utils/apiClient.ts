@@ -2,34 +2,43 @@ import axios from "axios";
 import { createStandaloneToast } from '@chakra-ui/react';
 import i18n from 'i18next'; // Import i18n instance
 
+// Type augmentation for better type safety
+declare global {
+  interface Window {
+    authLogout?: (reason: 'expired' | 'unauthorized' | 'manual') => void;
+  }
+}
+
 // Create standalone toast (works outside React components)
-const toast = createStandaloneToast();
+const { toast } = createStandaloneToast();
 
 const handleTokenExpiry = () => {
   console.warn("Token expired - cleaning up and redirecting to login");
-  
-  // Clear ALL authentication data
-  localStorage.removeItem("token");
-  localStorage.removeItem("userRole");
-  
-  // Notify app components
-  window.dispatchEvent(new Event("tokenChanged"));
   
   // Show toast message with translations
   toast({
     title: i18n.t("TOAST_SESSION_EXPIRED_TITLE"),
     description: i18n.t("TOAST_SESSION_EXPIRED_DESCRIPTION"),
     status: "warning",
-    duration: 6000,
+    duration: 3000,
     isClosable: true,
     position: "top",
     variant: "subtle",
   });
   
-  // Delay redirect to show toast
-  setTimeout(() => {
-    window.location.href = "/";
-  }, 1500);
+  // Call context logout if available, otherwise fallback to direct cleanup
+  if (window.authLogout) {
+    window.authLogout('expired');
+  } else {
+    // Fallback cleanup
+    localStorage.removeItem("token");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("safeUserData");
+    window.dispatchEvent(new Event("tokenChanged"));
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 1500);
+  }
 };
 
 // Create a generic Axios instance
@@ -57,20 +66,25 @@ apiClient.interceptors.response.use(
       status: error.response?.status,
       url: error.config?.url,
       method: error.config?.method,
-      message: error.response?.data?.message || error.message
+      message: error.response?.data?.message || error.message,
+      hasResponse: !!error.response
     });
     
-    if (error.response) {
-      const { status } = error.response;
-      
-      // Handle token expiry with toast
-      if (status === 401) {
-        console.warn("401 Unauthorized detected - token expired or invalid");
-        handleTokenExpiry();
-        return Promise.reject(new Error(i18n.t("TOAST_SESSION_EXPIRED_DESCRIPTION")));
-      }
-      
-      // Handle forbidden access with toast
+    // Priority check for 401 errors - check status from response OR error message
+    const status = error.response?.status;
+    const isUnauthorized = status === 401 ||
+                          error.message?.includes('401') ||
+                          error.message?.includes('Unauthorized');
+
+    if (isUnauthorized) {
+      console.warn("401 Unauthorized detected - token expired or invalid");
+      handleTokenExpiry();
+      return Promise.reject(new Error(i18n.t("TOAST_SESSION_EXPIRED_DESCRIPTION")));
+    }
+
+    // Handle other response errors
+    if (error.response && status) {
+      // Handle forbidden access
       if (status === 403) {
         toast({
           title: i18n.t("TOAST_ACCESS_DENIED_TITLE"),
@@ -82,7 +96,7 @@ apiClient.interceptors.response.use(
         });
         return Promise.reject(new Error(i18n.t("TOAST_ACCESS_DENIED_DESCRIPTION")));
       }
-      
+
       // Handle other client errors
       if (status >= 400 && status < 500) {
         const errorMessage = error.response?.data?.message || 
@@ -101,7 +115,7 @@ apiClient.interceptors.response.use(
         return Promise.reject(new Error(errorMessage));
       }
       
-      // Handle server errors with toast
+      // Handle server errors
       if (status >= 500) {
         toast({
           title: i18n.t("TOAST_SERVER_ERROR_TITLE"),
@@ -115,8 +129,8 @@ apiClient.interceptors.response.use(
       }
     }
     
-    // Handle network errors with toast
-    if (error.code === 'NETWORK_ERROR' || !error.response) {
+    // Handle network errors (only if NOT a 401)
+    if ((error.code === 'NETWORK_ERROR' || !error.response) && !isUnauthorized) {
       toast({
         title: i18n.t("TOAST_CONNECTION_ERROR_TITLE"),
         description: i18n.t("TOAST_CONNECTION_ERROR_DESCRIPTION"),
@@ -132,5 +146,4 @@ apiClient.interceptors.response.use(
   }
 );
 
-export { handleTokenExpiry as handleLogout };
 export default apiClient;
