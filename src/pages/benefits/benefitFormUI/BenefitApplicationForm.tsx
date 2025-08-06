@@ -1,4 +1,4 @@
-import { Box, Text } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { Theme as ChakraTheme } from "@rjsf/chakra-ui";
 import { withTheme } from "@rjsf/core";
 import { SubmitButtonProps, getSubmitButtonOptions } from "@rjsf/utils";
@@ -27,7 +27,7 @@ interface VCDocument {
   document_type: string;
   document_subtype: string;
   document_format: string;
-  document_issuer: string;
+  document_imported_from: string;
   document_content: string;
 }
 
@@ -247,19 +247,25 @@ const BenefitApplicationForm: React.FC = () => {
     const allFieldNames = [...appFieldNames, ...docSchemaFieldNames];
 
     // Consolidate all field groups to avoid nesting conflicts
-    const consolidatedFieldGroups: Record<string, { label: string; fields: string[] }> = {};
+    const consolidatedFieldGroups: Record<
+      string,
+      { label: string; fields: string[] }
+    > = {};
     const ungroupedFields: string[] = [];
 
     allFieldNames.forEach((fieldName) => {
       const fieldSchema = allSchema.properties[fieldName];
-      
+
       // Check if field has grouping metadata from schema
       if (fieldSchema?.fieldGroup) {
         const groupName = fieldSchema.fieldGroup.groupName;
         const groupLabel = fieldSchema.fieldGroup.groupLabel;
 
         if (!consolidatedFieldGroups[groupName]) {
-          consolidatedFieldGroups[groupName] = { label: groupLabel, fields: [] };
+          consolidatedFieldGroups[groupName] = {
+            label: groupLabel,
+            fields: [],
+          };
         }
         consolidatedFieldGroups[groupName].fields.push(fieldName);
       } else {
@@ -273,9 +279,9 @@ const BenefitApplicationForm: React.FC = () => {
 
     // Step 1: Add personal information groups (non-document groups)
     const personalGroups = Object.keys(consolidatedFieldGroups).filter(
-      groupName => groupName !== "documents"
+      (groupName) => groupName !== "documents"
     );
-    
+
     personalGroups.forEach((groupName) => {
       if (consolidatedFieldGroups[groupName]) {
         uiOrder = uiOrder.concat(consolidatedFieldGroups[groupName].fields);
@@ -283,8 +289,8 @@ const BenefitApplicationForm: React.FC = () => {
     });
 
     // Step 2: Add ungrouped personal fields
-    const ungroupedPersonalFields = ungroupedFields.filter(fieldName => 
-      !extractedDocFieldNames.includes(fieldName)
+    const ungroupedPersonalFields = ungroupedFields.filter(
+      (fieldName) => !extractedDocFieldNames.includes(fieldName)
     );
     uiOrder = uiOrder.concat(ungroupedPersonalFields);
 
@@ -294,7 +300,7 @@ const BenefitApplicationForm: React.FC = () => {
     }
 
     // Step 4: Add any remaining ungrouped document fields
-    const ungroupedDocFields = ungroupedFields.filter(fieldName => 
+    const ungroupedDocFields = ungroupedFields.filter((fieldName) =>
       extractedDocFieldNames.includes(fieldName)
     );
     uiOrder = uiOrder.concat(ungroupedDocFields);
@@ -332,20 +338,20 @@ const BenefitApplicationForm: React.FC = () => {
   ): VCDocument => {
     const vcMeta = fieldSchema?.vcMeta;
     const formValue = (formData as any)[fieldName];
-    
+
     // Extract complete document metadata from the selected document
-    const { documentType, documentIssuer } = extractDocumentMetadataFromSelection(
-      formValue, 
-      docsArray
-    );
+    const { documentType, documentIssuer } =
+      extractDocumentMetadataFromSelection(formValue, docsArray);
     const documentSubtype = extractDocumentSubtype(formValue, fieldSchema);
 
     return {
-      document_submission_reason: JSON.stringify(vcMeta?.submissionReasons || [fieldName]),
+      document_submission_reason: JSON.stringify(
+        vcMeta?.submissionReasons || [fieldName]
+      ),
       document_type: documentType, // Real doc_type from selected document
       document_subtype: documentSubtype,
       document_format: vcMeta?.format || "json",
-      document_issuer: documentIssuer, // Real imported_from from selected document
+      document_imported_from: documentIssuer, // Real imported_from from selected document
       document_content: encodedContent,
     };
   };
@@ -362,7 +368,7 @@ const BenefitApplicationForm: React.FC = () => {
     try {
       const formDataNew: FormSubmissionData = { benefitId: id! };
       const allFieldNames = Object.keys(formData);
-      const systemFields = ['benefitId', 'docs', 'orderId'];
+      const systemFields = ["benefitId", "docs", "orderId"];
 
       // Get personal field names (non-document, non-system fields)
       const personalFieldNames = getPersonalFieldNames(
@@ -372,7 +378,7 @@ const BenefitApplicationForm: React.FC = () => {
       );
 
       // Extract personal information
-      personalFieldNames.forEach(fieldName => {
+      personalFieldNames.forEach((fieldName) => {
         const value = (formData as any)[fieldName];
         if (value !== undefined && value !== null) {
           formDataNew[fieldName] = value;
@@ -383,7 +389,7 @@ const BenefitApplicationForm: React.FC = () => {
       const files: FileUpload[] = [];
       const vcDocuments: VCDocument[] = [];
 
-      documentFieldNames.forEach(fieldName => {
+      documentFieldNames.forEach((fieldName) => {
         const fieldValue = (formData as any)[fieldName];
         if (!fieldValue) {
           console.log(`${fieldName} is missing from formData`);
@@ -394,14 +400,19 @@ const BenefitApplicationForm: React.FC = () => {
         const encodedContent = encodeToBase64(fieldValue);
 
         // Determine if this is a file upload or VC document based on field pattern and metadata
-        const isFileUpload = fieldSchema?.vcMeta?.isFileUpload || isFileUploadField(fieldName);
+        const isFileUpload =
+          fieldSchema?.vcMeta?.isFileUpload || isFileUploadField(fieldName);
 
         if (isFileUpload) {
           // Add to files array
           files.push({ [fieldName]: encodedContent });
         } else {
           // Create VC document with metadata, actual document type and issuer
-          const vcDocument = createVCDocument(fieldName, encodedContent, fieldSchema);
+          const vcDocument = createVCDocument(
+            fieldName,
+            encodedContent,
+            fieldSchema
+          );
           vcDocuments.push(vcDocument);
         }
       });
@@ -414,8 +425,6 @@ const BenefitApplicationForm: React.FC = () => {
       if (vcDocuments.length > 0) {
         formDataNew.vc_documents = vcDocuments;
       }
-
-    
 
       // Submit the form
       const response = await submitForm(formDataNew as any);
@@ -442,7 +451,7 @@ const BenefitApplicationForm: React.FC = () => {
   if (!formSchema) {
     return <Loading />;
   }
-  
+
   const getMarginTop = () => {
     return reviewerComment?.trim() ? "25%" : "0";
   };
@@ -481,12 +490,12 @@ const BenefitApplicationForm: React.FC = () => {
             mx={4}
             mt={4}
           >
-            <Text fontWeight="bold" color="orange.800">
+            <div style={{ fontWeight: "bold", color: "#C6532C" }}>
               Reviewer Comment:
-            </Text>
-            <Text mt={2} color="orange.700">
+            </div>
+            <div style={{ marginTop: "8px", color: "#B45309" }}>
               {reviewerComment}
-            </Text>
+            </div>
           </Box>
         </>
       )}
