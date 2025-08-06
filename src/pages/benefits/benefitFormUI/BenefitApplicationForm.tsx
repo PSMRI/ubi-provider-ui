@@ -18,7 +18,7 @@ import {
   getPersonalFieldNames,
   isFileUploadField,
   extractDocumentSubtype,
-  extractDocumentTypeFromSelection,
+  extractDocumentMetadataFromSelection,
 } from "./ConvertToRJSF";
 
 // Interface for VC document structure
@@ -170,7 +170,7 @@ const BenefitApplicationForm: React.FC = () => {
           setReviewerComment(useData.remark);
         }
 
-        // Store docs array for document type extraction
+        // Store docs array for document type and issuer extraction
         if (useData?.docs && Array.isArray(useData.docs)) {
           setDocsArray(useData.docs);
         }
@@ -324,7 +324,7 @@ const BenefitApplicationForm: React.FC = () => {
     // --- END CONSOLIDATED GROUPING ---
   };
 
-  // Helper function to create VC document with actual document type from selection
+  // Helper function to create VC document with actual document type and issuer from selection
   const createVCDocument = (
     fieldName: string,
     encodedContent: string,
@@ -333,16 +333,19 @@ const BenefitApplicationForm: React.FC = () => {
     const vcMeta = fieldSchema?.vcMeta;
     const formValue = (formData as any)[fieldName];
     
-    // Extract the actual document type from the selected document
-    const actualDocumentType = extractDocumentTypeFromSelection(formValue, docsArray);
+    // Extract complete document metadata from the selected document
+    const { documentType, documentIssuer } = extractDocumentMetadataFromSelection(
+      formValue, 
+      docsArray
+    );
     const documentSubtype = extractDocumentSubtype(formValue, fieldSchema);
 
     return {
       document_submission_reason: JSON.stringify(vcMeta?.submissionReasons || [fieldName]),
-      document_type: actualDocumentType, // Use actual doc_type from selected document
+      document_type: documentType, // Real doc_type from selected document
       document_subtype: documentSubtype,
       document_format: vcMeta?.format || "json",
-      document_issuer: vcMeta?.issuer || "https://provider.example.org",
+      document_issuer: documentIssuer, // Real imported_from from selected document
       document_content: encodedContent,
     };
   };
@@ -397,7 +400,7 @@ const BenefitApplicationForm: React.FC = () => {
           // Add to files array
           files.push({ [fieldName]: encodedContent });
         } else {
-          // Create VC document with metadata and actual document type
+          // Create VC document with metadata, actual document type and issuer
           const vcDocument = createVCDocument(fieldName, encodedContent, fieldSchema);
           vcDocuments.push(vcDocument);
         }
@@ -412,8 +415,7 @@ const BenefitApplicationForm: React.FC = () => {
         formDataNew.vc_documents = vcDocuments;
       }
 
-      console.log("Structured form submission data:", formDataNew);
-      console.log("VC Documents with actual document types:", vcDocuments);
+    
 
       // Submit the form
       const response = await submitForm(formDataNew as any);
