@@ -38,10 +38,24 @@ interface FileUpload {
 
 // Interface for form submission data structure
 interface FormSubmissionData {
-  [key: string]: any;
+  [key: string]: string | number | boolean | FileUpload[] | VCDocument[] | undefined;
   files?: FileUpload[];
   vc_documents?: VCDocument[];
   benefitId: string;
+}
+interface DocumentMetadata {
+  doc_data: string;
+  doc_datatype: string;
+  doc_id: string;
+  doc_name: string;
+  doc_path: string;
+  doc_subtype: string;
+  doc_type: string;
+  doc_verified: boolean;
+  imported_from: string;
+  is_uploaded: boolean;
+  uploaded_at: string;
+  user_id: string;
 }
 
 const Form = withTheme(ChakraTheme);
@@ -77,7 +91,7 @@ const BenefitApplicationForm: React.FC = () => {
   const [uiSchema, setUiSchema] = useState({});
   const [reviewerComment, setReviewerComment] = useState<string | null>(null);
   const [documentFieldNames, setDocumentFieldNames] = useState<string[]>([]);
-  const [docsArray, setDocsArray] = useState<any[]>([]);
+  const [docsArray, setDocsArray] = useState<DocumentMetadata[]>([]);
 
   // Helper function to group form fields by fieldsGroupName
   const groupFieldsByGroup = (benefit: any) => {
@@ -137,50 +151,61 @@ const BenefitApplicationForm: React.FC = () => {
         });
       }
     };
-    // Fetch schema from API
+        // Fetch schema from API
     const getSchemaData = async () => {
       if (id) {
-        const result = await getSchema(id);
-        // Extract relevant tags from the schema response
-        const schemaTag =
-          result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
-            (tag: any) => tag?.descriptor?.code === "applicationForm"
+        try {
+          const result = await getSchema(id);
+          if (!result?.responses?.[0]?.message?.catalog?.providers?.[0]?.items?.[0]) {
+            throw new Error("Invalid schema response structure");
+          }
+        
+          // Extract relevant tags from the schema response
+          const schemaTag =
+            result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
+              (tag: any) => tag?.descriptor?.code === "applicationForm"
+            );
+       
+          // Extract relevant tags from the schema response
+          const documentTag =
+            result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
+              (tag: any) => tag?.descriptor?.code === "required-docs"
+            );
+
+          const eligibilityTag =
+            result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
+              (tag: any) => tag?.descriptor?.code === "eligibility"
+            );
+
+          // Parse application form fields
+          const parsedValues =
+            schemaTag?.list?.map((item: EligibilityItem) =>
+              JSON.parse(item.value)
+            ) || [];
+
+          // Use window.name for pre-filled data if available
+          const useData = window.name ? JSON.parse(window.name) : null;
+
+          if (useData?.remark) {
+            setReviewerComment(useData.remark);
+          }
+
+          // Store docs array for document type and issuer extraction
+          if (useData?.docs && Array.isArray(useData.docs)) {
+            setDocsArray(useData.docs);
+          }
+
+          getApplicationSchemaData(
+            useData,
+            parsedValues,
+            documentTag,
+            eligibilityTag
           );
-
-        const documentTag =
-          result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
-            (tag: any) => tag?.descriptor?.code === "required-docs"
-          );
-
-        const eligibilityTag =
-          result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
-            (tag: any) => tag?.descriptor?.code === "eligibility"
-          );
-
-        // Parse application form fields
-        const parsedValues =
-          schemaTag?.list?.map((item: EligibilityItem) =>
-            JSON.parse(item.value)
-          ) || [];
-
-        // Use window.name for pre-filled data if available
-        const useData = window.name ? JSON.parse(window.name) : null;
-
-        if (useData?.remark) {
-          setReviewerComment(useData.remark);
+        } catch (error) {
+          console.error("Error fetching schema data:", error);
+          // Handle error gracefully - could set an error state or show a message
+          // For now, just log the error and let the component handle the empty state
         }
-
-        // Store docs array for document type and issuer extraction
-        if (useData?.docs && Array.isArray(useData.docs)) {
-          setDocsArray(useData.docs);
-        }
-
-        getApplicationSchemaData(
-          useData,
-          parsedValues,
-          documentTag,
-          eligibilityTag
-        );
       }
     };
     getSchemaData();
@@ -322,9 +347,7 @@ const BenefitApplicationForm: React.FC = () => {
       });
     });
 
-    console.log("Consolidated Field Groups:", consolidatedFieldGroups);
-    console.log("Final UI Schema:", uiSchema);
-    console.log("UI Order:", uiOrder);
+
 
     setUiSchema(uiSchema);
     // --- END CONSOLIDATED GROUPING ---
