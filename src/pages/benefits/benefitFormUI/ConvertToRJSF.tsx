@@ -242,6 +242,31 @@ export const extractDocumentTypeFromSelection = (
 
   return selectedDoc?.doc_type || "unknown";
 };
+// Helper function to extract complete document metadata from selection
+export const extractDocumentMetadataFromSelection = (
+  selectedDocumentId: string,
+  docsArray: Doc[]
+): { documentType: string; documentIssuer: string; selectedDoc: Doc | null } => {
+  if (!selectedDocumentId || !docsArray || docsArray.length === 0) {
+    return {
+      documentType: "unknown",
+      documentIssuer: "https://provider.example.org",
+      selectedDoc: null
+    };
+  }
+
+  // Find the document by matching the doc_data (which contains the document ID/content)
+  const selectedDoc = docsArray.find(doc => 
+    doc.doc_data === selectedDocumentId || 
+    doc.doc_id === selectedDocumentId
+  );
+
+  return {
+    documentType: selectedDoc?.doc_type || "unknown",
+    documentIssuer: selectedDoc?.imported_from || "https://provider.example.org", 
+    selectedDoc: selectedDoc || null
+  };
+};
 
 // Helper function to extract document subtype from form data
 export const extractDocumentSubtype = (
