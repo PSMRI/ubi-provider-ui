@@ -415,7 +415,6 @@ const BenefitApplicationForm: React.FC = () => {
       documentFieldNames.forEach((fieldName) => {
         const fieldValue = (formData as any)[fieldName];
         if (!fieldValue) {
-          console.log(`${fieldName} is missing from formData`);
           return;
         }
 
