@@ -1,4 +1,4 @@
-import { Box } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 import { Theme as ChakraTheme } from "@rjsf/chakra-ui";
 import { withTheme } from "@rjsf/core";
 import { SubmitButtonProps, getSubmitButtonOptions } from "@rjsf/utils";
@@ -490,12 +490,12 @@ const BenefitApplicationForm: React.FC = () => {
             mx={4}
             mt={4}
           >
-            <div style={{ fontWeight: "bold", color: "#C6532C" }}>
+            <Text as="p" fontWeight="bold" color="orange.800">
               Reviewer Comment:
-            </div>
-            <div style={{ marginTop: "8px", color: "#B45309" }}>
+            </Text>
+            <Text as="p" mt={2} color="orange.700">
               {reviewerComment}
-            </div>
+            </Text>
           </Box>
         </>
       )}
