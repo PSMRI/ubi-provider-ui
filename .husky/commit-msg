@@ -22,7 +22,7 @@ else
   echo ""
   echo "Your commit message: '$commit_msg'"
   echo ""
-  echo "Expected format: (fix|ref|Issue|Task|Bug|Feature) [#number] (chore|feat|fix|test): <description>"
+  echo "Expected format: (fix|ref|Issue|Task|Bug|Feature) [#number] (chore|feat|fix|test|refactor): <description>"
   echo ""
   echo "Valid examples:"
   echo "  - Issue #123 chore: Merge upstream/master"
