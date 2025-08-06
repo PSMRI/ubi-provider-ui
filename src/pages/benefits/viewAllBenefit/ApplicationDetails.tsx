@@ -118,7 +118,8 @@ const ApplicationDetails: React.FC = () => {
     "approved" | "rejected" | "resubmit"
   >();
   const [criteriaResults, setCriteriaResults] = useState<any[]>([]);
-  const [fullApplicationData, setFullApplicationData] = useState<ApplicationData | null>(null);
+  const [fullApplicationData, setFullApplicationData] =
+    useState<ApplicationData | null>(null);
   const openConfirmationModal = (
     status: "approved" | "rejected" | "resubmit"
   ) => {

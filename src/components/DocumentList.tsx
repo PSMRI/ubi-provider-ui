@@ -1,4 +1,4 @@
-import React, {useState } from "react";
+import React, { useState } from "react";
 import {
   VStack,
   HStack,
@@ -104,7 +104,6 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
       View Data
     </Button>
   );
- 
 
   const handlePreview = (doc: Document) => {
     let decodedContent;
@@ -113,7 +112,6 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
       let decoded;
       try {
         decoded = decodeBase64ToJson(doc.fileContent);
-     
       } catch (e) {
         console.error("Failed to decode base64 content:", e);
         toast({
@@ -137,7 +135,6 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
           "id",
         ]);
         decodedContent = convertKeysToTitleCase(filteredData);
-     
       } else {
         decodedContent = {};
       }
@@ -149,7 +146,6 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
 
   const handleImagePreview = (_doc: Document) => {
     try {
-   
       if (_doc.newTitle) {
         setSelectedImageTitle(_doc.newTitle);
       }
@@ -196,7 +192,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
   const tableData: TableRowData[] = documents.map((doc, index) => ({
     id: doc.id,
     serialNumber: index + 1,
-    documentName: `${formatTitle(doc.documentSubmissionReason,doc.title)}`,
+    documentName: `${formatTitle(doc.documentSubmissionReason, doc.title)}`,
     documentDetails: doc,
     originalDocument: doc,
     verificationStatus: doc.status,
@@ -255,7 +251,6 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
     setErrorModalDoc: (doc: Document) => void
   ) => {
     const doc = rowData.doc;
-  
 
     if (doc.status === "Verified") {
       return (
