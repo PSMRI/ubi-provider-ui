@@ -378,7 +378,8 @@ const ApplicationDetails: React.FC = () => {
     const docs = applicationFiles.map((file: any) => ({
       id: file.id,
       type: "Document",
-      title: file.filePath.split("/").pop(),
+      title: file.documentSubtype,
+      documentSubmissionReason: file.documentSubmissionReason,
       content: file,
       fileContent: file.fileContent,
       status: file?.verificationStatus?.status,
@@ -423,6 +424,7 @@ const ApplicationDetails: React.FC = () => {
       }
 
       const applicationData = await getApplicationDetails(id);
+      console.log("applicationData", applicationData);
       setFullApplicationData(applicationData);
       setBenefitAndAmount(applicationData);
       setApplicantInfo(applicationData);
