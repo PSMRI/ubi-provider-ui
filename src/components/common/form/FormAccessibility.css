@@ -1,0 +1,391 @@
+/* CSS Variables for WCAG-compliant form styling */
+:root {
+  /* Base Colors */
+  --form-text-color: #1A202C;           /* Primary text - passes AAA (15.8:1 vs white) */
+  --form-bg-color: #FFFFFF;             /* Form background */
+  --form-bg-secondary: #F7FAFC;         /* Secondary background */
+  
+  /* Border Colors - Consistent with Chakra UI */
+  --form-border-color: #E2E8F0;         /* Default border (gray.200) */
+  --form-border-hover: #D1D5DB;         /* Hover border (gray.300) */
+  --form-border-focus: #3182CE;         /* Focus border (blue.500) */
+  --form-border-error: #E53E3E;         /* Error border (red.500) */
+  
+  /* Text Colors */
+  --form-placeholder-color: #4A5568;    /* WCAG AA compliant placeholder (7.6:1 vs white) */
+  --form-help-text-color: #718096;      /* Help text (gray.500) */
+  --form-error-color: #C53030;          /* Error text (red.600) */
+  --form-required-color: #C53030;       /* Required indicator */
+  
+  /* Interactive States */
+  --form-hover-bg: #EDF2F7;             /* Hover background (gray.100) */
+  --form-selected-bg: #E6FFFA;          /* Selected/active background (teal.50) */
+  --form-disabled-bg: #F7FAFC;          /* Disabled background */
+  --form-disabled-text: #A0AEC0;        /* Disabled text (gray.400) */
+  
+  /* Dividers and Separators */
+  --form-divider-color: #F1F5F9;        /* Subtle separators */
+  --form-section-border: #A0AEC0 ;       /* Strong section borders (fieldsets) */
+  
+  /* Dimensions */
+  --form-border-radius: 6px;            /* Standard border radius */
+  --form-input-height: 40px;            /* Standard input height */
+  --form-dropdown-max-height: 200px;    /* Dropdown menu max height */
+  
+  /* Spacing */
+  --form-padding-small: 4px 8px;        /* Small padding (labels, indicators) */
+  --form-padding-medium: 8px 12px;      /* Medium padding (inputs, options) */
+  --form-padding-large: 16px;           /* Large padding (fieldsets) */
+  
+  /* Shadows */
+  --form-focus-shadow: 0 0 0 1px var(--form-border-focus);
+  --form-dropdown-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  
+  /* Z-index */
+  --form-dropdown-z-index: 1000;        /* Dropdown menu z-index */
+}
+
+/* Field Group Styles */
+.field-group {
+  border: 1px solid var(--form-section-border);
+  border-radius: var(--form-border-radius);
+  padding: var(--form-padding-large);
+  margin: 0 !important;
+  background-color: var(--form-bg-color);
+  position: relative; 
+  display: block;
+  box-sizing: border-box;
+}
+
+.field-group-legend {
+  font-weight: bold;
+  font-size: 1.2em;
+  color: var(--form-text-color);
+  background-color: var(--form-bg-color);
+  margin-bottom: var(--form-padding-large);
+  padding: var(--form-padding-small);
+}
+
+/* Form Element Spacing */
+.form-accessibility-container {
+  gap: 0;
+  row-gap: 0;
+  column-gap: 0;
+}
+
+/* Label Styles */
+.form-accessibility-container label {
+  color: var(--form-text-color);
+  background-color: var(--form-bg-color);
+  font-weight: 600;
+  padding: var(--form-padding-small);
+}
+
+/* Fallback label styles */
+form label {
+  color: var(--form-text-color);
+  background-color: var(--form-bg-color);
+  font-weight: 600;
+}
+
+/* Basic Input Styles */
+.form-accessibility-container input[type="text"],
+.form-accessibility-container input[type="email"],
+.form-accessibility-container input[type="tel"],
+.form-accessibility-container input[type="password"],
+.form-accessibility-container input[type="date"],
+.form-accessibility-container input[type="number"],
+.form-accessibility-container textarea {
+  color: var(--form-text-color);
+  background-color: var(--form-bg-color);
+  border: 1px solid var(--form-border-color);
+}
+
+/* Fallback styles for forms without the container class */
+form input[type="text"]:not([class*="react-select"]),
+form input[type="email"]:not([class*="react-select"]),
+form input[type="tel"]:not([class*="react-select"]),
+form input[type="password"]:not([class*="react-select"]),
+form input[type="date"]:not([class*="react-select"]),
+form input[type="number"]:not([class*="react-select"]),
+form textarea:not([class*="react-select"]) {
+  color: var(--form-text-color);
+  background-color: var(--form-bg-color);
+  border: 1px solid var(--form-border-color);
+}
+
+/* Exclude React Select from basic input styling */
+.form-accessibility-container input[type="text"][data-react-select="true"],
+.form-accessibility-container input[type="email"][data-react-select="true"],
+.form-accessibility-container input[type="tel"][data-react-select="true"],
+.form-accessibility-container input[type="password"][data-react-select="true"],
+.form-accessibility-container input[type="date"][data-react-select="true"],
+.form-accessibility-container textarea[data-react-select="true"] {
+  color: inherit;
+  background-color: inherit;
+  border: inherit;
+}
+
+/* Text Element Styles */
+.form-accessibility-container span:not([class*="css-"]),
+.form-accessibility-container div:not([class*="css-"]),
+.form-accessibility-container p,
+.form-accessibility-container h1,
+.form-accessibility-container h2,
+.form-accessibility-container h3,
+.form-accessibility-container h4,
+.form-accessibility-container h5,
+.form-accessibility-container h6 {
+  color: var(--form-text-color);
+  background-color: var(--form-bg-color);
+}
+
+/* Exclude React Select from text styling */
+.form-accessibility-container [data-react-select="true"] span,
+.form-accessibility-container [data-react-select="true"] div,
+.form-accessibility-container .react-select span,
+.form-accessibility-container .react-select div,
+.form-accessibility-container [class*="react-select"] span,
+.form-accessibility-container [class*="react-select"] div,
+.form-accessibility-container [class*="css-"] span,
+.form-accessibility-container [class*="css-"] div {
+  color: inherit;
+  background-color: inherit;
+}
+
+/* Placeholder Styles */
+.form-accessibility-container input:not([class*="css-"])::placeholder,
+.form-accessibility-container textarea::placeholder {
+  color: var(--form-placeholder-color) !important;
+  background-color: var(--form-bg-color) !important;
+  opacity: 1 !important;
+}
+
+/* Error and Required Indicator Styles */
+.form-accessibility-container [class*="error"],
+.form-accessibility-container [class*="required"],
+.form-accessibility-container .chakra-form__required-indicator {
+  color: var(--form-error-color);
+  background-color: var(--form-bg-color);
+  font-weight: 600;
+}
+
+/* WCAG Compliant Form Styles */
+.chakra-form__error-message {
+  color: var(--form-error-color) !important;
+  background-color: var(--form-bg-color) !important;
+  font-weight: 600 !important;
+  padding: var(--form-padding-small) !important;
+}
+
+.chakra-form__required-indicator {
+  color: var(--form-required-color) !important;
+  background-color: var(--form-bg-color) !important;
+  font-weight: bold !important;
+}
+
+.chakra-form__help-text {
+  color: var(--form-help-text-color) !important;
+  background-color: var(--form-bg-color) !important;
+}
+
+/* Field Group Content Spacing */
+.field-group .chakra-form__group,
+.field-group .form-group,
+.field-group .field,
+.field-group div[data-field] {
+  margin-top: 0px;
+  margin-bottom: 8px;
+}
+
+.field-group .chakra-form__group:last-child,
+.field-group .form-group:last-child,
+.field-group .field:last-child,
+.field-group div[data-field]:last-child {
+  margin-bottom: 0px;
+}
+
+/* Empty Div Hiding - More conservative approach */
+.form-accessibility-container div.css-0:empty,
+.form-accessibility-container div[class="css-0"]:empty:not([role]):not([class*="react-select"]):not([data-react-select]) {
+  display: none;
+}
+
+/* Ensure form fields are visible */
+.form-accessibility-container .chakra-form__group,
+.form-accessibility-container .form-group,
+.form-accessibility-container .field,
+.form-accessibility-container div[data-field],
+.form-accessibility-container .chakra-form__control {
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* Ensure form inputs are visible and styled */
+.form-accessibility-container input,
+.form-accessibility-container textarea,
+.form-accessibility-container select {
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* ================================
+   REACT SELECT STYLES
+   ================================ */
+
+/* React Select styling using stable selectors - consistent with Chakra UI form fields */
+
+/* Target React Select containers by role and data attributes */
+[role="combobox"], 
+div[class*="react-select__control"],
+div[data-react-select="true"] {
+  background-color: var(--form-bg-color) !important;
+  border: 1px solid var(--form-border-color) !important;
+  border-radius: var(--form-border-radius);
+  cursor: pointer;
+}
+
+[role="combobox"]:hover,
+div[class*="react-select__control"]:hover,
+div[data-react-select="true"]:hover {
+  border-color: var(--form-border-hover) !important;
+}
+
+[role="combobox"]:focus-within,
+div[class*="react-select__control"]:focus-within,
+div[data-react-select="true"]:focus-within {
+  border-color: var(--form-border-focus) !important;
+  box-shadow: var(--form-focus-shadow);
+}
+
+/* Style React Select inputs using more stable selectors */
+input[aria-autocomplete="list"],
+input[readonly][aria-expanded],
+div[class*="react-select"] input {
+  color: var(--form-text-color) !important;
+  background-color: transparent;
+  caret-color: transparent;
+  cursor: pointer;
+}
+
+/* Hide React Select internal inputs that should not be visible */
+input[aria-autocomplete="list"][readonly] {
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  position: absolute !important;
+  pointer-events: none !important;
+  caret-color: transparent;
+}
+
+/* React Select dropdown menu - using more stable selectors */
+[role="listbox"],
+div[class*="react-select__menu"],
+div[class*="menu"][role="menu"] {
+  background-color: var(--form-bg-color) !important;
+  border: 1px solid var(--form-border-color) !important;
+  border-radius: var(--form-border-radius);
+  box-shadow: var(--form-dropdown-shadow);
+  z-index: var(--form-dropdown-z-index);
+}
+
+/* React Select menu list */
+div[class*="react-select__menu-list"],
+div[class*="menuList"] {
+  padding: 4px 0;
+  max-height: var(--form-dropdown-max-height);
+  overflow-y: auto;
+}
+
+/* React Select options */
+[role="option"],
+div[class*="react-select__option"] {
+  color: var(--form-text-color) !important;
+  background-color: var(--form-bg-color) !important;
+  padding: var(--form-padding-medium) !important;
+  cursor: pointer;
+  font-size: 14px;
+  border-bottom: 1px solid var(--form-divider-color);
+}
+
+[role="option"]:last-child,
+div[class*="react-select__option"]:last-child {
+  border-bottom: none;
+}
+
+[role="option"]:hover,
+div[class*="react-select__option"]:hover {
+  background-color: var(--form-hover-bg) !important;
+  color: var(--form-text-color) !important;
+}
+
+[role="option"]:focus,
+[role="option"][aria-selected="true"],
+div[class*="react-select__option"]:focus,
+div[class*="react-select__option"][aria-selected="true"] {
+  background-color: var(--form-selected-bg) !important;
+  color: var(--form-text-color) !important;
+}
+
+/* React Select single value and placeholder */
+div[class*="react-select__single-value"],
+div[class*="singleValue"] {
+  color: var(--form-text-color) !important;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+div[class*="react-select__placeholder"],
+div[class*="placeholder"] {
+  color: var(--form-placeholder-color) !important;
+  font-size: 14px;
+}
+
+/* General React Select value container */
+div[class*="react-select__value-container"] {
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+}
+
+/* React Select control styling - fallback for specific implementations */
+div[class*="react-select__control"] {
+  min-height: var(--form-input-height) !important;
+  border: 1px solid var(--form-border-color) !important;
+  box-shadow: none !important;
+}
+
+div[class*="react-select__control"]:hover {
+  border-color: #D1D5DB !important; /* Chakra UI gray.300 */
+}
+
+/* React Select indicator container */
+div[class*="react-select__indicator"] {
+  cursor: pointer !important;
+  padding: 8px !important;
+}
+
+/* SVG dropdown arrows in React Select */
+svg[aria-hidden="true"] {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+/* React Select Interactive Elements */
+.react-select-interactive {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.react-select-control-area {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.react-select-hidden-input {
+  pointer-events: none;
+  tab-index: -1;
+} 
