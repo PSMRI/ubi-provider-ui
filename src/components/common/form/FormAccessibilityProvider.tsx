@@ -11,11 +11,11 @@ interface FormAccessibilityProviderProps {
 /**
  * FormAccessibilityProvider Component
  *
- * Handles accessibility styling, field grouping, and WCAG compliance for RJSF forms.
- * This component ensures all form elements meet accessibility standards while preserving
- * React Select and other complex component functionality.
+ * Handles field grouping and basic accessibility compliance for RJSF forms.
+ * This component focuses on legend border styling and field grouping while
+ * allowing RJSF to handle default form element styling.
  * 
- * Uses stable selectors instead of generated CSS class names for better maintainability.
+ * Uses stable selectors for better maintainability and focuses on accessibility structure.
  */
 const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
   formRef,
@@ -29,8 +29,8 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
    */
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      // Always apply accessibility classes, even without uiSchema
-      applyAccessibilityClasses();
+      // Add basic accessibility container class
+      addAccessibilityContainer();
       
       // Only apply field grouping if uiSchema exists
       if (formRef.current && uiSchema && Object.keys(uiSchema).length > 0) {
@@ -186,10 +186,9 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
   };
 
   /**
-   * Applies accessibility CSS classes to form elements
-   * Uses CSS classes instead of inline styles for better maintainability
+   * Adds basic accessibility container class to form elements
    */
-  const applyAccessibilityClasses = () => {
+  const addAccessibilityContainer = () => {
     const formContainer = formRef.current?.querySelector
       ? formRef.current
       : null;
@@ -201,75 +200,11 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
 
     // Add main accessibility container class
     formElement.classList.add("form-accessibility-container");
-
-    // Handle React Select components using stable selectors
-    setTimeout(() => {
-      handleReactSelectInteractivity(formElement);
-    }, 200);
-  };
-
-  /**
-   * Handles React Select interactivity using CSS classes
-   */
-  const handleReactSelectInteractivity = (formElement: Element) => {
-    // Use more stable selectors for React Select components
-    const reactSelectContainers = formElement.querySelectorAll(
-      '[role="combobox"], [aria-expanded], div[class*="react-select"], div[data-react-select="true"]'
-    );
-
-    // Also try to find by common React Select structure patterns
-    const possibleSelectContainers = formElement.querySelectorAll('div');
-    const selectContainers: Element[] = [];
-
-    possibleSelectContainers.forEach((div) => {
-      // Look for React Select indicators: presence of dropdown arrow SVG or specific roles
-      const hasDropdownIndicator = div.querySelector('svg[aria-hidden="true"]') || 
-                                   div.querySelector('[role="button"]') ||
-                                   div.querySelector('input[readonly][aria-autocomplete="list"]') ||
-                                   div.hasAttribute('aria-expanded');
-
-      if (hasDropdownIndicator && !selectContainers.includes(div)) {
-        selectContainers.push(div);
-      }
-    });
-
-    // Combine both approaches
-    const allSelectElements = [
-      ...Array.from(reactSelectContainers),
-      ...selectContainers
-    ].filter((elem, index, self) => 
-      self.findIndex(e => e === elem) === index
-    );
-
-    allSelectElements.forEach((selectEl: Element) => {
-      if (selectEl instanceof HTMLElement) {
-        selectEl.classList.add("react-select-interactive");
-        
-        // Find the control area (usually contains the input and value)
-        const controlArea = selectEl.querySelector('div:has(> input[readonly])') ||
-                           selectEl.querySelector('[role="button"]') ||
-                           selectEl.querySelector('div:first-child');
-                           
-        if (controlArea instanceof HTMLElement) {
-          controlArea.classList.add("react-select-control-area");
-        }
-        
-        // Handle hidden/readonly inputs in React Select
-        const hiddenInputs = selectEl.querySelectorAll('input[readonly], input[aria-autocomplete="list"]');
-        hiddenInputs.forEach((input) => {
-          if (input instanceof HTMLInputElement) {
-            input.readOnly = true;
-            input.classList.add("react-select-hidden-input");
-            input.tabIndex = -1; // Remove from tab order
-          }
-        });
-      }
-    });
   };
 
   /**
    * Hides empty divs that create unwanted gaps between fieldsets
-   * Uses CSS classes instead of inline styles
+   * Uses CSS classes for styling
    */
   const hideEmptyDivs = () => {
     const formContainer = formRef.current?.querySelector
@@ -280,7 +215,7 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     if (!formElement) return;
 
     setTimeout(() => {
-      // Use more specific selectors for empty divs, avoiding React Select components
+      // Use specific selectors for empty divs
       const emptyDivs = formElement.querySelectorAll(
         'div.css-0, div[class="css-0"]:not([role]):not([class*="react-select"]):not([data-react-select])'
       );
@@ -295,7 +230,7 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
         const containsFormElements = div.querySelector("input, select, textarea, button, label, fieldset, .chakra-form__group, .form-group, .field");
         
         if (!hasContent && !containsFormElements && div instanceof HTMLElement) {
-          // The hiding is now handled by CSS in FormAccessibility.css
+          // The hiding is handled by CSS in FormAccessibility.css
           // Just ensure the element has the proper class for CSS targeting
           if (!div.classList.contains('css-0')) {
             div.classList.add('css-0');
