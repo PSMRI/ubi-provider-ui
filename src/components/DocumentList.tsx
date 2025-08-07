@@ -28,7 +28,7 @@ import {
   isDateString,
   formatDate,
   convertKeysToTitleCase,
-  formatTitle,
+  
 } from "../services/helperService";
 import { omit } from "lodash";
 import ImagePreview from "./ImagePreview";
@@ -42,6 +42,7 @@ export interface Document {
   verificationErrors: { raw: string; error: string }[];
   fileContent: string;
   newTitle?: string;
+  documentTitle?: string;
 }
 interface CellProps {
   column: { key: string; [key: string]: any };
@@ -61,6 +62,14 @@ interface TableRowData {
   verificationStatus: string;
   doc: Document;
 }
+
+// Function to determine the document name based on documentTitle or newTitle
+const getDocumentName = (doc: Document): string => {
+  if (doc.documentTitle !== undefined) {
+    return doc.documentTitle;
+  }
+  return doc.newTitle || '';
+};
 
 const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
   const {
@@ -233,7 +242,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
   const tableData: TableRowData[] = docList.map((doc, index) => ({
     id: doc.id,
     serialNumber: index + 1,
-    documentName: `${doc.newTitle} (${formatTitle(doc.title)})`,
+    documentName: getDocumentName(doc),
     documentDetails: doc,
     originalDocument: doc,
     verificationStatus: doc.status,
