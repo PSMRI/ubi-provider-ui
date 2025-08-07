@@ -14,7 +14,7 @@ interface FormAccessibilityProviderProps {
  * Handles field grouping and basic accessibility compliance for RJSF forms.
  * This component focuses on legend border styling and field grouping while
  * allowing RJSF to handle default form element styling.
- * 
+ *
  * Uses stable selectors for better maintainability and focuses on accessibility structure.
  */
 const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
@@ -31,12 +31,12 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     const timeoutId = setTimeout(() => {
       // Add basic accessibility container class
       addAccessibilityContainer();
-      
+
       // Only apply field grouping if uiSchema exists
       if (formRef.current && uiSchema && Object.keys(uiSchema).length > 0) {
         applyFieldGrouping();
       }
-      
+
       hideEmptyDivs();
     }, 100);
 
@@ -59,7 +59,6 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     }
 
     if (!formElement) {
-      console.log("No form element found for field grouping");
       return;
     }
 
@@ -67,11 +66,12 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     const fieldGroups: Record<string, { label: string; fields: Element[] }> =
       {};
 
+    // First pass: Create all groups from any field that has ui:group
     Object.keys(uiSchema).forEach((fieldName) => {
       if (fieldName === "ui:order") return;
 
-      const fieldConfig = (uiSchema)[fieldName];
-      if (fieldConfig?.["ui:group"] && fieldConfig?.["ui:groupFirst"]) {
+      const fieldConfig = uiSchema[fieldName];
+      if (fieldConfig?.["ui:group"]) {
         const groupName = fieldConfig["ui:group"];
         const groupLabel = fieldConfig["ui:groupLabel"];
 
@@ -81,18 +81,25 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
       }
     });
 
-    // Find and group field elements
+    // Second pass: Add all fields to their respective groups
     Object.keys(uiSchema).forEach((fieldName) => {
       if (fieldName === "ui:order") return;
 
-      const fieldConfig = (uiSchema)[fieldName];
+      const fieldConfig = uiSchema[fieldName];
       if (fieldConfig?.["ui:group"]) {
         const groupName = fieldConfig["ui:group"];
 
-        let fieldElement = findFieldElement(formElement, fieldName);
+        const fieldElement = findFieldElement(formElement, fieldName);
 
         if (fieldElement && fieldGroups[groupName]) {
-          fieldGroups[groupName].fields.push(fieldElement);
+          // Check if this field is already in any group to prevent duplicates
+          const alreadyGrouped = Object.values(fieldGroups).some((group) =>
+            group.fields.includes(fieldElement)
+          );
+
+          if (!alreadyGrouped) {
+            fieldGroups[groupName].fields.push(fieldElement);
+          }
         }
       }
     });
@@ -122,15 +129,17 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
         ) || null;
 
     // Use nullish coalescing assignment for cleaner fallback logic
-    fieldElement ??= formElement
-      .querySelector(`[id*="${fieldName}"]`)
-      ?.closest(
-        ".chakra-form__group, .form-group, .field, div[data-field]"
-      ) || null;
+    fieldElement ??=
+      formElement
+        .querySelector(`[id*="${fieldName}"]`)
+        ?.closest(
+          ".chakra-form__group, .form-group, .field, div[data-field]"
+        ) || null;
 
-    fieldElement ??= formElement
-      .querySelector(`[name*="${fieldName}"]`)
-      ?.closest(".chakra-form__group, .form-group, .field, div") || null;
+    fieldElement ??=
+      formElement
+        .querySelector(`[name*="${fieldName}"]`)
+        ?.closest(".chakra-form__group, .form-group, .field, div") || null;
 
     if (!fieldElement) {
       // Try finding by label text
@@ -161,7 +170,7 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
    */
   const createFieldset = (
     group: { label: string; fields: Element[] },
-    groupName: string,
+    groupName: string
   ) => {
     const fieldset = document.createElement("fieldset");
     fieldset.className = "field-group";
@@ -210,7 +219,7 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     const formContainer = formRef.current?.querySelector
       ? formRef.current
       : null;
-    let formElement = formContainer || document.querySelector("form");
+    const formElement = formContainer || document.querySelector("form");
 
     if (!formElement) return;
 
@@ -223,17 +232,25 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
       emptyDivs.forEach((div: Element) => {
         const hasContent =
           div.textContent?.trim() ||
-          div.querySelector("input, select, textarea, button, img, label, fieldset") ||
+          div.querySelector(
+            "input, select, textarea, button, img, label, fieldset"
+          ) ||
           div.children.length > 0;
 
         // Only hide divs that are truly empty and don't contain any form elements
-        const containsFormElements = div.querySelector("input, select, textarea, button, label, fieldset, .chakra-form__group, .form-group, .field");
-        
-        if (!hasContent && !containsFormElements && div instanceof HTMLElement) {
+        const containsFormElements = div.querySelector(
+          "input, select, textarea, button, label, fieldset, .chakra-form__group, .form-group, .field"
+        );
+
+        if (
+          !hasContent &&
+          !containsFormElements &&
+          div instanceof HTMLElement
+        ) {
           // The hiding is handled by CSS in FormAccessibility.css
           // Just ensure the element has the proper class for CSS targeting
-          if (!div.classList.contains('css-0')) {
-            div.classList.add('css-0');
+          if (!div.classList.contains("css-0")) {
+            div.classList.add("css-0");
           }
         }
       });
