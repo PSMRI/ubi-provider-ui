@@ -38,7 +38,13 @@ interface FileUpload {
 
 // Interface for form submission data structure
 interface FormSubmissionData {
-  [key: string]: string | number | boolean | FileUpload[] | VCDocument[] | undefined;
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | FileUpload[]
+    | VCDocument[]
+    | undefined;
   files?: FileUpload[];
   vc_documents?: VCDocument[];
   benefitId: string;
@@ -151,21 +157,24 @@ const BenefitApplicationForm: React.FC = () => {
         });
       }
     };
-        // Fetch schema from API
+    // Fetch schema from API
     const getSchemaData = async () => {
       if (id) {
         try {
           const result = await getSchema(id);
-          if (!result?.responses?.[0]?.message?.catalog?.providers?.[0]?.items?.[0]) {
+          if (
+            !result?.responses?.[0]?.message?.catalog?.providers?.[0]
+              ?.items?.[0]
+          ) {
             throw new Error("Invalid schema response structure");
           }
-        
+
           // Extract relevant tags from the schema response
           const schemaTag =
             result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
               (tag: any) => tag?.descriptor?.code === "applicationForm"
             );
-       
+
           // Extract relevant tags from the schema response
           const documentTag =
             result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
@@ -235,7 +244,7 @@ const BenefitApplicationForm: React.FC = () => {
 
     // Convert eligibility and document fields to RJSF schema
     const docSchemaData = convertDocumentFields(docSchemaArr, formData?.docs);
-    console.log("docSchemaData", docSchemaData);
+
     setDocSchema(docSchemaData);
 
     // Merge application and document schemas
@@ -243,7 +252,6 @@ const BenefitApplicationForm: React.FC = () => {
       ...(applicationFormSchema?.properties ?? {}),
       ...(docSchemaData?.properties || {}),
     };
-    console.log("properties", properties);
 
     // Extract document field names for later classification
     const extractedDocFieldNames = getDocumentFieldNames(docSchemaData);
@@ -263,7 +271,7 @@ const BenefitApplicationForm: React.FC = () => {
       required,
       properties,
     };
-    console.log("allschema", allSchema);
+
     setFormSchema(allSchema);
 
     // --- CONSOLIDATED FIELDSET GROUPING ---
@@ -319,25 +327,72 @@ const BenefitApplicationForm: React.FC = () => {
     );
     uiOrder = uiOrder.concat(ungroupedPersonalFields);
 
-    // Step 3: Add document groups
+    // Step 3: Add document groups (sorted by mandatory first, then optional)
     if (consolidatedFieldGroups["documents"]) {
-      uiOrder = uiOrder.concat(consolidatedFieldGroups["documents"].fields);
+      const documentFields = consolidatedFieldGroups["documents"].fields;
+
+      // Sort documents: mandatory first, then optional
+      const sortedDocumentFields = documentFields.sort((a, b) => {
+        const fieldSchemaA = allSchema.properties[a];
+        const fieldSchemaB = allSchema.properties[b];
+
+        const isRequiredA =
+          fieldSchemaA?.required || allSchema.required?.includes(a) || false;
+        const isRequiredB =
+          fieldSchemaB?.required || allSchema.required?.includes(b) || false;
+
+        // Mandatory documents first (true comes before false when sorted in descending order)
+        if (isRequiredA !== isRequiredB) {
+          return isRequiredB ? 1 : -1; // Required fields come first
+        }
+
+        // If both have same required status, maintain original order
+        return documentFields.indexOf(a) - documentFields.indexOf(b);
+      });
+
+      // Update the consolidated group with sorted fields
+      consolidatedFieldGroups["documents"].fields = sortedDocumentFields;
+      uiOrder = uiOrder.concat(sortedDocumentFields);
     }
 
-    // Step 4: Add any remaining ungrouped document fields
-    const ungroupedDocFields = ungroupedFields.filter((fieldName) =>
-      extractedDocFieldNames.includes(fieldName)
+    // Step 4: Add any remaining ungrouped document fields (excluding already grouped ones)
+    const groupedDocFields = consolidatedFieldGroups["documents"]?.fields || [];
+    const ungroupedDocFields = ungroupedFields.filter(
+      (fieldName) =>
+        extractedDocFieldNames.includes(fieldName) &&
+        !groupedDocFields.includes(fieldName)
     );
     uiOrder = uiOrder.concat(ungroupedDocFields);
 
+    // Remove duplicates from uiOrder
+    const uniqueUiOrder = Array.from(new Set(uiOrder));
+
+    if (uiOrder.length !== uniqueUiOrder.length) {
+      console.warn(
+        "Removed duplicate fields from uiOrder:",
+        uiOrder.filter((field, index) => uiOrder.indexOf(field) !== index)
+      );
+    }
+
     // Build the uiSchema with proper fieldset configuration
     const uiSchema: any = {
-      "ui:order": uiOrder,
+      "ui:order": uniqueUiOrder,
     };
 
     // Add fieldset configuration only for grouped fields
     Object.entries(consolidatedFieldGroups).forEach(([groupName, group]) => {
-      group.fields.forEach((fieldName, index) => {
+      // For documents group, fields are already sorted by mandatory/optional
+      // For other groups, sort by UI order
+      const orderedFields =
+        groupName === "documents"
+          ? group.fields // Already sorted by mandatory first, then optional
+          : group.fields.sort((a, b) => {
+              const indexA = uniqueUiOrder.indexOf(a);
+              const indexB = uniqueUiOrder.indexOf(b);
+              return indexA - indexB;
+            });
+
+      orderedFields.forEach((fieldName, index) => {
         uiSchema[fieldName] = {
           ...uiSchema[fieldName],
           "ui:group": groupName,
@@ -345,9 +400,26 @@ const BenefitApplicationForm: React.FC = () => {
           "ui:groupFirst": index === 0, // Mark first field in group
         };
       });
+
+      // Update the group fields with the ordered version
+      consolidatedFieldGroups[groupName].fields = orderedFields;
     });
 
+    // Fallback: Ensure at least one field in each group has groupFirst: true
+    Object.keys(consolidatedFieldGroups).forEach((groupName) => {
+      const groupFields = consolidatedFieldGroups[groupName].fields;
+      const hasGroupFirst = groupFields.some(
+        (fieldName) => uiSchema[fieldName]?.["ui:groupFirst"] === true
+      );
 
+      if (!hasGroupFirst && groupFields.length > 0) {
+        const firstField = groupFields[0];
+        uiSchema[firstField] = {
+          ...uiSchema[firstField],
+          "ui:groupFirst": true,
+        };
+      }
+    });
 
     setUiSchema(uiSchema);
     // --- END CONSOLIDATED GROUPING ---
