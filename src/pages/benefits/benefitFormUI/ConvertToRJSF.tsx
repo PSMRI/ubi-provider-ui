@@ -102,38 +102,33 @@ const createFieldSchema = (field: ApplicationFormField) => {
     fieldSchema.minLength = 9;
     fieldSchema.maxLength = 18;
     fieldSchema.pattern = "^[0-9]+$";
-    fieldSchema.title = field.label || "Enter valid bank account number (9-18 digits)";
+    fieldSchema.title =
+      field.label || "Enter valid bank account number (9-18 digits)";
   } else if (field.name === "bankIfscCode") {
     fieldSchema.pattern = "^[A-Z]{4}0[A-Z0-9]{6}$";
-    fieldSchema.title = field.label || "Enter valid IFSC code (e.g., SBIN0001234)";
+    fieldSchema.title =
+      field.label || "Enter valid IFSC code (e.g., SBIN0001234)";
   } else if (field.name === "email") {
     fieldSchema.pattern = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
     fieldSchema.title = field.label || "Enter valid email address";
   } else if (field.name === "phone" || field.name === "mobileNumber") {
     fieldSchema.pattern = "^\\+91[6-9]\\d{9}$";
-    fieldSchema.title = field.label || "Enter valid phone number (+91XXXXXXXXXX)";
+    fieldSchema.title =
+      field.label || "Enter valid phone number (+91XXXXXXXXXX)";
   } else if (field.name === "dateOfBirth") {
     fieldSchema.type = "string";
     fieldSchema.format = "date";
     fieldSchema.title = field.label || "Date of Birth";
   } else if (field.name === "panCard") {
     fieldSchema.pattern = "^[A-Z]{5}[0-9]{4}[A-Z]{1}$";
-    fieldSchema.title = field.label || "Enter valid PAN card (e.g., ABCDE1234F)";
+    fieldSchema.title =
+      field.label || "Enter valid PAN card (e.g., ABCDE1234F)";
   } else if (field.name === "aadharCard" || field.name === "uidai") {
     fieldSchema.pattern = "^[0-9]{12}$";
     fieldSchema.title = field.label || "Enter valid Aadhar number (12 digits)";
   } else if (field.name === "pincode" || field.name === "postalCode") {
     fieldSchema.pattern = "^[0-9]{6}$";
     fieldSchema.title = field.label || "Enter valid PIN code (6 digits)";
-  } else if (field.name.toLowerCase().includes("age")) {
-    fieldSchema.type = "number";
-    fieldSchema.minimum = 0;
-    fieldSchema.maximum = 120;
-    fieldSchema.title = field.label || "Enter valid age";
-  } else if (field.name.toLowerCase().includes("income")) {
-    fieldSchema.type = "number";
-    fieldSchema.minimum = 0;
-    fieldSchema.title = field.label || "Enter annual income";
   }
 
   // Handle radio/select fields with options
@@ -153,12 +148,19 @@ const createFieldSchema = (field: ApplicationFormField) => {
 // Helper function to determine if a field is a file upload based on patterns
 export const isFileUploadField = (fieldName: string): boolean => {
   const fileUploadPatterns = [
-    'photo', 'image', 'picture', 'pic', 'icard', 
-    'passport', 'signature', 'selfie', 'upload'
+    "photo",
+    "image",
+    "picture",
+    "pic",
+    "icard",
+    "passport",
+    "signature",
+    "selfie",
+    "upload",
   ];
-  
+
   const lowerFieldName = fieldName.toLowerCase();
-  return fileUploadPatterns.some(pattern => lowerFieldName.includes(pattern));
+  return fileUploadPatterns.some((pattern) => lowerFieldName.includes(pattern));
 };
 
 // Helper function to create enum values and names from documents
@@ -235,9 +237,9 @@ export const extractDocumentTypeFromSelection = (
   }
 
   // Find the document by matching the doc_data (which contains the document ID/content)
-  const selectedDoc = docsArray.find(doc => 
-    doc.doc_data === selectedDocumentId || 
-    doc.doc_id === selectedDocumentId
+  const selectedDoc = docsArray.find(
+    (doc) =>
+      doc.doc_data === selectedDocumentId || doc.doc_id === selectedDocumentId
   );
 
   return selectedDoc?.doc_type || "unknown";
@@ -246,25 +248,30 @@ export const extractDocumentTypeFromSelection = (
 export const extractDocumentMetadataFromSelection = (
   selectedDocumentId: string,
   docsArray: Doc[]
-): { documentType: string; documentIssuer: string; selectedDoc: Doc | null } => {
+): {
+  documentType: string;
+  documentIssuer: string;
+  selectedDoc: Doc | null;
+} => {
   if (!selectedDocumentId || !docsArray || docsArray.length === 0) {
     return {
       documentType: "unknown",
       documentIssuer: "https://provider.example.org",
-      selectedDoc: null
+      selectedDoc: null,
     };
   }
 
   // Find the document by matching the doc_data (which contains the document ID/content)
-  const selectedDoc = docsArray.find(doc => 
-    doc.doc_data === selectedDocumentId || 
-    doc.doc_id === selectedDocumentId
+  const selectedDoc = docsArray.find(
+    (doc) =>
+      doc.doc_data === selectedDocumentId || doc.doc_id === selectedDocumentId
   );
 
   return {
     documentType: selectedDoc?.doc_type || "unknown",
-    documentIssuer: selectedDoc?.imported_from || "https://provider.example.org", 
-    selectedDoc: selectedDoc || null
+    documentIssuer:
+      selectedDoc?.imported_from || "https://provider.example.org",
+    selectedDoc: selectedDoc || null,
   };
 };
 
@@ -298,6 +305,9 @@ export const convertDocumentFields = (
 
   // Track required fields for the root schema
   const requiredFields: string[] = [];
+
+  // Track created fields to prevent duplicates across all creation paths
+  const createdFields = new Set<string>();
 
   // Separate eligibility and required-docs (mandatory/optional)
   const eligibilityArr = schemaArr.filter(
@@ -446,8 +456,14 @@ export const convertDocumentFields = (
         };
       }
 
-      schema.properties![fieldName] = documentField;
-      requiredFields.push(fieldName);
+      // Prevent duplicate field creation
+      if (!createdFields.has(fieldName)) {
+        createdFields.add(fieldName);
+        schema.properties![fieldName] = documentField;
+        requiredFields.push(fieldName);
+      } else {
+        console.warn(`Skipped duplicate field creation: ${fieldName}`);
+      }
     } else {
       // Fallback: for each eligibility criterion
       eligs.forEach((elig) => {
@@ -460,7 +476,7 @@ export const convertDocumentFields = (
           const allowedProofsLabel = allowedProofs.join(" / ");
 
           const fieldName = `${criteria.name}_doc`;
-          
+
           // Create VC metadata
           const vcMeta: VCDocumentMeta = {
             submissionReasons: [criteria.name],
@@ -488,8 +504,14 @@ export const convertDocumentFields = (
             };
           }
 
-          schema.properties![fieldName] = documentField;
-          requiredFields.push(fieldName);
+          // Prevent duplicate field creation
+          if (!createdFields.has(fieldName)) {
+            createdFields.add(fieldName);
+            schema.properties![fieldName] = documentField;
+            requiredFields.push(fieldName);
+          } else {
+            console.warn(`Skipped duplicate field creation: ${fieldName}`);
+          }
         } else {
           // Only one allowedProof, render as before
           allowedProofs.forEach((proof: string) => {
@@ -526,8 +548,14 @@ export const convertDocumentFields = (
               };
             }
 
-            schema.properties![fieldName] = documentField;
-            requiredFields.push(fieldName);
+            // Prevent duplicate field creation
+            if (!createdFields.has(fieldName)) {
+              createdFields.add(fieldName);
+              schema.properties![fieldName] = documentField;
+              requiredFields.push(fieldName);
+            } else {
+              console.warn(`Skipped duplicate field creation: ${fieldName}`);
+            }
           });
         }
       });
@@ -557,11 +585,16 @@ export const convertDocumentFields = (
         if (alreadyHandled) return;
       }
 
+      const fieldName = proof;
+
+      // Check if field already exists in schema to prevent duplicates
+      if (schema.properties![fieldName]) {
+        return;
+      }
+
       // Prepare select options from userDocs for this proof
       const proofDocs = filterDocsByProofs(userDocs, [proof]);
       const [enumValues, enumNames] = createDocumentEnums(proofDocs);
-
-      const fieldName = proof;
 
       // Create VC metadata
       const vcMeta: VCDocumentMeta = {
@@ -591,8 +624,16 @@ export const convertDocumentFields = (
         };
       }
 
-      schema.properties![fieldName] = documentField;
-      if (doc.isRequired) requiredFields.push(fieldName);
+      // Prevent duplicate field creation
+      if (!createdFields.has(fieldName)) {
+        createdFields.add(fieldName);
+        schema.properties![fieldName] = documentField;
+        if (doc.isRequired) requiredFields.push(fieldName);
+      } else {
+        console.warn(
+          `Skipped duplicate required-doc field creation: ${fieldName}`
+        );
+      }
     });
   });
 
@@ -630,27 +671,31 @@ export const extractUserDataForSchema = (
 // Helper function to get all document field names from schema
 export const getDocumentFieldNames = (schema: any): string[] => {
   const documentFields: string[] = [];
-  
+
   if (schema?.properties) {
     Object.keys(schema.properties).forEach((fieldName) => {
       const fieldSchema = schema.properties[fieldName];
-      if (fieldSchema?.vcMeta || fieldSchema?.fieldGroup?.groupName === "documents") {
+      if (
+        fieldSchema?.vcMeta ||
+        fieldSchema?.fieldGroup?.groupName === "documents"
+      ) {
         documentFields.push(fieldName);
       }
     });
   }
-  
+
   return documentFields;
 };
 
 // Helper function to get personal field names (non-document, non-system fields)
 export const getPersonalFieldNames = (
-  allFieldNames: string[], 
-  documentFieldNames: string[], 
-  systemFields: string[] = ['benefitId', 'docs', 'orderId']
+  allFieldNames: string[],
+  documentFieldNames: string[],
+  systemFields: string[] = ["benefitId", "docs", "orderId"]
 ): string[] => {
-  return allFieldNames.filter(fieldName => 
-    !documentFieldNames.includes(fieldName) && 
-    !systemFields.includes(fieldName)
+  return allFieldNames.filter(
+    (fieldName) =>
+      !documentFieldNames.includes(fieldName) &&
+      !systemFields.includes(fieldName)
   );
 };
