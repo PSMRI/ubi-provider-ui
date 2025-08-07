@@ -332,7 +332,7 @@ const BenefitApplicationForm: React.FC = () => {
       const documentFields = consolidatedFieldGroups["documents"].fields;
 
       // Sort documents: mandatory first, then optional
-      const sortedDocumentFields = documentFields.sort((a, b) => {
+      const sortedDocumentFields = [...documentFields].sort((a, b) => {
         const fieldSchemaA = allSchema.properties[a];
         const fieldSchemaB = allSchema.properties[b];
 
@@ -383,14 +383,16 @@ const BenefitApplicationForm: React.FC = () => {
     Object.entries(consolidatedFieldGroups).forEach(([groupName, group]) => {
       // For documents group, fields are already sorted by mandatory/optional
       // For other groups, sort by UI order
-      const orderedFields =
-        groupName === "documents"
-          ? group.fields // Already sorted by mandatory first, then optional
-          : group.fields.sort((a, b) => {
-              const indexA = uniqueUiOrder.indexOf(a);
-              const indexB = uniqueUiOrder.indexOf(b);
-              return indexA - indexB;
-            });
+      let orderedFields;
+      if (groupName === "documents") {
+        orderedFields = group.fields; // Already sorted by mandatory first, then optional
+      } else {
+        orderedFields = [...group.fields].sort((a, b) => {
+          const indexA = uniqueUiOrder.indexOf(a);
+          const indexB = uniqueUiOrder.indexOf(b);
+          return indexA - indexB;
+        });
+      }
 
       orderedFields.forEach((fieldName, index) => {
         uiSchema[fieldName] = {
