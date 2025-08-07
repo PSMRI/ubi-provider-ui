@@ -102,16 +102,29 @@ export const createDocumentTitle = (
   documentName: string,
   documentSubmissionReason: string = ""
 ) => {
+  // Validate inputs
 
-  const parsedReasons = JSON.parse(documentSubmissionReason)
-  if (parsedReasons.length === 0) return "";
-  const label = documentName
-    .replace(/([a-z])([A-Z])/g, "$1 $2")
-    .replace(/^./, (str) => str.toUpperCase());
-  if (parsedReasons.length === 1)
-    return `Document for ${parsedReasons[0]} (${label})`;
+  try {
+    const label = documentName
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/^./, (str) => str.toUpperCase());
 
-  return `Document for ${parsedReasons
-    .slice(0, -1)
-    .join(", ")} and ${parsedReasons.at(-1)} (${label})`;
+    const parsedReasons = JSON.parse(documentSubmissionReason);
+    if (!Array.isArray(parsedReasons) || parsedReasons.length === 0) {
+      console.error(
+        "Invalid or empty documentSubmissionReason array provided to createDocumentTitle"
+      );
+      return label;
+    }
+    if (parsedReasons.length === 1) {
+      return `Document for ${parsedReasons[0]} (${label})`;
+    }
+
+    return `Document for ${parsedReasons
+      .slice(0, -1)
+      .join(", ")} and ${parsedReasons.at(-1)} (${label})`;
+  } catch (error) {
+    console.error("Error creating document title:", error);
+    return "";
+  }
 };
