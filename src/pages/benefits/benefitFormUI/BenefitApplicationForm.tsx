@@ -14,8 +14,49 @@ import {
   convertApplicationFormFields,
   convertDocumentFields,
   extractUserDataForSchema,
+  getDocumentFieldNames,
+  getPersonalFieldNames,
+  isFileUploadField,
+  extractDocumentSubtype,
+  extractDocumentMetadataFromSelection,
 } from "./ConvertToRJSF";
 
+// Interface for VC document structure
+interface VCDocument {
+  document_submission_reason: string;
+  document_type: string;
+  document_subtype: string;
+  document_format: string;
+  document_imported_from: string;
+  document_content: string;
+}
+
+// Interface for file upload structure
+interface FileUpload {
+  [fieldName: string]: string;
+}
+
+// Interface for form submission data structure
+interface FormSubmissionData {
+  [key: string]: string | number | boolean | FileUpload[] | VCDocument[] | undefined;
+  files?: FileUpload[];
+  vc_documents?: VCDocument[];
+  benefitId: string;
+}
+interface DocumentMetadata {
+  doc_data: string;
+  doc_datatype: string;
+  doc_id: string;
+  doc_name: string;
+  doc_path: string;
+  doc_subtype: string;
+  doc_type: string;
+  doc_verified: boolean;
+  imported_from: string;
+  is_uploaded: boolean;
+  uploaded_at: string;
+  user_id: string;
+}
 
 const Form = withTheme(ChakraTheme);
 const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
@@ -36,6 +77,7 @@ interface EligibilityItem {
   };
   display?: boolean;
 }
+
 const BenefitApplicationForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
@@ -48,6 +90,8 @@ const BenefitApplicationForm: React.FC = () => {
   const [disableSubmit, setDisableSubmit] = useState(false);
   const [uiSchema, setUiSchema] = useState({});
   const [reviewerComment, setReviewerComment] = useState<string | null>(null);
+  const [documentFieldNames, setDocumentFieldNames] = useState<string[]>([]);
+  const [docsArray, setDocsArray] = useState<DocumentMetadata[]>([]);
 
   // Helper function to group form fields by fieldsGroupName
   const groupFieldsByGroup = (benefit: any) => {
@@ -96,9 +140,9 @@ const BenefitApplicationForm: React.FC = () => {
             };
           }
         });
-        /// extract user data fields maching to scheme fields
+        /// extract user data fields matching to schema fields
         const userData = extractUserDataForSchema(receivedData, prop);
-        /// send user data fields maching to scheme fields
+        /// send user data fields matching to schema fields
         setFormData(userData);
         // Process eligibility and document schema
         getEligibilitySchemaData(receivedData, documentTag, eligibilityTag, {
@@ -107,44 +151,61 @@ const BenefitApplicationForm: React.FC = () => {
         });
       }
     };
-    // Fetch schema from API
+        // Fetch schema from API
     const getSchemaData = async () => {
       if (id) {
-         const result = await getSchema(id);
-        // Extract relevant tags from the schema response       
-        const schemaTag =
-          result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
-            (tag: any) => tag?.descriptor?.code === "applicationForm"
+        try {
+          const result = await getSchema(id);
+          if (!result?.responses?.[0]?.message?.catalog?.providers?.[0]?.items?.[0]) {
+            throw new Error("Invalid schema response structure");
+          }
+        
+          // Extract relevant tags from the schema response
+          const schemaTag =
+            result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
+              (tag: any) => tag?.descriptor?.code === "applicationForm"
+            );
+       
+          // Extract relevant tags from the schema response
+          const documentTag =
+            result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
+              (tag: any) => tag?.descriptor?.code === "required-docs"
+            );
+
+          const eligibilityTag =
+            result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
+              (tag: any) => tag?.descriptor?.code === "eligibility"
+            );
+
+          // Parse application form fields
+          const parsedValues =
+            schemaTag?.list?.map((item: EligibilityItem) =>
+              JSON.parse(item.value)
+            ) || [];
+
+          // Use window.name for pre-filled data if available
+          const useData = window.name ? JSON.parse(window.name) : null;
+
+          if (useData?.remark) {
+            setReviewerComment(useData.remark);
+          }
+
+          // Store docs array for document type and issuer extraction
+          if (useData?.docs && Array.isArray(useData.docs)) {
+            setDocsArray(useData.docs);
+          }
+
+          getApplicationSchemaData(
+            useData,
+            parsedValues,
+            documentTag,
+            eligibilityTag
           );
-
-        const documentTag =
-          result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
-            (tag: any) => tag?.descriptor?.code === "required-docs"
-          );
-
-        const eligibilityTag =
-          result?.responses[0]?.message?.catalog?.providers?.[0]?.items?.[0]?.tags?.find(
-            (tag: any) => tag?.descriptor?.code === "eligibility"
-          );
-
-        // Parse application form fields
-        const parsedValues =
-          schemaTag?.list?.map((item: EligibilityItem) =>
-            JSON.parse(item.value)
-          ) || [];
-
-        // Use window.name for pre-filled data if available
-        const useData = window.name ? JSON.parse(window.name) : null;
-
-        if (useData?.remark) {
-          setReviewerComment(useData.remark);
+        } catch (error) {
+          console.error("Error fetching schema data:", error);
+          // Handle error gracefully - could set an error state or show a message
+          // For now, just log the error and let the component handle the empty state
         }
-        getApplicationSchemaData(
-          useData,
-          parsedValues,
-          documentTag,
-          eligibilityTag
-        );
       }
     };
     getSchemaData();
@@ -158,7 +219,6 @@ const BenefitApplicationForm: React.FC = () => {
     applicationFormSchema: any
   ) => {
     // Parse eligibility and document schema arrays
-   
     const eligSchemaStatic = eligibilityTag.list.map((item: EligibilityItem) =>
       JSON.parse(item.value)
     );
@@ -185,6 +245,10 @@ const BenefitApplicationForm: React.FC = () => {
     };
     console.log("properties", properties);
 
+    // Extract document field names for later classification
+    const extractedDocFieldNames = getDocumentFieldNames(docSchemaData);
+    setDocumentFieldNames(extractedDocFieldNames);
+
     // Collect required fields
     const required = Object.keys(properties).filter((key) => {
       const isRequired = properties[key].required;
@@ -202,69 +266,77 @@ const BenefitApplicationForm: React.FC = () => {
     console.log("allschema", allSchema);
     setFormSchema(allSchema);
 
-    // --- FIELDSET GROUPING AND ORDERING ---
+    // --- CONSOLIDATED FIELDSET GROUPING ---
     const appFieldNames = Object.keys(applicationFormSchema?.properties ?? {});
-    const docFieldNames = Object.keys(docSchemaData?.properties ?? {});
-    const allFieldNames = [...appFieldNames, ...docFieldNames];
+    const docSchemaFieldNames = Object.keys(docSchemaData?.properties ?? {});
+    const allFieldNames = [...appFieldNames, ...docSchemaFieldNames];
 
-    // Group all fields (application + document) by their fieldGroup metadata
-    const fieldGroups: Record<string, { label: string; fields: string[] }> = {};
+    // Consolidate all field groups to avoid nesting conflicts
+    const consolidatedFieldGroups: Record<
+      string,
+      { label: string; fields: string[] }
+    > = {};
     const ungroupedFields: string[] = [];
 
     allFieldNames.forEach((fieldName) => {
       const fieldSchema = allSchema.properties[fieldName];
+
+      // Check if field has grouping metadata from schema
       if (fieldSchema?.fieldGroup) {
         const groupName = fieldSchema.fieldGroup.groupName;
         const groupLabel = fieldSchema.fieldGroup.groupLabel;
 
-        if (!fieldGroups[groupName]) {
-          fieldGroups[groupName] = { label: groupLabel, fields: [] };
+        if (!consolidatedFieldGroups[groupName]) {
+          consolidatedFieldGroups[groupName] = {
+            label: groupLabel,
+            fields: [],
+          };
         }
-        fieldGroups[groupName].fields.push(fieldName);
+        consolidatedFieldGroups[groupName].fields.push(fieldName);
       } else {
+        // Fields without explicit grouping go to ungrouped
         ungroupedFields.push(fieldName);
       }
     });
 
-    // Create UI order with fieldset grouping
+    // Create logical field ordering: personal fields first, then documents
     let uiOrder: string[] = [];
 
-    // Separate document groups from other groups
-    const documentGroups: string[] = [];
-    const otherGroups: string[] = [];
+    // Step 1: Add personal information groups (non-document groups)
+    const personalGroups = Object.keys(consolidatedFieldGroups).filter(
+      (groupName) => groupName !== "documents"
+    );
 
-    Object.keys(fieldGroups).forEach((groupName) => {
-      if (groupName === "documents") {
-        documentGroups.push(groupName);
-      } else {
-        otherGroups.push(groupName);
+    personalGroups.forEach((groupName) => {
+      if (consolidatedFieldGroups[groupName]) {
+        uiOrder = uiOrder.concat(consolidatedFieldGroups[groupName].fields);
       }
     });
 
-    // Add non-document groups first (in natural order)
-    otherGroups.forEach((groupName) => {
-      if (fieldGroups[groupName]) {
-        uiOrder = uiOrder.concat(fieldGroups[groupName].fields);
-      }
-    });
+    // Step 2: Add ungrouped personal fields
+    const ungroupedPersonalFields = ungroupedFields.filter(
+      (fieldName) => !extractedDocFieldNames.includes(fieldName)
+    );
+    uiOrder = uiOrder.concat(ungroupedPersonalFields);
 
-    // Add document groups at the end
-    documentGroups.forEach((groupName) => {
-      if (fieldGroups[groupName]) {
-        uiOrder = uiOrder.concat(fieldGroups[groupName].fields);
-      }
-    });
+    // Step 3: Add document groups
+    if (consolidatedFieldGroups["documents"]) {
+      uiOrder = uiOrder.concat(consolidatedFieldGroups["documents"].fields);
+    }
 
-    // Add ungrouped fields at the end
-    uiOrder = uiOrder.concat(ungroupedFields);
+    // Step 4: Add any remaining ungrouped document fields
+    const ungroupedDocFields = ungroupedFields.filter((fieldName) =>
+      extractedDocFieldNames.includes(fieldName)
+    );
+    uiOrder = uiOrder.concat(ungroupedDocFields);
 
-    // Build the uiSchema with fieldset configuration
+    // Build the uiSchema with proper fieldset configuration
     const uiSchema: any = {
       "ui:order": uiOrder,
     };
 
-    // Add fieldset configuration for grouped fields
-    Object.entries(fieldGroups).forEach(([groupName, group]) => {
+    // Add fieldset configuration only for grouped fields
+    Object.entries(consolidatedFieldGroups).forEach(([groupName, group]) => {
       group.fields.forEach((fieldName, index) => {
         uiSchema[fieldName] = {
           ...uiSchema[fieldName],
@@ -275,51 +347,124 @@ const BenefitApplicationForm: React.FC = () => {
       });
     });
 
-    console.log("Final UI Schema:", uiSchema);
+
 
     setUiSchema(uiSchema);
-    // --- END ORDERING ---
+    // --- END CONSOLIDATED GROUPING ---
   };
 
-  // Note: Field grouping and accessibility styling is now handled by FormAccessibilityProvider
+  // Helper function to create VC document with actual document type and issuer from selection
+  const createVCDocument = (
+    fieldName: string,
+    encodedContent: string,
+    fieldSchema: any
+  ): VCDocument => {
+    const vcMeta = fieldSchema?.vcMeta;
+    const formValue = (formData as any)[fieldName];
+
+    // Extract complete document metadata from the selected document
+    const { documentType, documentIssuer } =
+      extractDocumentMetadataFromSelection(formValue, docsArray);
+    const documentSubtype = extractDocumentSubtype(formValue, fieldSchema);
+
+    return {
+      document_submission_reason: JSON.stringify(
+        vcMeta?.submissionReasons || [fieldName]
+      ),
+      document_type: documentType, // Real doc_type from selected document
+      document_subtype: documentSubtype,
+      document_format: vcMeta?.format || "json",
+      document_imported_from: documentIssuer, // Real imported_from from selected document
+      document_content: encodedContent,
+    };
+  };
 
   // Handle form data change
   const handleChange = ({ formData }: any) => {
     setFormData(formData);
   };
 
-  // Handle form submit
+  // Enhanced form submit handler with structured output
   const handleFormSubmit = async () => {
     setDisableSubmit(true);
 
-    const formDataNew: any = { ...formData };
+    try {
+      const formDataNew: FormSubmissionData = { benefitId: id! };
+      const allFieldNames = Object.keys(formData);
+      const systemFields = ["benefitId", "docs", "orderId"];
 
-    formDataNew.benefitId = id;
-    delete formDataNew.docs;
-
-    // Encode document fields to base64
-    Object.keys(docSchema?.properties ?? {}).forEach((e: any) => {
-      if (formDataNew[e]) {
-        formDataNew[e] = encodeToBase64(formDataNew?.[e]);
-      } else {
-        console.log(`${e} is missing from formDataNew`);
-      }
-    });
-    console.log("formDataNew", formDataNew);
-
-    // Submit the form
-    const response = await submitForm(formDataNew);
-    if (response) {
-      setDisableSubmit(true);
-      const targetOrigin = import.meta.env.VITE_BENEFICIERY_IFRAME_URL;
-      window.parent.postMessage(
-        {
-          type: "FORM_SUBMIT",
-          data: { submit: response, userData: formDataNew },
-        },
-        targetOrigin
+      // Get personal field names (non-document, non-system fields)
+      const personalFieldNames = getPersonalFieldNames(
+        allFieldNames,
+        documentFieldNames,
+        systemFields
       );
-    } else {
+
+      // Extract personal information
+      personalFieldNames.forEach((fieldName) => {
+        const value = (formData as any)[fieldName];
+        if (value !== undefined && value !== null) {
+          formDataNew[fieldName] = value;
+        }
+      });
+
+      // Process document fields
+      const files: FileUpload[] = [];
+      const vcDocuments: VCDocument[] = [];
+
+      documentFieldNames.forEach((fieldName) => {
+        const fieldValue = (formData as any)[fieldName];
+        if (!fieldValue) {
+          return;
+        }
+
+        const fieldSchema = formSchema?.properties?.[fieldName];
+        const encodedContent = encodeToBase64(fieldValue);
+
+        // Determine if this is a file upload or VC document based on field pattern and metadata
+        const isFileUpload =
+          fieldSchema?.vcMeta?.isFileUpload || isFileUploadField(fieldName);
+
+        if (isFileUpload) {
+          // Add to files array
+          files.push({ [fieldName]: encodedContent });
+        } else {
+          // Create VC document with metadata, actual document type and issuer
+          const vcDocument = createVCDocument(
+            fieldName,
+            encodedContent,
+            fieldSchema
+          );
+          vcDocuments.push(vcDocument);
+        }
+      });
+
+      // Add arrays to submission data only if they have content
+      if (files.length > 0) {
+        formDataNew.files = files;
+      }
+
+      if (vcDocuments.length > 0) {
+        formDataNew.vc_documents = vcDocuments;
+      }
+
+      // Submit the form
+      const response = await submitForm(formDataNew as any);
+      if (response) {
+        setDisableSubmit(true);
+        const targetOrigin = import.meta.env.VITE_BENEFICIERY_IFRAME_URL;
+        window.parent.postMessage(
+          {
+            type: "FORM_SUBMIT",
+            data: { submit: response, userData: formDataNew },
+          },
+          targetOrigin
+        );
+      } else {
+        setDisableSubmit(false);
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
       setDisableSubmit(false);
     }
   };
@@ -328,6 +473,7 @@ const BenefitApplicationForm: React.FC = () => {
   if (!formSchema) {
     return <Loading />;
   }
+
   const getMarginTop = () => {
     return reviewerComment?.trim() ? "25%" : "0";
   };
@@ -400,12 +546,12 @@ const BenefitApplicationForm: React.FC = () => {
         label="Submit Form"
         isDisabled={disableSubmit}
         onClick={() => {
-          let error: any = {};
+          const error: any = {};
           Object.keys(docSchema?.properties ?? {}).forEach((e: any) => {
             const field = docSchema?.properties[e];
             if (field?.enum && field.enum.length === 0) {
               error[e] = {
-                __errors: [`${e} is not have document`],
+                __errors: [`${e} does not have a document`],
               };
             }
           });

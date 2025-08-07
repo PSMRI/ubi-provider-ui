@@ -40,6 +40,16 @@ interface RequiredDoc {
   documentType: string; // Added to track document type
 }
 
+// Interface for VC document metadata
+interface VCDocumentMeta {
+  submissionReasons: string[];
+  documentType: string;
+  documentSubtype?: string;
+  format: string;
+  issuer: string;
+  isFileUpload?: boolean;
+}
+
 // Convert application form fields to RJSF schema with fieldset support
 export const convertApplicationFormFields = (
   groupedFields:
@@ -79,33 +89,51 @@ export const convertApplicationFormFields = (
   return rjsfSchema;
 };
 
-// Helper function to create individual field schema
+// Helper function to create individual field schema with enhanced validation
 const createFieldSchema = (field: ApplicationFormField) => {
   // Build the schema for each field
-  let fieldSchema: any = {
+  const fieldSchema: any = {
     type: "string",
     title: field.label,
   };
 
-  // Handle specific field validations
+  // Enhanced validation patterns
   if (field.name === "bankAccountNumber") {
     fieldSchema.minLength = 9;
     fieldSchema.maxLength = 18;
     fieldSchema.pattern = "^[0-9]+$";
+    fieldSchema.title = field.label || "Enter valid bank account number (9-18 digits)";
   } else if (field.name === "bankIfscCode") {
     fieldSchema.pattern = "^[A-Z]{4}0[A-Z0-9]{6}$";
-    fieldSchema.title = field.label || "Enter valid IFSC code";
+    fieldSchema.title = field.label || "Enter valid IFSC code (e.g., SBIN0001234)";
   } else if (field.name === "email") {
     fieldSchema.pattern = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
     fieldSchema.title = field.label || "Enter valid email address";
-  } else if (field.name === "phone") {
+  } else if (field.name === "phone" || field.name === "mobileNumber") {
     fieldSchema.pattern = "^\\+91[6-9]\\d{9}$";
-    fieldSchema.title =
-      field.label || "Enter valid phone number (+91XXXXXXXXXX)";
+    fieldSchema.title = field.label || "Enter valid phone number (+91XXXXXXXXXX)";
   } else if (field.name === "dateOfBirth") {
     fieldSchema.type = "string";
     fieldSchema.format = "date";
     fieldSchema.title = field.label || "Date of Birth";
+  } else if (field.name === "panCard") {
+    fieldSchema.pattern = "^[A-Z]{5}[0-9]{4}[A-Z]{1}$";
+    fieldSchema.title = field.label || "Enter valid PAN card (e.g., ABCDE1234F)";
+  } else if (field.name === "aadharCard" || field.name === "uidai") {
+    fieldSchema.pattern = "^[0-9]{12}$";
+    fieldSchema.title = field.label || "Enter valid Aadhar number (12 digits)";
+  } else if (field.name === "pincode" || field.name === "postalCode") {
+    fieldSchema.pattern = "^[0-9]{6}$";
+    fieldSchema.title = field.label || "Enter valid PIN code (6 digits)";
+  } else if (field.name.toLowerCase().includes("age")) {
+    fieldSchema.type = "number";
+    fieldSchema.minimum = 0;
+    fieldSchema.maximum = 120;
+    fieldSchema.title = field.label || "Enter valid age";
+  } else if (field.name.toLowerCase().includes("income")) {
+    fieldSchema.type = "number";
+    fieldSchema.minimum = 0;
+    fieldSchema.title = field.label || "Enter annual income";
   }
 
   // Handle radio/select fields with options
@@ -122,6 +150,17 @@ const createFieldSchema = (field: ApplicationFormField) => {
   return fieldSchema;
 };
 
+// Helper function to determine if a field is a file upload based on patterns
+export const isFileUploadField = (fieldName: string): boolean => {
+  const fileUploadPatterns = [
+    'photo', 'image', 'picture', 'pic', 'icard', 
+    'passport', 'signature', 'selfie', 'upload'
+  ];
+  
+  const lowerFieldName = fieldName.toLowerCase();
+  return fileUploadPatterns.some(pattern => lowerFieldName.includes(pattern));
+};
+
 // Helper function to create enum values and names from documents
 const createDocumentEnums = (docs: Doc[]): [string[], string[]] => {
   if (!docs || docs.length === 0) return [[], []];
@@ -136,16 +175,15 @@ const createDocumentEnums = (docs: Doc[]): [string[], string[]] => {
   );
 };
 
-// Helper function to create a document field schema
+// Helper function to create a document field schema with VC metadata
 const createDocumentFieldSchema = (
   title: string,
   isRequired: boolean,
   enumValues: string[],
   enumNames: string[],
+  vcMeta: VCDocumentMeta,
   proof?: string
 ): any => {
-  // For income proof documents, ensure we label it clearly as income proof
-
   // Add document type to the title if provided
   if (proof) {
     proof = proof
@@ -161,14 +199,25 @@ const createDocumentFieldSchema = (
     title = `${title} (${proof})`;
   }
 
-  return {
+  const fieldSchema: any = {
     type: "string",
     title,
     required: isRequired,
     enum: enumValues.length > 0 ? enumValues : [""],
     enumNames: enumNames || [],
     default: enumValues[0] || "",
+    // Add VC metadata for later use in form submission
+    vcMeta: {
+      submissionReasons: vcMeta.submissionReasons,
+      documentType: vcMeta.documentType,
+      documentSubtype: vcMeta.documentSubtype,
+      format: vcMeta.format,
+      issuer: vcMeta.issuer,
+      isFileUpload: vcMeta.isFileUpload,
+    },
   };
+
+  return fieldSchema;
 };
 
 // Helper function to filter documents by proof types
@@ -176,7 +225,67 @@ const filterDocsByProofs = (docs: Doc[], proofs: string[]): Doc[] => {
   return docs?.filter((doc: Doc) => proofs.includes(doc.doc_subtype)) || [];
 };
 
-// Convert eligibility and document fields to RJSF schema
+// Helper function to extract document type from the selected document in docs array
+export const extractDocumentTypeFromSelection = (
+  selectedDocumentId: string,
+  docsArray: Doc[]
+): string => {
+  if (!selectedDocumentId || !docsArray || docsArray.length === 0) {
+    return "unknown";
+  }
+
+  // Find the document by matching the doc_data (which contains the document ID/content)
+  const selectedDoc = docsArray.find(doc => 
+    doc.doc_data === selectedDocumentId || 
+    doc.doc_id === selectedDocumentId
+  );
+
+  return selectedDoc?.doc_type || "unknown";
+};
+// Helper function to extract complete document metadata from selection
+export const extractDocumentMetadataFromSelection = (
+  selectedDocumentId: string,
+  docsArray: Doc[]
+): { documentType: string; documentIssuer: string; selectedDoc: Doc | null } => {
+  if (!selectedDocumentId || !docsArray || docsArray.length === 0) {
+    return {
+      documentType: "unknown",
+      documentIssuer: "https://provider.example.org",
+      selectedDoc: null
+    };
+  }
+
+  // Find the document by matching the doc_data (which contains the document ID/content)
+  const selectedDoc = docsArray.find(doc => 
+    doc.doc_data === selectedDocumentId || 
+    doc.doc_id === selectedDocumentId
+  );
+
+  return {
+    documentType: selectedDoc?.doc_type || "unknown",
+    documentIssuer: selectedDoc?.imported_from || "https://provider.example.org", 
+    selectedDoc: selectedDoc || null
+  };
+};
+
+// Helper function to extract document subtype from form data
+export const extractDocumentSubtype = (
+  formValue: string,
+  fieldSchema: any
+): string => {
+  if (!formValue || !fieldSchema?.enumNames || !fieldSchema?.enum) {
+    return fieldSchema?.vcMeta?.documentSubtype || "unknown";
+  }
+
+  const valueIndex = fieldSchema.enum.indexOf(formValue);
+  if (valueIndex >= 0 && fieldSchema.enumNames[valueIndex]) {
+    return fieldSchema.enumNames[valueIndex];
+  }
+
+  return fieldSchema?.vcMeta?.documentSubtype || "unknown";
+};
+
+// Convert eligibility and document fields to RJSF schema with VC metadata
 export const convertDocumentFields = (
   schemaArr: any[],
   userDocs: Doc[]
@@ -248,9 +357,7 @@ export const convertDocumentFields = (
     eligProofGroups[key].eligs.push(elig);
   });
 
-  // Debug: log the eligibility proof groups
-
-  // Render grouped eligibility fields
+  // Render grouped eligibility fields with VC metadata
   Object.values(eligProofGroups).forEach((group) => {
     const { criteriaNames, allowedProofs, eligs } = group;
 
@@ -301,32 +408,45 @@ export const convertDocumentFields = (
 
       // Use document type if all proofs have the same type
       const documentType =
-        documentTypes.length === 1 ? documentTypes[0] : undefined;
+        documentTypes.length === 1 ? documentTypes[0] : "eligibilityCriteria";
 
       let fieldLabel;
-      if (documentType) {
+      if (documentType && documentType !== "eligibilityCriteria") {
         fieldLabel = `Choose document for ${criteriaNames.join(
           ", "
         )}, ${documentType}`;
       } else {
         fieldLabel = `Choose document for ${criteriaNames.join(", ")}`;
       }
+
+      // Create VC metadata
+      const vcMeta: VCDocumentMeta = {
+        submissionReasons: criteriaNames,
+        documentType: documentType,
+        documentSubtype: allowedProofs[0], // First proof as default
+        format: "json",
+        issuer: "https://provider.example.org",
+        isFileUpload: isFileUploadField(fieldName),
+      };
+
       const documentField = createDocumentFieldSchema(
         fieldLabel,
         true,
         enumValues,
         enumNames,
+        vcMeta,
         allowedProofsLabel
       );
 
-      // Add field group metadata for documents
-      documentField.fieldGroup = {
-        groupName: "documents",
-        groupLabel: "Documents",
-      };
+      // Only add fieldGroup if it's not already set - avoid nested grouping
+      if (!documentField.fieldGroup) {
+        documentField.fieldGroup = {
+          groupName: "documents",
+          groupLabel: "Documents",
+        };
+      }
 
       schema.properties![fieldName] = documentField;
-
       requiredFields.push(fieldName);
     } else {
       // Fallback: for each eligibility criterion
@@ -339,25 +459,37 @@ export const convertDocumentFields = (
           const [enumValues, enumNames] = createDocumentEnums(matchingDocs);
           const allowedProofsLabel = allowedProofs.join(" / ");
 
-          // Find document type from required docs if available
+          const fieldName = `${criteria.name}_doc`;
+          
+          // Create VC metadata
+          const vcMeta: VCDocumentMeta = {
+            submissionReasons: [criteria.name],
+            documentType: "eligibilityCriteria",
+            documentSubtype: allowedProofs[0],
+            format: "json",
+            issuer: "https://provider.example.org",
+            isFileUpload: isFileUploadField(fieldName),
+          };
 
           const documentField = createDocumentFieldSchema(
             `Choose document for ${criteria.name}`,
             true,
             enumValues,
             enumNames,
+            vcMeta,
             allowedProofsLabel
           );
 
-          // Add field group metadata for documents
-          documentField.fieldGroup = {
-            groupName: "documents",
-            groupLabel: "Documents",
-          };
+          // Only add fieldGroup if it's not already set - avoid nested grouping
+          if (!documentField.fieldGroup) {
+            documentField.fieldGroup = {
+              groupName: "documents",
+              groupLabel: "Documents",
+            };
+          }
 
-          schema.properties![`${criteria.name}_doc`] = documentField;
-
-          requiredFields.push(`${criteria.name}_doc`);
+          schema.properties![fieldName] = documentField;
+          requiredFields.push(fieldName);
         } else {
           // Only one allowedProof, render as before
           allowedProofs.forEach((proof: string) => {
@@ -365,23 +497,37 @@ export const convertDocumentFields = (
             const [proofEnumValues, proofEnumNames] =
               createDocumentEnums(proofDocs);
 
+            const fieldName = `${criteria.name}_${proof}_doc`;
+
+            // Create VC metadata
+            const vcMeta: VCDocumentMeta = {
+              submissionReasons: [criteria.name],
+              documentType: "eligibilityCriteria",
+              documentSubtype: proof,
+              format: "json",
+              issuer: "https://provider.example.org",
+              isFileUpload: isFileUploadField(fieldName),
+            };
+
             const documentField = createDocumentFieldSchema(
               `Choose document for ${criteria.name}`,
               true,
               proofEnumValues,
               proofEnumNames,
+              vcMeta,
               proof
             );
 
-            // Add field group metadata for documents
-            documentField.fieldGroup = {
-              groupName: "documents",
-              groupLabel: "Documents",
-            };
+            // Only add fieldGroup if it's not already set - avoid nested grouping
+            if (!documentField.fieldGroup) {
+              documentField.fieldGroup = {
+                groupName: "documents",
+                groupLabel: "Documents",
+              };
+            }
 
-            schema.properties![`${criteria.name}_${proof}_doc`] = documentField;
-
-            requiredFields.push(`${criteria.name}_${proof}_doc`);
+            schema.properties![fieldName] = documentField;
+            requiredFields.push(fieldName);
           });
         }
       });
@@ -398,7 +544,7 @@ export const convertDocumentFields = (
 
     doc.allowedProofs.forEach((proof: string) => {
       // Check if this proof should be shown as a separate document field
-      let showAsSeparateDocField = Object.values(eligProofGroups).some(
+      const showAsSeparateDocField = Object.values(eligProofGroups).some(
         (group) =>
           group.allowedProofs.length > 1 && group.allowedProofs.includes(proof)
       );
@@ -415,24 +561,38 @@ export const convertDocumentFields = (
       const proofDocs = filterDocsByProofs(userDocs, [proof]);
       const [enumValues, enumNames] = createDocumentEnums(proofDocs);
 
+      const fieldName = proof;
+
+      // Create VC metadata
+      const vcMeta: VCDocumentMeta = {
+        submissionReasons: [doc.documentType],
+        documentType: doc.documentType,
+        documentSubtype: proof,
+        format: "json",
+        issuer: "https://provider.example.org",
+        isFileUpload: isFileUploadField(fieldName),
+      };
+
       // Include the document type in the label for fields coming from requiredDocsArr
       const documentField = createDocumentFieldSchema(
         `Choose document for ${doc.documentType}`,
         !!doc.isRequired,
         enumValues,
         enumNames,
-        proof // Pass the document type to be included in the label
+        vcMeta,
+        proof
       );
 
-      // Add field group metadata for documents
-      documentField.fieldGroup = {
-        groupName: "documents",
-        groupLabel: "Documents",
-      };
+      // Only add fieldGroup if it's not already set - avoid nested grouping
+      if (!documentField.fieldGroup) {
+        documentField.fieldGroup = {
+          groupName: "documents",
+          groupLabel: "Documents",
+        };
+      }
 
-      schema.properties![proof] = documentField;
-      //Choose document for idProof (otrCertificate)
-      if (doc.isRequired) requiredFields.push(proof);
+      schema.properties![fieldName] = documentField;
+      if (doc.isRequired) requiredFields.push(fieldName);
     });
   });
 
@@ -465,4 +625,32 @@ export const extractUserDataForSchema = (
   }
 
   return result;
+};
+
+// Helper function to get all document field names from schema
+export const getDocumentFieldNames = (schema: any): string[] => {
+  const documentFields: string[] = [];
+  
+  if (schema?.properties) {
+    Object.keys(schema.properties).forEach((fieldName) => {
+      const fieldSchema = schema.properties[fieldName];
+      if (fieldSchema?.vcMeta || fieldSchema?.fieldGroup?.groupName === "documents") {
+        documentFields.push(fieldName);
+      }
+    });
+  }
+  
+  return documentFields;
+};
+
+// Helper function to get personal field names (non-document, non-system fields)
+export const getPersonalFieldNames = (
+  allFieldNames: string[], 
+  documentFieldNames: string[], 
+  systemFields: string[] = ['benefitId', 'docs', 'orderId']
+): string[] => {
+  return allFieldNames.filter(fieldName => 
+    !documentFieldNames.includes(fieldName) && 
+    !systemFields.includes(fieldName)
+  );
 };

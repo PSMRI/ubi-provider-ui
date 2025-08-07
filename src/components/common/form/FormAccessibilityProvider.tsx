@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import "./FormAccessibility.css";
 
 interface FormAccessibilityProviderProps {
   formRef: React.RefObject<HTMLFormElement>;
@@ -10,9 +11,11 @@ interface FormAccessibilityProviderProps {
 /**
  * FormAccessibilityProvider Component
  *
- * Handles accessibility styling, field grouping, and WCAG compliance for RJSF forms.
- * This component ensures all form elements meet accessibility standards while preserving
- * React Select and other complex component functionality.
+ * Handles field grouping and basic accessibility compliance for RJSF forms.
+ * This component focuses on legend border styling and field grouping while
+ * allowing RJSF to handle default form element styling.
+ * 
+ * Uses stable selectors for better maintainability and focuses on accessibility structure.
  */
 const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
   formRef,
@@ -25,15 +28,19 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
    * Groups form fields into fieldsets based on uiSchema metadata
    */
   useEffect(() => {
-    if (formRef.current && uiSchema && Object.keys(uiSchema).length > 0) {
-      const timeoutId = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
+      // Add basic accessibility container class
+      addAccessibilityContainer();
+      
+      // Only apply field grouping if uiSchema exists
+      if (formRef.current && uiSchema && Object.keys(uiSchema).length > 0) {
         applyFieldGrouping();
-        applyAccessibilityStyles();
-        removeEmptyDivs();
-      }, 100);
+      }
+      
+      hideEmptyDivs();
+    }, 100);
 
-      return () => clearTimeout(timeoutId);
-    }
+    return () => clearTimeout(timeoutId);
   }, [formSchema, uiSchema]);
 
   /**
@@ -160,31 +167,10 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     fieldset.className = "field-group";
     fieldset.setAttribute("data-group", groupName);
 
-    // Apply fieldset styling - darker border for clear section definition
-    fieldset.style.cssText = `
-      border: 1px solid #C6C5D0;
-      border-radius: 8px;
-      padding: 16px;
-      margin: 0 !important;
-      background-color: #FFFFFF;
-      position: relative; 
-      display: block;
-      box-sizing: border-box;
-    `;
-
     // Create legend
     const legend = document.createElement("legend");
     legend.textContent = group.label;
     legend.className = "field-group-legend";
-    legend.style.cssText = `
-      font-weight: bold;
-      font-size: 1.2em;
-      color: #1A202C;
-      background-color: #FFFFFF;
-      margin-bottom: 16px;
-      padding: 4px 8px;
-     
-    `;
 
     fieldset.appendChild(legend);
 
@@ -193,188 +179,34 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     if (firstField?.parentNode) {
       firstField.parentNode.insertBefore(fieldset, firstField);
 
-      group.fields.forEach((field, fieldIndex) => {
-        if (field instanceof HTMLElement) {
-          field.style.marginTop = "0px";
-          field.style.marginBottom =
-            fieldIndex === group.fields.length - 1 ? "0px" : "8px";
-        }
+      group.fields.forEach((field) => {
         fieldset.appendChild(field);
       });
     }
   };
 
   /**
-   * Applies WCAG compliant accessibility styles to form elements
+   * Adds basic accessibility container class to form elements
    */
-  const applyAccessibilityStyles = () => {
+  const addAccessibilityContainer = () => {
     const formContainer = formRef.current?.querySelector
       ? formRef.current
       : null;
     let formElement = formContainer || document.querySelector("form");
 
-    if (!formElement || !(formElement instanceof HTMLElement)) return;
-
-    // Remove spacing from form container
-    formElement.style.gap = "0";
-    formElement.style.rowGap = "0";
-    formElement.style.columnGap = "0";
-
-    // Style labels with explicit colors
-    const labels = formElement.querySelectorAll("label");
-    labels.forEach((label: Element) => {
-      if (label instanceof HTMLElement) {
-        label.style.color = "#1A202C";
-        label.style.backgroundColor = "#FFFFFF";
-        label.style.fontWeight = "600";
-        label.style.padding = "2px 4px";
-      }
-    });
-
-    // Style basic inputs (exclude React Select)
-    // Basic inputs with lighter borders for better visual hierarchy
-    const basicInputs = formElement.querySelectorAll(
-      'input[type="text"], input[type="email"], input[type="tel"], input[type="password"], input[type="date"], textarea'
-    );
-    basicInputs.forEach((input: Element) => {
-      if (
-        input instanceof HTMLElement &&
-        !input.closest(".css-18h4ju6, .react-select")
-      ) {
-        input.style.color = "#1A202C";
-        input.style.backgroundColor = "#FFFFFF";
-        input.style.border = "1px solid #767680";
-      }
-    });
-
-    // Style text elements (exclude React Select)
-    const allTextElements = formElement.querySelectorAll(
-      'span:not([class*="css-"]), div:not([class*="css-"]), p, h1, h2, h3, h4, h5, h6'
-    );
-    allTextElements.forEach((element: Element) => {
-      if (
-        element instanceof HTMLElement &&
-        element.textContent?.trim() &&
-        !element.closest('.css-18h4ju6, .react-select, [class*="css-"]')
-      ) {
-        element.style.color = "#1A202C";
-        element.style.backgroundColor = "#FFFFFF";
-      }
-    });
-
-    // Handle placeholder text (exclude React Select)
-    const inputsWithPlaceholder = formElement.querySelectorAll(
-      'input[placeholder]:not([class*="css-"]), textarea[placeholder]'
-    );
-    if (inputsWithPlaceholder.length > 0) {
-      const style = document.createElement("style");
-      style.textContent = `
-        input:not([class*="css-"])::placeholder, textarea::placeholder {
-          color: #767680 !important;
-          background-color: #FFFFFF !important;
-          opacity: 1 !important;
-        }
-      `;
-      document.head.appendChild(style);
+    if (!formElement || !(formElement instanceof HTMLElement)) {
+      return;
     }
 
-    // Style error messages and required indicators
-    const errorElements = formElement.querySelectorAll(
-      '[class*="error"], [class*="required"], .chakra-form__required-indicator'
-    );
-    errorElements.forEach((element: Element) => {
-      if (element instanceof HTMLElement) {
-        element.style.color = "#C53030";
-        element.style.backgroundColor = "#FFFFFF";
-        element.style.fontWeight = "600";
-      }
-    });
-
-    // Add global CSS for form validation and React Select
-    addGlobalStyles();
-
-    // Ensure React Select functionality
-    setTimeout(() => {
-      const selectElements = formElement.querySelectorAll(".css-18h4ju6");
-      selectElements.forEach((selectEl: Element) => {
-        if (selectEl instanceof HTMLElement) {
-          selectEl.style.pointerEvents = "auto";
-          const input = selectEl.querySelector(".css-10wwmqn");
-          if (input instanceof HTMLElement) {
-            input.style.pointerEvents = "auto";
-          }
-        }
-      });
-    }, 200);
+    // Add main accessibility container class
+    formElement.classList.add("form-accessibility-container");
   };
 
   /**
-   * Adds global CSS styles for accessibility and React Select
+   * Hides empty divs that create unwanted gaps between fieldsets
+   * Uses CSS classes for styling
    */
-  const addGlobalStyles = () => {
-    // Check if styles already added
-    if (document.getElementById("form-accessibility-styles")) return;
-
-    const globalStyle = document.createElement("style");
-    globalStyle.id = "form-accessibility-styles";
-    globalStyle.textContent = `
-      /* WCAG Compliant Form Styles */
-      .chakra-form__error-message {
-        color: #C53030 !important;
-        background-color: #FFFFFF !important;
-        font-weight: 600 !important;
-        padding: 2px 4px !important;
-      }
-      .chakra-form__required-indicator {
-        color: #C53030 !important;
-        background-color: #FFFFFF !important;
-        font-weight: bold !important;
-      }
-      .chakra-form__help-text {
-        color: #767680 !important;
-        background-color: #FFFFFF !important;
-      }
-      /* React Select proper styling without breaking functionality */
-      .css-18h4ju6 .css-10wwmqn {
-        color: #1A202C !important;
-        background-color: transparent !important;
-      }
-      .css-18h4ju6 {
-        background-color: #FFFFFF !important;
-        border: 1px solid #767680 !important;
-        border-radius: 6px !important;
-      }
-      .css-18h4ju6:hover {
-        border-color: #2D3748 !important;
-      }
-      .css-18h4ju6:focus-within {
-        border-color: #3182CE !important;
-        box-shadow: 0 0 0 1px #3182CE !important;
-      }
-      /* React Select dropdown menu */
-      [class*="menu"] {
-        background-color: #FFFFFF !important;
-        border: 1px solid #767680 !important;
-      }
-      [class*="option"] {
-        color: #1A202C !important;
-        background-color: #FFFFFF !important;
-      }
-      [class*="option"]:hover {
-        background-color: #EDF2F7 !important;
-        color: #1A202C !important;
-      }
-      [class*="singleValue"] {
-        color: #1A202C !important;
-      }
-    `;
-    document.head.appendChild(globalStyle);
-  };
-
-  /**
-   * Removes empty divs that create unwanted gaps between fieldsets
-   */
-  const removeEmptyDivs = () => {
+  const hideEmptyDivs = () => {
     const formContainer = formRef.current?.querySelector
       ? formRef.current
       : null;
@@ -383,18 +215,26 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     if (!formElement) return;
 
     setTimeout(() => {
+      // Use specific selectors for empty divs
       const emptyDivs = formElement.querySelectorAll(
-        'div.css-0, div[class="css-0"]'
+        'div.css-0, div[class="css-0"]:not([role]):not([class*="react-select"]):not([data-react-select])'
       );
 
       emptyDivs.forEach((div: Element) => {
         const hasContent =
           div.textContent?.trim() ||
-          div.querySelector("input, select, textarea, button, img") ||
+          div.querySelector("input, select, textarea, button, img, label, fieldset") ||
           div.children.length > 0;
 
-        if (!hasContent && div instanceof HTMLElement) {
-          div.style.display = "none";
+        // Only hide divs that are truly empty and don't contain any form elements
+        const containsFormElements = div.querySelector("input, select, textarea, button, label, fieldset, .chakra-form__group, .form-group, .field");
+        
+        if (!hasContent && !containsFormElements && div instanceof HTMLElement) {
+          // The hiding is handled by CSS in FormAccessibility.css
+          // Just ensure the element has the proper class for CSS targeting
+          if (!div.classList.contains('css-0')) {
+            div.classList.add('css-0');
+          }
         }
       });
     }, 150);
