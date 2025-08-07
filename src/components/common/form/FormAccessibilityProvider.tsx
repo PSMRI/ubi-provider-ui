@@ -13,6 +13,8 @@ interface FormAccessibilityProviderProps {
  * Handles accessibility styling, field grouping, and WCAG compliance for RJSF forms.
  * This component ensures all form elements meet accessibility standards while preserving
  * React Select and other complex component functionality.
+ * 
+ * Uses stable selectors instead of generated CSS class names for better maintainability.
  */
 const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
   formRef,
@@ -162,11 +164,11 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
 
     // Apply fieldset styling - darker border for clear section definition
     fieldset.style.cssText = `
-      border: 1px solid black;
-      border-radius: 8px;
-      padding: 16px;
+      border: 1px solid var(--form-section-border);
+      border-radius: var(--form-border-radius);
+      padding: var(--form-padding-large);
       margin: 0 !important;
-      background-color: #FFFFFF;
+      background-color: var(--form-bg-color);
       position: relative; 
       display: block;
       box-sizing: border-box;
@@ -179,10 +181,10 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     legend.style.cssText = `
       font-weight: bold;
       font-size: 1.2em;
-      color: #1A202C;
-      background-color: #FFFFFF;
-      margin-bottom: 16px;
-      padding: 4px 8px;]
+      color: var(--form-text-color);
+      background-color: var(--form-bg-color);
+      margin-bottom: var(--form-padding-large);
+      padding: var(--form-padding-small);
     `;
 
     fieldset.appendChild(legend);
@@ -205,6 +207,7 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
 
   /**
    * Applies WCAG compliant accessibility styles to form elements
+   * Uses stable selectors instead of generated CSS class names
    */
   const applyAccessibilityStyles = () => {
     const formContainer = formRef.current?.querySelector
@@ -223,30 +226,29 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     const labels = formElement.querySelectorAll("label");
     labels.forEach((label: Element) => {
       if (label instanceof HTMLElement) {
-        label.style.color = "#1A202C";
-        label.style.backgroundColor = "#FFFFFF";
+        label.style.color = "var(--form-text-color)";
+        label.style.backgroundColor = "var(--form-bg-color)";
         label.style.fontWeight = "600";
-        label.style.padding = "2px 4px";
+        label.style.padding = "var(--form-padding-small)";
       }
     });
 
-    // Style basic inputs (exclude React Select)
-    // Basic inputs with lighter borders for better visual hierarchy
+    // Style basic inputs (exclude React Select containers)
     const basicInputs = formElement.querySelectorAll(
       'input[type="text"], input[type="email"], input[type="tel"], input[type="password"], input[type="date"], textarea'
     );
     basicInputs.forEach((input: Element) => {
       if (
         input instanceof HTMLElement &&
-        !input.closest(".css-18h4ju6, .react-select")
+        !input.closest('[data-react-select="true"], .react-select, [class*="react-select"]')
       ) {
-        input.style.color = "#1A202C";
-        input.style.backgroundColor = "#FFFFFF";
-        input.style.border = "1px solid #767680";
+        input.style.color = "var(--form-text-color)";
+        input.style.backgroundColor = "var(--form-bg-color)";
+        input.style.border = `1px solid var(--form-border-color)`;
       }
     });
 
-    // Style text elements (exclude React Select)
+    // Style text elements (exclude React Select components)
     const allTextElements = formElement.querySelectorAll(
       'span:not([class*="css-"]), div:not([class*="css-"]), p, h1, h2, h3, h4, h5, h6'
     );
@@ -254,10 +256,10 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
       if (
         element instanceof HTMLElement &&
         element.textContent?.trim() &&
-        !element.closest('.css-18h4ju6, .react-select, [class*="css-"]')
+        !element.closest('[data-react-select="true"], .react-select, [class*="react-select"], [class*="css-"]')
       ) {
-        element.style.color = "#1A202C";
-        element.style.backgroundColor = "#FFFFFF";
+        element.style.color = "var(--form-text-color)";
+        element.style.backgroundColor = "var(--form-bg-color)";
       }
     });
 
@@ -269,8 +271,8 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
       const style = document.createElement("style");
       style.textContent = `
         input:not([class*="css-"])::placeholder, textarea::placeholder {
-          color: #767680 !important;
-          background-color: #FFFFFF !important;
+          color: var(--form-placeholder-color) !important;
+          background-color: var(--form-bg-color) !important;
           opacity: 1 !important;
         }
       `;
@@ -283,8 +285,8 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     );
     errorElements.forEach((element: Element) => {
       if (element instanceof HTMLElement) {
-        element.style.color = "#C53030";
-        element.style.backgroundColor = "#FFFFFF";
+        element.style.color = "var(--form-error-color)";
+        element.style.backgroundColor = "var(--form-bg-color)";
         element.style.fontWeight = "600";
       }
     });
@@ -292,44 +294,85 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     // Add global CSS for form validation and React Select
     addGlobalStyles();
 
-    // Ensure React Select functionality with hidden input
+    // Handle React Select components using stable selectors
     setTimeout(() => {
-      const selectElements = formElement.querySelectorAll(".css-18h4ju6, .css-i2418r");
-      selectElements.forEach((selectEl: Element) => {
-        if (selectEl instanceof HTMLElement) {
-          selectEl.style.pointerEvents = "auto";
-          selectEl.style.cursor = "pointer";
-          
-          // Make the entire control area clickable
-          const controlArea = selectEl.querySelector(".css-j93siq, .css-18euh9p");
-          if (controlArea instanceof HTMLElement) {
-            controlArea.style.cursor = "pointer";
-            controlArea.style.pointerEvents = "auto";
-          }
-          
-          // Handle the hidden input
-          const input = selectEl.querySelector(".css-10wwmqn");
+      handleReactSelectStyling(formElement);
+    }, 200);
+  };
+
+  /**
+   * Handles React Select styling using stable selectors
+   */
+  const handleReactSelectStyling = (formElement: Element) => {
+    // Use more stable selectors for React Select components
+    // Look for divs with React Select indicators (aria-hidden="true" and SVG content)
+    const reactSelectContainers = formElement.querySelectorAll(
+      '[role="combobox"], [aria-expanded], div[class*="react-select"], div[data-react-select="true"]'
+    );
+
+    // Also try to find by common React Select structure patterns
+    const possibleSelectContainers = formElement.querySelectorAll('div');
+    const selectContainers: Element[] = [];
+
+    possibleSelectContainers.forEach((div) => {
+      // Look for React Select indicators: presence of dropdown arrow SVG or specific roles
+      const hasDropdownIndicator = div.querySelector('svg[aria-hidden="true"]') || 
+                                   div.querySelector('[role="button"]') ||
+                                   div.querySelector('input[readonly][aria-autocomplete="list"]') ||
+                                   div.hasAttribute('aria-expanded');
+
+      if (hasDropdownIndicator && !selectContainers.includes(div)) {
+        selectContainers.push(div);
+      }
+    });
+
+    // Combine both approaches
+    const allSelectElements = [
+      ...Array.from(reactSelectContainers),
+      ...selectContainers
+    ].filter((elem, index, self) => 
+      self.findIndex(e => e === elem) === index
+    );
+
+    allSelectElements.forEach((selectEl: Element) => {
+      if (selectEl instanceof HTMLElement) {
+        selectEl.style.pointerEvents = "auto";
+        selectEl.style.cursor = "pointer";
+        
+        // Find the control area (usually contains the input and value)
+        const controlArea = selectEl.querySelector('div:has(> input[readonly])') ||
+                           selectEl.querySelector('[role="button"]') ||
+                           selectEl.querySelector('div:first-child');
+                           
+        if (controlArea instanceof HTMLElement) {
+          controlArea.style.cursor = "pointer";
+          controlArea.style.pointerEvents = "auto";
+        }
+        
+        // Handle hidden/readonly inputs in React Select
+        const hiddenInputs = selectEl.querySelectorAll('input[readonly], input[aria-autocomplete="list"]');
+        hiddenInputs.forEach((input) => {
           if (input instanceof HTMLInputElement) {
             input.readOnly = true;
             input.style.pointerEvents = "none";
             input.tabIndex = -1; // Remove from tab order
           }
-        }
-      });
+        });
+      }
+    });
 
-      // Make dropdown indicators clickable
-      const dropdownIndicators = formElement.querySelectorAll(".css-xq12md, .css-hfbj6y");
-      dropdownIndicators.forEach((indicator: Element) => {
-        if (indicator instanceof HTMLElement) {
-          indicator.style.cursor = "pointer";
-          indicator.style.pointerEvents = "auto";
-        }
-      });
-    }, 200);
+    // Make dropdown indicators clickable using more stable selectors
+    const dropdownIndicators = formElement.querySelectorAll('svg[aria-hidden="true"], [role="button"]');
+    dropdownIndicators.forEach((indicator: Element) => {
+      if (indicator instanceof HTMLElement && indicator.closest('[role="combobox"], div[class*="react-select"]')) {
+        indicator.style.cursor = "pointer";
+        indicator.style.pointerEvents = "auto";
+      }
+    });
   };
 
   /**
-   * Adds global CSS styles for accessibility and React Select
+   * Adds global CSS styles for accessibility and React Select using stable selectors
    */
   const addGlobalStyles = () => {
     // Check if styles already added
@@ -338,44 +381,108 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     const globalStyle = document.createElement("style");
     globalStyle.id = "form-accessibility-styles";
     globalStyle.textContent = `
+      /* CSS Variables for WCAG-compliant form styling */
+      :root {
+        /* Base Colors */
+        --form-text-color: #1A202C;           /* Primary text - passes AAA (15.8:1 vs white) */
+        --form-bg-color: #FFFFFF;             /* Form background */
+        --form-bg-secondary: #F7FAFC;         /* Secondary background */
+        
+        /* Border Colors - Consistent with Chakra UI */
+        --form-border-color: #E2E8F0;         /* Default border (gray.200) */
+        --form-border-hover: #D1D5DB;         /* Hover border (gray.300) */
+        --form-border-focus: #3182CE;         /* Focus border (blue.500) */
+        --form-border-error: #E53E3E;         /* Error border (red.500) */
+        
+        /* Text Colors */
+        --form-placeholder-color: #4A5568;    /* WCAG AA compliant placeholder (7.6:1 vs white) */
+        --form-help-text-color: #718096;      /* Help text (gray.500) */
+        --form-error-color: #C53030;          /* Error text (red.600) */
+        --form-required-color: #C53030;       /* Required indicator */
+        
+        /* Interactive States */
+        --form-hover-bg: #EDF2F7;             /* Hover background (gray.100) */
+        --form-selected-bg: #E6FFFA;          /* Selected/active background (teal.50) */
+        --form-disabled-bg: #F7FAFC;          /* Disabled background */
+        --form-disabled-text: #A0AEC0;        /* Disabled text (gray.400) */
+        
+        /* Dividers and Separators */
+        --form-divider-color: #F1F5F9;        /* Subtle separators */
+        --form-section-border: #000000;       /* Strong section borders (fieldsets) */
+        
+        /* Dimensions */
+        --form-border-radius: 6px;            /* Standard border radius */
+        --form-input-height: 40px;            /* Standard input height */
+        --form-dropdown-max-height: 200px;    /* Dropdown menu max height */
+        
+        /* Spacing */
+        --form-padding-small: 4px 8px;        /* Small padding (labels, indicators) */
+        --form-padding-medium: 8px 12px;      /* Medium padding (inputs, options) */
+        --form-padding-large: 16px;           /* Large padding (fieldsets) */
+        
+        /* Shadows */
+        --form-focus-shadow: 0 0 0 1px var(--form-border-focus);
+        --form-dropdown-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        
+        /* Z-index */
+        --form-dropdown-z-index: 1000;        /* Dropdown menu z-index */
+      }
+      
+
+      
       /* WCAG Compliant Form Styles */
       .chakra-form__error-message {
-        color: #C53030 !important;
-        background-color: #FFFFFF !important;
+        color: var(--form-error-color) !important;
+        background-color: var(--form-bg-color) !important;
         font-weight: 600 !important;
-        padding: 2px 4px !important;
+        padding: var(--form-padding-small) !important;
       }
       .chakra-form__required-indicator {
-        color: #C53030 !important;
-        background-color: #FFFFFF !important;
+        color: var(--form-required-color) !important;
+        background-color: var(--form-bg-color) !important;
         font-weight: bold !important;
       }
       .chakra-form__help-text {
-        color: #767680 !important;
-        background-color: #FFFFFF !important;
+        color: var(--form-help-text-color) !important;
+        background-color: var(--form-bg-color) !important;
       }
-      /* React Select proper styling without breaking functionality */
-      .css-18h4ju6 .css-10wwmqn {
-        color: #1A202C !important;
-        background-color: transparent !important;
-        caret-color: transparent !important;
-        cursor: pointer !important;
+      
+      /* React Select styling using stable selectors - consistent with Chakra UI form fields */
+      /* Target React Select containers by role and data attributes */
+      [role="combobox"], 
+      div[class*="react-select__control"],
+      div[data-react-select="true"] {
+        background-color: var(--form-bg-color) !important;
+        border: 1px solid var(--form-border-color) !important;
+        border-radius: var(--form-border-radius);
+        cursor: pointer;
       }
-      .css-18h4ju6 {
-        background-color: #FFFFFF !important;
-        border: 1px solid #767680 !important;
-        border-radius: 6px !important;
-        cursor: pointer !important;
+      
+      [role="combobox"]:hover,
+      div[class*="react-select__control"]:hover,
+      div[data-react-select="true"]:hover {
+        border-color: var(--form-border-hover) !important;
       }
-      .css-18h4ju6:hover {
-        border-color: #2D3748 !important;
+      
+      [role="combobox"]:focus-within,
+      div[class*="react-select__control"]:focus-within,
+      div[data-react-select="true"]:focus-within {
+        border-color: var(--form-border-focus) !important;
+        box-shadow: var(--form-focus-shadow);
       }
-      .css-18h4ju6:focus-within {
-        border-color: #3182CE !important;
-        box-shadow: 0 0 0 1px #3182CE !important;
+      
+      /* Style React Select inputs using more stable selectors */
+      input[aria-autocomplete="list"],
+      input[readonly][aria-expanded],
+      div[class*="react-select"] input {
+        color: var(--form-text-color) !important;
+        background-color: transparent;
+        caret-color: transparent;
+        cursor: pointer;
       }
-      /* Hide React Select input completely while preserving functionality */
-      .css-10wwmqn {
+      
+      /* Hide React Select internal inputs that should not be visible */
+      input[aria-autocomplete="list"][readonly] {
         opacity: 0 !important;
         width: 0 !important;
         height: 0 !important;
@@ -385,83 +492,100 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
         background: transparent !important;
         position: absolute !important;
         pointer-events: none !important;
-        caret-color: transparent !important;
+        caret-color: transparent;
       }
-      /* React Select dropdown menu - consistent with form styling */
-      [class*="menu"] {
-        background-color: #FFFFFF !important;
-        border: 1px solid #767680 !important;
-        border-radius: 6px !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
-        z-index: 1000 !important;
-      }
-      [class*="menuList"] {
-        padding: 4px 0 !important;
-        max-height: 200px !important;
-        overflow-y: auto !important;
-      }
-      [class*="option"] {
-        color: #1A202C !important;
-        background-color: #FFFFFF !important;
-        padding: 8px 12px !important;
-        cursor: pointer !important;
-        font-size: 14px !important;
-        border-bottom: 1px solid #F7FAFC !important;
-      }
-      [class*="option"]:last-child {
-        border-bottom: none !important;
-      }
-      [class*="option"]:hover {
-        background-color: #EDF2F7 !important;
-        color: #1A202C !important;
-      }
-      [class*="option"]:focus,
-      [class*="option"][aria-selected="true"] {
-        background-color: #E6FFFA !important;
-        color: #1A202C !important;
-      }
-      [class*="singleValue"] {
-        color: #1A202C !important;
-        font-size: 14px !important;
-        font-weight: 400 !important;
-      }
-      [class*="placeholder"] {
-        color: #767680 !important;
-        font-size: 14px !important;
-      }
-      /* Dropdown control styling to match other form inputs */
-      .css-j93siq {
-        min-height: 40px !important;
       
-        border: 1px solid #767680 !important;
-        border-right: none !important;
-        
+      /* React Select dropdown menu - using more stable selectors */
+      [role="listbox"],
+      div[class*="react-select__menu"],
+      div[class*="menu"][role="menu"] {
+        background-color: var(--form-bg-color) !important;
+        border: 1px solid var(--form-border-color) !important;
+        border-radius: var(--form-border-radius);
+        box-shadow: var(--form-dropdown-shadow);
+        z-index: var(--form-dropdown-z-index);
+      }
+      
+      /* React Select menu list */
+      div[class*="react-select__menu-list"],
+      div[class*="menuList"] {
+        padding: 4px 0;
+        max-height: var(--form-dropdown-max-height);
+        overflow-y: auto;
+      }
+      
+      /* React Select options */
+      [role="option"],
+      div[class*="react-select__option"] {
+        color: var(--form-text-color) !important;
+        background-color: var(--form-bg-color) !important;
+        padding: var(--form-padding-medium) !important;
+        cursor: pointer;
+        font-size: 14px;
+        border-bottom: 1px solid var(--form-divider-color);
+      }
+      
+      [role="option"]:last-child,
+      div[class*="react-select__option"]:last-child {
+        border-bottom: none;
+      }
+      
+      [role="option"]:hover,
+      div[class*="react-select__option"]:hover {
+        background-color: var(--form-hover-bg) !important;
+        color: var(--form-text-color) !important;
+      }
+      
+      [role="option"]:focus,
+      [role="option"][aria-selected="true"],
+      div[class*="react-select__option"]:focus,
+      div[class*="react-select__option"][aria-selected="true"] {
+        background-color: var(--form-selected-bg) !important;
+        color: var(--form-text-color) !important;
+      }
+      
+      /* React Select single value and placeholder */
+      div[class*="react-select__single-value"],
+      div[class*="singleValue"] {
+        color: var(--form-text-color) !important;
+        font-size: 14px;
+        font-weight: 400;
+      }
+      
+      div[class*="react-select__placeholder"],
+      div[class*="placeholder"] {
+        color: var(--form-placeholder-color) !important;
+        font-size: 14px;
+      }
+      
+      /* General React Select value container */
+      div[class*="react-select__value-container"] {
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+      }
+      
+      /* React Select control styling - fallback for specific implementations */
+      div[class*="react-select__control"] {
+        min-height: var(--form-input-height) !important;
+        border: 1px solid var(--form-border-color) !important;
         box-shadow: none !important;
       }
-      .css-j93siq:hover {
-        border-color: #2D3748 !important;
+      
+      div[class*="react-select__control"]:hover {
+        border-color: #D1D5DB !important; /* Chakra UI gray.300 */
       }
-      .css-i2418r:focus-within .css-j93siq {
-        border-color: #3182CE !important;
-        border-right: none !important;
-        box-shadow: 0 0 0 1px #3182CE !important;
+      
+      /* React Select indicator container */
+      div[class*="react-select__indicator"] {
+        cursor: pointer !important;
+        padding: 8px !important;
       }
-             /* Value container styling */
-       .css-18euh9p {
-         padding: 8px 12px !important;
-         font-size: 14px !important;
-       }
-       /* Dropdown indicator styling - borders except left */
-       .css-xq12md {
-         border-top: 1px solid #767680 !important;
-         border-right: 1px solid #767680 !important;
-         border-bottom: 1px solid #767680 !important;
-         border-left: none !important;
-         border-top-right-radius: 6px !important;
-         border-bottom-right-radius: 6px !important;
-         padding: 8px !important;
-         background-color: #FFFFFF !important;
-       }
+      
+      /* SVG dropdown arrows in React Select */
+      svg[aria-hidden="true"] {
+        cursor: pointer !important;
+        pointer-events: auto !important;
+      }
     `;
     document.head.appendChild(globalStyle);
   };
@@ -478,8 +602,9 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
     if (!formElement) return;
 
     setTimeout(() => {
+      // Use more specific selectors for empty divs, avoiding React Select components
       const emptyDivs = formElement.querySelectorAll(
-        'div.css-0, div[class="css-0"]'
+        'div.css-0, div[class="css-0"]:not([role]):not([class*="react-select"]):not([data-react-select])'
       );
 
       emptyDivs.forEach((div: Element) => {
