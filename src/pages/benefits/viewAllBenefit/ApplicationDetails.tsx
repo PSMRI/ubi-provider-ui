@@ -42,6 +42,7 @@ import {
   getBenefitById,
 } from "../../../services/benefits";
 import EligibilityTable from "../../../components/EligibilityTable";
+import { createDocumentTitle } from "../../../services/helperService";
 
 const tabStyles = {
   fontWeight: "500",
@@ -385,6 +386,9 @@ const ApplicationDetails: React.FC = () => {
       verificationErrors: file?.verificationStatus?.verificationErrors ?? [
         "Some error occurred in verification",
       ],
+      documentTitle: file.documentSubmissionReason 
+        ? createDocumentTitle(file.documentSubtype, file.documentSubmissionReason)
+        : undefined,
     }));
 
     setDocuments(docs);

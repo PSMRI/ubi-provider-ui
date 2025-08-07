@@ -98,3 +98,20 @@ export const formatTitle = (title: string): string => {
 
   return cleanedTitle.toLowerCase();
 };
+export const createDocumentTitle = (
+  documentName: string,
+  documentSubmissionReason: string = ""
+) => {
+
+  const parsedReasons = JSON.parse(documentSubmissionReason)
+  if (parsedReasons.length === 0) return "";
+  const label = documentName
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/^./, (str) => str.toUpperCase());
+  if (parsedReasons.length === 1)
+    return `Document for ${parsedReasons[0]} (${label})`;
+
+  return `Document for ${parsedReasons
+    .slice(0, -1)
+    .join(", ")} and ${parsedReasons.at(-1)} (${label})`;
+};
