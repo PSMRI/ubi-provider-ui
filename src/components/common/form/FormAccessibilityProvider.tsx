@@ -89,7 +89,7 @@ const FormAccessibilityProvider: React.FC<FormAccessibilityProviderProps> = ({
       if (fieldConfig?.["ui:group"]) {
         const groupName = fieldConfig["ui:group"];
 
-        let fieldElement = findFieldElement(formElement, fieldName);
+        const fieldElement = findFieldElement(formElement, fieldName);
 
         if (fieldElement && fieldGroups[groupName]) {
           // Check if this field is already in any group to prevent duplicates
