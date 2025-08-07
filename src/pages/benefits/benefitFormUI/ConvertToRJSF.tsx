@@ -367,13 +367,9 @@ export const convertDocumentFields = (
     eligProofGroups[key].eligs.push(elig);
   });
 
-  // Render grouped eligibility fields with VC metadata
-  Object.values(eligProofGroups).forEach((group) => {
-    const { criteriaNames, allowedProofs, eligs } = group;
-
-    // Check if all allowedProofs are present as either optional-doc or mandatory-doc
+  // Helper function to check if proofs are present in required docs
+  const checkProofsPresence = (allowedProofs: string[]) => {
     const matchedProofs: ProofEntry[] = [];
-
     const allPresent = allowedProofs.every((proof: string) => {
       const optionalMatch = optionalDocsProofs.find(
         (entry) => entry.proof === proof
@@ -391,176 +387,143 @@ export const convertDocumentFields = (
         return true;
       }
 
-      return false; // not found in either
+      return false;
     });
+    return { allPresent, matchedProofs };
+  };
 
-    // Find matching documents for these proofs
+  // Helper function to add document field to schema
+  const addDocumentFieldToSchema = (fieldName: string, documentField: any) => {
+    if (!documentField.fieldGroup) {
+      documentField.fieldGroup = {
+        groupName: "documents",
+        groupLabel: "Documents",
+      };
+    }
+
+    if (!createdFields.has(fieldName)) {
+      createdFields.add(fieldName);
+      schema.properties![fieldName] = documentField;
+      requiredFields.push(fieldName);
+    } else {
+      console.warn(`Skipped duplicate field creation: ${fieldName}`);
+    }
+  };
+
+  // Helper function to process grouped eligibility field
+  const processGroupedEligibilityField = (group: any) => {
+    const { criteriaNames, allowedProofs, eligs } = group;
+    const { allPresent, matchedProofs } = checkProofsPresence(allowedProofs);
+    
     const matchingDocs = filterDocsByProofs(userDocs, allowedProofs);
     const [enumValues, enumNames] = createDocumentEnums(matchingDocs);
-
-    // Use / as separator for allowedProofs in the label
     const allowedProofsLabel = allowedProofs.join(" / ");
 
-    // If all allowedProofs are present in required-docs, render as required single select
     if (allPresent && criteriaNames.length > 0) {
-      // If only one criterion in the group, use its name as the field name
-      // If multiple, join names, and always use _doc suffix for document select fields
-      const fieldName =
-        (criteriaNames.length === 1
-          ? criteriaNames[0]
-          : criteriaNames.join("_")) + "_doc";
+      processAllPresentCase(criteriaNames, allowedProofs, matchedProofs, enumValues, enumNames, allowedProofsLabel);
+    } else {
+      processFallbackCase(eligs, userDocs);
+    }
+  };
 
-      // Look for document types from matchedProofs
-      const documentTypes = matchedProofs
-        .map((entry) => entry.documentType)
-        .filter(Boolean)
-        .filter((value, index, self) => self.indexOf(value) === index); // unique values
+  // Helper function to process when all proofs are present
+  const processAllPresentCase = (criteriaNames: string[], allowedProofs: string[], matchedProofs: ProofEntry[], enumValues: string[], enumNames: string[], allowedProofsLabel: string) => {
+    const fieldName = (criteriaNames.length === 1 ? criteriaNames[0] : criteriaNames.join("_")) + "_doc";
+    const documentTypes = matchedProofs
+      .map((entry) => entry.documentType)
+      .filter(Boolean)
+      .filter((value, index, self) => self.indexOf(value) === index);
+    
+    const documentType = documentTypes.length === 1 ? documentTypes[0] : "eligibilityCriteria";
+    const fieldLabel = documentType && documentType !== "eligibilityCriteria"
+      ? `Choose document for ${criteriaNames.join(", ")}, ${documentType}`
+      : `Choose document for ${criteriaNames.join(", ")}`;
 
-      // Use document type if all proofs have the same type
-      const documentType =
-        documentTypes.length === 1 ? documentTypes[0] : "eligibilityCriteria";
+    const vcMeta: VCDocumentMeta = {
+      submissionReasons: criteriaNames,
+      documentType: documentType,
+      documentSubtype: allowedProofs[0],
+      format: "json",
+      issuer: "https://provider.example.org",
+      isFileUpload: isFileUploadField(fieldName),
+    };
 
-      let fieldLabel;
-      if (documentType && documentType !== "eligibilityCriteria") {
-        fieldLabel = `Choose document for ${criteriaNames.join(
-          ", "
-        )}, ${documentType}`;
+    const documentField = createDocumentFieldSchema(fieldLabel, true, enumValues, enumNames, vcMeta, allowedProofsLabel);
+    addDocumentFieldToSchema(fieldName, documentField);
+  };
+
+  // Helper function to process fallback cases
+  const processFallbackCase = (eligs: EligItem[], userDocs: Doc[]) => {
+    eligs.forEach((elig) => {
+      const { allowedProofs } = elig;
+      
+      if (allowedProofs.length > 1) {
+        processMultiProofEligibility(elig, userDocs);
       } else {
-        fieldLabel = `Choose document for ${criteriaNames.join(", ")}`;
+        processSingleProofEligibility(elig, userDocs);
       }
+    });
+  };
 
-      // Create VC metadata
+  // Helper function to process eligibility with multiple proofs
+  const processMultiProofEligibility = (elig: EligItem, userDocs: Doc[]) => {
+    const { allowedProofs, criteria } = elig;
+    const matchingDocs = filterDocsByProofs(userDocs, allowedProofs);
+    const [enumValues, enumNames] = createDocumentEnums(matchingDocs);
+    const allowedProofsLabel = allowedProofs.join(" / ");
+    const fieldName = `${criteria.name}_doc`;
+
+    const vcMeta: VCDocumentMeta = {
+      submissionReasons: [criteria.name],
+      documentType: "eligibilityCriteria",
+      documentSubtype: allowedProofs[0],
+      format: "json",
+      issuer: "https://provider.example.org",
+      isFileUpload: isFileUploadField(fieldName),
+    };
+
+    const documentField = createDocumentFieldSchema(
+      `Choose document for ${criteria.name}`,
+      true,
+      enumValues,
+      enumNames,
+      vcMeta,
+      allowedProofsLabel
+    );
+    addDocumentFieldToSchema(fieldName, documentField);
+  };
+
+  // Helper function to process eligibility with single proof
+  const processSingleProofEligibility = (elig: EligItem, userDocs: Doc[]) => {
+    const { allowedProofs, criteria } = elig;
+    allowedProofs.forEach((proof: string) => {
+      const proofDocs = filterDocsByProofs(userDocs, [proof]);
+      const [proofEnumValues, proofEnumNames] = createDocumentEnums(proofDocs);
+      const fieldName = `${criteria.name}_${proof}_doc`;
+
       const vcMeta: VCDocumentMeta = {
-        submissionReasons: criteriaNames,
-        documentType: documentType,
-        documentSubtype: allowedProofs[0], // First proof as default
+        submissionReasons: [criteria.name],
+        documentType: "eligibilityCriteria",
+        documentSubtype: proof,
         format: "json",
         issuer: "https://provider.example.org",
         isFileUpload: isFileUploadField(fieldName),
       };
 
       const documentField = createDocumentFieldSchema(
-        fieldLabel,
+        `Choose document for ${criteria.name}`,
         true,
-        enumValues,
-        enumNames,
+        proofEnumValues,
+        proofEnumNames,
         vcMeta,
-        allowedProofsLabel
+        proof
       );
+      addDocumentFieldToSchema(fieldName, documentField);
+    });
+  };
 
-      // Only add fieldGroup if it's not already set - avoid nested grouping
-      if (!documentField.fieldGroup) {
-        documentField.fieldGroup = {
-          groupName: "documents",
-          groupLabel: "Documents",
-        };
-      }
-
-      // Prevent duplicate field creation
-      if (!createdFields.has(fieldName)) {
-        createdFields.add(fieldName);
-        schema.properties![fieldName] = documentField;
-        requiredFields.push(fieldName);
-      } else {
-        console.warn(`Skipped duplicate field creation: ${fieldName}`);
-      }
-    } else {
-      // Fallback: for each eligibility criterion
-      eligs.forEach((elig) => {
-        const { allowedProofs, criteria } = elig;
-
-        if (allowedProofs.length > 1) {
-          // Render a single select for all allowedProofs for this criterion
-          const matchingDocs = filterDocsByProofs(userDocs, allowedProofs);
-          const [enumValues, enumNames] = createDocumentEnums(matchingDocs);
-          const allowedProofsLabel = allowedProofs.join(" / ");
-
-          const fieldName = `${criteria.name}_doc`;
-
-          // Create VC metadata
-          const vcMeta: VCDocumentMeta = {
-            submissionReasons: [criteria.name],
-            documentType: "eligibilityCriteria",
-            documentSubtype: allowedProofs[0],
-            format: "json",
-            issuer: "https://provider.example.org",
-            isFileUpload: isFileUploadField(fieldName),
-          };
-
-          const documentField = createDocumentFieldSchema(
-            `Choose document for ${criteria.name}`,
-            true,
-            enumValues,
-            enumNames,
-            vcMeta,
-            allowedProofsLabel
-          );
-
-          // Only add fieldGroup if it's not already set - avoid nested grouping
-          if (!documentField.fieldGroup) {
-            documentField.fieldGroup = {
-              groupName: "documents",
-              groupLabel: "Documents",
-            };
-          }
-
-          // Prevent duplicate field creation
-          if (!createdFields.has(fieldName)) {
-            createdFields.add(fieldName);
-            schema.properties![fieldName] = documentField;
-            requiredFields.push(fieldName);
-          } else {
-            console.warn(`Skipped duplicate field creation: ${fieldName}`);
-          }
-        } else {
-          // Only one allowedProof, render as before
-          allowedProofs.forEach((proof: string) => {
-            const proofDocs = filterDocsByProofs(userDocs, [proof]);
-            const [proofEnumValues, proofEnumNames] =
-              createDocumentEnums(proofDocs);
-
-            const fieldName = `${criteria.name}_${proof}_doc`;
-
-            // Create VC metadata
-            const vcMeta: VCDocumentMeta = {
-              submissionReasons: [criteria.name],
-              documentType: "eligibilityCriteria",
-              documentSubtype: proof,
-              format: "json",
-              issuer: "https://provider.example.org",
-              isFileUpload: isFileUploadField(fieldName),
-            };
-
-            const documentField = createDocumentFieldSchema(
-              `Choose document for ${criteria.name}`,
-              true,
-              proofEnumValues,
-              proofEnumNames,
-              vcMeta,
-              proof
-            );
-
-            // Only add fieldGroup if it's not already set - avoid nested grouping
-            if (!documentField.fieldGroup) {
-              documentField.fieldGroup = {
-                groupName: "documents",
-                groupLabel: "Documents",
-              };
-            }
-
-            // Prevent duplicate field creation
-            if (!createdFields.has(fieldName)) {
-              createdFields.add(fieldName);
-              schema.properties![fieldName] = documentField;
-              requiredFields.push(fieldName);
-            } else {
-              console.warn(`Skipped duplicate field creation: ${fieldName}`);
-            }
-          });
-        }
-      });
-    }
-  });
+  // Render grouped eligibility fields with VC metadata
+  Object.values(eligProofGroups).forEach(processGroupedEligibilityField);
 
   // Add required-docs (mandatory/optional) that are not already handled
   const sortedRequiredDocsArr = [...requiredDocsArr].sort(
@@ -588,7 +551,8 @@ export const convertDocumentFields = (
       const fieldName = proof;
 
       // Check if field already exists in schema to prevent duplicates
-      if (schema.properties![fieldName]) {
+      if (createdFields.has(fieldName)) {
+        console.warn(`Skipped duplicate required-doc field: ${fieldName}`);
         return;
       }
 
