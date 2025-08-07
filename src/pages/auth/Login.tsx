@@ -20,7 +20,7 @@ import { useAuth } from "../../context/AuthContext";
 export default function Login() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { setUserRole } = useAuth();
+  const { setUserRole, setUser } = useAuth();
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{
@@ -56,11 +56,26 @@ export default function Login() {
       const loginResponse = await LoginProvider(userName, password);
       if (loginResponse?.token) {
         localStorage.setItem("token", loginResponse?.token);
+        
+        // Store only non-sensitive user data for security
+        if (loginResponse?.user) {
+          const safeUserData = {
+            id: loginResponse.user.id,
+            s_roles: loginResponse.user.s_roles,
+            firstname: loginResponse.user.firstname,
+            lastname: loginResponse.user.lastname,
+            email: loginResponse.user.email
+          };
+          localStorage.setItem("safeUserData", JSON.stringify(safeUserData));
+          setUser(loginResponse.user);
+        }
+        
         if (loginResponse?.user?.s_roles?.[0]) {
           const userRole = loginResponse.user.s_roles[0];
           localStorage.setItem("userRole", userRole);
           setUserRole(userRole);
         }
+        
         setIsLoading(false);
         setMessage("Login successfully!");
         // Notify App component that token has been set
@@ -68,12 +83,13 @@ export default function Login() {
         navigate("/", { replace: true });
       } else {
         setIsLoading(false);
-        setMessage(loginResponse?.response?.data?.error_description);
+        const errorDesc = loginResponse?.response?.data?.error_description;
+        setMessage(typeof errorDesc === 'string' ? errorDesc : 'Login failed. Please try again.');
         setShowAlert(true);
       }
     } catch (err) {
       setIsLoading(false);
-      setMessage(err as string);
+      setMessage(err instanceof Error ? err.message : String(err));
       setShowAlert(true);
     }
   };
@@ -86,6 +102,7 @@ export default function Login() {
       {isLoading ? (
         <Loading />
       ) : (
+
         <HStack w="full" h="89vh" spacing={8} align="stretch" overflow="hidden">
           <LeftSideBar />
 
@@ -108,7 +125,7 @@ export default function Login() {
               >
                 {t("LOGIN_TITLE")}
               </Text>
-              <FormControl id="email" mt={60}>
+              <FormControl id="username" mt={4}>
                 <Text fontSize={"16px"} fontWeight={400}>
                   {t("LOGIN_EMAIL_ID_LABEL")}
                 </Text>
@@ -125,7 +142,7 @@ export default function Login() {
                   <FormErrorMessage>{errors.username}</FormErrorMessage>
                 )}
               </FormControl>
-              <FormControl id="email" mt={60}>
+              <FormControl id="password" mt={4}>
                 <Text fontSize={"16px"} fontWeight={400}>
                   {t("LOGIN_PASSWORD_LABEL")}
                 </Text>
@@ -143,7 +160,7 @@ export default function Login() {
                 )}
               </FormControl>
 
-              <Stack spacing={6}>
+              <Stack spacing={6} mt={4}>
                 <Button
                   colorScheme={"blue"}
                   variant={"solid"}
@@ -171,6 +188,7 @@ export default function Login() {
             </Stack>
           </VStack>
         </HStack>
+
       )}
 
       {showAlert && (

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -9,11 +9,16 @@ import {
   MenuList,
   Select,
   Text,
+  Avatar,
+  MenuDivider,
+  Icon,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
+import { FiUser, FiLogOut } from "react-icons/fi";
 import Logo from "../../assets/Images/logo.png";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import UserProfile from "../common/modal/UserProfile";
 
 interface HeaderProps {
   showMenu?: boolean;
@@ -41,10 +46,10 @@ const Header: React.FC<HeaderProps> = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  // Use logout from context instead of manual localStorage manipulation
-  const { isSuperAdmin, logout } = useAuth();
+  // Use isSuperAdmin from context for filtering menu items
+  const { isSuperAdmin } = useAuth();
 
-  // Array of menu names
+  // Updated menu names - remove logout from here since it's now in user dropdown
   const menuNames = [
     {
       label: "Benefit List",
@@ -69,15 +74,8 @@ const Header: React.FC<HeaderProps> = ({
         },
       ],
     },
-    {
-      label: "Log out",
-      onClick: () => {
-        // FIXED: Use context logout with 'manual' reason (no expiry message)
-        logout('manual');
-      },
-    },
   ];
-  // Conditionally render the Provider Management menu if userRole is "super admin"
+
   const filteredMenuNames = isSuperAdmin
     ? menuNames
     : menuNames.filter((menu) => menu.label !== "Provider Management");
@@ -94,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({
     >
       <HStack
         align="center"
-        justify="space-between" // Keeps left and right sections apart
+        justify="space-between"
         w="100%"
       >
         {/* Left Section: Logo and Company Name */}
@@ -109,7 +107,7 @@ const Header: React.FC<HeaderProps> = ({
           </Text>
         </HStack>
 
-        {/* Right Section: Menu, Search Bar, and Language Bar */}
+        {/* Right Section: Menu, User Profile, and Language */}
         <HeaderRightSection
           showMenu={showMenu}
           showSearchBar={showSearchBar}
@@ -130,48 +128,48 @@ interface HeaderRightSectionProps {
 
 const HeaderRightSection: React.FC<HeaderRightSectionProps> = ({
   showMenu,
-  // showSearchBar,
   showLanguage,
   menuNames,
 }) => {
-  const location = useLocation(); // Get the current route
+  const location = useLocation();
   return (
-    //@ts-ignore
-    <HStack align="center" spacing={6}>
-      {/* Menu */}
-      {showMenu &&
-        menuNames.map((menu, index) => (
-          <HStack key={menu?.label || index} align="center">
-            {menu?.option ? (
-              <DropdownMenu menu={menu} currentPath={location.pathname} />
-            ) : (
-              <Text
-                fontSize="16px"
-                fontWeight={
-                  location.pathname === "/" && menu.label === "Benefit List"
-                    ? "bold"
-                    : 400
-                } // Bold if active
-                cursor="pointer"
-                onClick={menu?.onClick}
-                color={
-                  location.pathname === "/" && menu.label === "Benefit List"
-                    ? "blue.500"
-                    : "black"
-                } // Highlight if on Benefit List
-              >
-                {menu?.label}
-              </Text>
-            )}
-          </HStack>
-        ))}
 
-      {/* Search Bar */}
-      {/* {showSearchBar && <SearchBar />} //NOSONAR */}
+    <HStack align="center" spacing={6}>
+      {/* Navigation Menu */}
+      {showMenu && menuNames.map((menu, index) => {
+        const isActiveBenefit = location.pathname === "/" && menu.label === "Benefit List";
+        const menuKey = menu?.label || index;
+        
+        if (menu?.option) {
+          return (
+            <HStack key={menuKey} align="center">
+              <DropdownMenu menu={menu} currentPath={location.pathname} />
+            </HStack>
+          );
+        }
+        
+        return (
+          <HStack key={menuKey} align="center">
+            <Text
+              fontSize="16px"
+              fontWeight={isActiveBenefit ? "bold" : 400}
+              cursor="pointer"
+              onClick={menu?.onClick}
+              color={isActiveBenefit ? "#06164B" : "black"}
+            >
+              {menu?.label}
+            </Text>
+          </HStack>
+        );
+      })}
 
       {/* Language Dropdown */}
       {showLanguage && <LanguageDropdown />}
+
+      {/* User Profile Dropdown - positioned in top right corner */}
+      {showMenu && <UserProfileDropdown />}
     </HStack>
+
   );
 };
 
@@ -197,7 +195,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ menu, currentPath }) => {
         display="flex"
         alignItems="center"
         justifyContent="space-between"
-        color={isActive ? "blue.500" : "black"}
+        color={isActive ? "#06164B" : "black"}
         fontSize="16px"
       >
         <HStack spacing={1}>
@@ -241,5 +239,95 @@ const LanguageDropdown: React.FC = () => (
     <option value="en">English</option>
   </Select>
 );
+
+// Simple and Compact User Profile Dropdown
+const UserProfileDropdown: React.FC = () => {
+  const { t } = useTranslation();
+  const { getUserDisplayName, getUserOrganization, logout } = useAuth();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  
+  const userName = getUserDisplayName();
+  const userOrg = getUserOrganization();
+
+  const handleLogout = () => {
+    logout('manual'); // Use context logout with manual reason
+  };
+
+  const handleProfileClick = () => {
+    setIsProfileOpen(true);
+  };
+
+  const handleProfileClose = () => {
+    setIsProfileOpen(false);
+  };
+
+  // Always show the dropdown, even if user data is not available
+  const displayName = userName || "User";
+  const displayOrg = userOrg || "";
+
+  return (
+    <>
+      <Menu>
+        <MenuButton
+          cursor="pointer"
+          px={2}
+          py={1}
+          borderRadius="full"
+          _hover={{ bg: "gray.50" }}
+          transition="all 0.2s"
+          display="flex"
+          alignItems="center"
+          gap={2}
+        >
+          <Avatar
+            size="sm"
+            name={displayName}
+            bg="#06164B"
+            color="white"
+            fontSize="xs"
+          />
+          <ChevronDownIcon color="gray.500" boxSize={3} />
+        </MenuButton>
+
+        <MenuList minW="200px" shadow="md">
+          {/* User Info Header - Compact */}
+          <Box px={3} py={2} bg="gray.50">
+            <Text fontSize="sm" fontWeight="medium" color="gray.800" noOfLines={1}>
+              {displayName}
+            </Text>
+            {displayOrg && (
+              <Text fontSize="xs" color="gray.600" noOfLines={1}>
+                {displayOrg}
+              </Text>
+            )}
+          </Box>
+
+          <MenuDivider />
+
+          {/* Simple Menu Items */}
+          <MenuItem
+            icon={<Icon as={FiUser} boxSize={4} />}
+            fontSize="sm"
+            onClick={handleProfileClick}
+          >
+            Profile
+          </MenuItem>
+
+          <MenuItem
+            icon={<Icon as={FiLogOut} boxSize={4} />}
+            fontSize="sm"
+            color="red.600"
+            onClick={handleLogout}
+          >
+            {t("HEADER_LOGOUT_BUTTON")}
+          </MenuItem>
+        </MenuList>
+      </Menu>
+
+      {/* User Profile Modal */}
+      <UserProfile isOpen={isProfileOpen} onClose={handleProfileClose} />
+    </>
+  );
+};
 
 export default Header;

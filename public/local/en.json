@@ -56,5 +56,13 @@
   "TOAST_SERVER_ERROR_TITLE": "Server Error", 
   "TOAST_SERVER_ERROR_DESCRIPTION": "Something went wrong on our end. Please try again later.",
   "TOAST_CONNECTION_ERROR_TITLE": "Connection Error",
-  "TOAST_CONNECTION_ERROR_DESCRIPTION": "Please check your internet connection and try again."
+  "TOAST_CONNECTION_ERROR_DESCRIPTION": "Please check your internet connection and try again.",
+  "HEADER_LOGOUT_BUTTON": "Logout",
+  "USER_PROFILE_TITLE": "User Profile",
+  "USER_PROFILE_CLOSE_BUTTON": "Close",
+  "USER_PROFILE_EMAIL_LABEL": "Email Address",
+  "USER_PROFILE_EMAIL_NOT_AVAILABLE": "Email not available",
+  "USER_PROFILE_FULL_NAME_LABEL": "Full Name",
+  "USER_PROFILE_NAME_NOT_AVAILABLE": "Name not available",
+  "USER_PROFILE_ROLE_LABEL": "Role / Organization"
 }
