@@ -877,8 +877,8 @@ const ApplicationDetails: React.FC = () => {
                 {t("VERIFICATION_REQUIRED_MESSAGE")}
               </Text>
               <VStack align="stretch" spacing={1}>
-                {getPendingVerificationSteps().map((step, index) => (
-                  <Text key={index} fontSize="sm" color="orange.600">
+                {getPendingVerificationSteps().map((step) => (
+                  <Text key={step} fontSize="sm" color="orange.600">
                     • {step}
                   </Text>
                 ))}
