@@ -120,6 +120,7 @@ const ApplicationDetails: React.FC = () => {
   >();
   const [criteriaResults, setCriteriaResults] = useState<any[]>([]);
   const [fullApplicationData, setFullApplicationData] = useState<ApplicationData | null>(null);
+  const [benefitData, setBenefitData] = useState<any>(null);
   const openConfirmationModal = (
     status: "approved" | "rejected" | "resubmit"
   ) => {
@@ -434,6 +435,7 @@ const ApplicationDetails: React.FC = () => {
 
       if (applicationData?.benefitId) {
         const benefitResponse = await getBenefitById(applicationData.benefitId);
+        setBenefitData(benefitResponse?.data);
         setApplicationForm(benefitResponse?.data?.applicationForm ?? []);
       }
 
@@ -517,6 +519,13 @@ const ApplicationDetails: React.FC = () => {
   };
 
   // Helper function to get eligibility status
+
+  // Helper function to check if Amount Breakdown tab should be shown
+  const shouldShowAmountBreakdown = () => {
+    return benefitData?.benefitCalculationRules &&
+           Array.isArray(benefitData.benefitCalculationRules) &&
+           benefitData.benefitCalculationRules.length > 0;
+  };
 
   if (loading) return <Loading />;
 
@@ -614,7 +623,9 @@ const ApplicationDetails: React.FC = () => {
               <Tab {...tabStyles}>Applicant Details</Tab>
               <Tab {...tabStyles}>Supporting Documents</Tab>
               <Tab {...tabStyles}>Eligibility Criteria</Tab>
-              <Tab {...tabStyles}>Amount Breakdown</Tab>
+              {shouldShowAmountBreakdown() && (
+                <Tab {...tabStyles}>Amount Breakdown</Tab>
+              )}
               <Tab {...tabStyles}>Action History</Tab>
             </TabList>
 
@@ -731,31 +742,33 @@ const ApplicationDetails: React.FC = () => {
               </TabPanel>
 
               {/* Tab 4: Amount Breakdown */}
-              <TabPanel>
-                <VStack spacing={6} align="stretch">
-                  {amountDetail ? (
-                    <Box p={6}>
-                      <ApplicationInfo
-                        data={amountDetail}
-                        columnsLayout="one"
-                      />
-                    </Box>
-                  ) : (
-                    <Box
-                      p={8}
-                      textAlign="center"
-                      border="2px dashed"
-                      borderColor="gray.300"
-                      borderRadius="lg"
-                      bg="gray.50"
-                    >
-                      <Text fontSize="lg" color="gray.500">
-                        No amount breakdown available
-                      </Text>
-                    </Box>
-                  )}
-                </VStack>
-              </TabPanel>
+              {shouldShowAmountBreakdown() && (
+                <TabPanel>
+                  <VStack spacing={6} align="stretch">
+                    {amountDetail ? (
+                      <Box p={6}>
+                        <ApplicationInfo
+                          data={amountDetail}
+                          columnsLayout="one"
+                        />
+                      </Box>
+                    ) : (
+                      <Box
+                        p={8}
+                        textAlign="center"
+                        border="2px dashed"
+                        borderColor="gray.300"
+                        borderRadius="lg"
+                        bg="gray.50"
+                      >
+                        <Text fontSize="lg" color="gray.500">
+                          No amount breakdown available
+                        </Text>
+                      </Box>
+                    )}
+                  </VStack>
+                </TabPanel>
+              )}
 
               {/* Tab 5: Action History */}
               <TabPanel>
