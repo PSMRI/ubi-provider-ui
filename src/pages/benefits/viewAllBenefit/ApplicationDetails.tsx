@@ -24,6 +24,7 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import { CheckIcon, CloseIcon, ArrowBackIcon } from "@chakra-ui/icons";
+import { useTranslation } from "react-i18next";
 import Layout from "../../../components/layout/Layout";
 import { useParams, useNavigate } from "react-router-dom";
 import Loading from "../../../components/common/Loading";
@@ -93,6 +94,7 @@ interface Document {
 }
 
 const ApplicationDetails: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [applicantData, setApplicantData] = useState<ApplicantData[]>([]);
@@ -119,6 +121,57 @@ const ApplicationDetails: React.FC = () => {
   >();
   const [criteriaResults, setCriteriaResults] = useState<any[]>([]);
   const [fullApplicationData, setFullApplicationData] = useState<ApplicationData | null>(null);
+  
+  // Verification tracking state
+  const [isDocumentsVerified, setIsDocumentsVerified] = useState(false);
+  const [isEligibilityChecked, setIsEligibilityChecked] = useState(false);
+  const [isCalculationCompleted, setIsCalculationCompleted] = useState(false);
+
+  // Helper function to check if all documents are verified
+  const checkDocumentVerificationStatus = (docs: Document[]) => {
+    if (docs.length === 0) {
+      setIsDocumentsVerified(true); // No documents to verify
+      return true;
+    }
+    const allVerified = docs.every((doc) => doc.status === "Verified");
+    setIsDocumentsVerified(allVerified);
+    return allVerified;
+  };
+
+  // Helper function to check if eligibility has been evaluated
+  const checkEligibilityStatus = (criteria: any[]) => {
+    const hasEligibilityResults = criteria && criteria.length > 0;
+    setIsEligibilityChecked(hasEligibilityResults);
+    return hasEligibilityResults;
+  };
+
+  // Helper function to check if calculations are completed
+  const checkCalculationStatus = (amountData: any) => {
+    const hasCalculations = amountData && Object.keys(amountData).length > 0;
+    setIsCalculationCompleted(hasCalculations);
+    return hasCalculations;
+  };
+
+  // Helper function to check if all prerequisites are met for approval/rejection
+  const canApproveOrReject = () => {
+    return isDocumentsVerified && isEligibilityChecked && isCalculationCompleted;
+  };
+
+  // Get pending verification steps
+  const getPendingVerificationSteps = () => {
+    const steps = [];
+    if (!isDocumentsVerified) {
+      steps.push(t("VERIFICATION_DOCUMENT_REQUIRED"));
+    }
+    if (!isEligibilityChecked) {
+      steps.push(t("VERIFICATION_ELIGIBILITY_REQUIRED"));
+    }
+    if (!isCalculationCompleted) {
+      steps.push(t("VERIFICATION_CALCULATION_REQUIRED"));
+    }
+    return steps;
+  };
+  
   const openConfirmationModal = (
     status: "approved" | "rejected" | "resubmit"
   ) => {
@@ -343,6 +396,11 @@ const ApplicationDetails: React.FC = () => {
           ? { ...rest, "Total Payout": totalPayout }
           : { ...rest };
       setAmountDetail(reorderedAmount);
+      // Check calculation status for approval/rejection
+      checkCalculationStatus(reorderedAmount);
+    } else {
+      setAmountDetail(null);
+      checkCalculationStatus(null);
     }
   };
 
@@ -396,22 +454,32 @@ const ApplicationDetails: React.FC = () => {
 
     setIsVerifyButtonVisible(allDocsUnverified);
     setIsReverifyButtonVisible(!allDocsUnverified && anyDocFailed);
+    
+    // Check document verification status for approval/rejection
+    checkDocumentVerificationStatus(docs);
   };
 
   const setEligibilityResults = (eligibilityResponse: any) => {
+    let criteria: any[] = [];
+    
     if (
       eligibilityResponse?.ineligibleUsers?.length &&
       eligibilityResponse.ineligibleUsers[0]?.details
     ) {
       const ineligibleDetails = eligibilityResponse.ineligibleUsers[0].details;
-      setCriteriaResults(ineligibleDetails.criteriaResults);
+      criteria = ineligibleDetails.criteriaResults;
+      setCriteriaResults(criteria);
     } else if (
       eligibilityResponse?.eligibleUsers?.length &&
       eligibilityResponse.eligibleUsers[0]?.details
     ) {
       const eligibleDetails = eligibilityResponse.eligibleUsers[0].details;
-      setCriteriaResults(eligibleDetails.criteriaResults);
+      criteria = eligibleDetails.criteriaResults;
+      setCriteriaResults(criteria);
     }
+    
+    // Check eligibility status for approval/rejection
+    checkEligibilityStatus(criteria);
   };
 
   const fetchApplicationData = async (skipLoadingState = false) => {
@@ -789,6 +857,49 @@ const ApplicationDetails: React.FC = () => {
             </Box>
           )}
 
+          {/* Verification Status Indicator */}
+          {showActionButtons && !canApproveOrReject() && (
+            <Box 
+              p={4} 
+              bg="orange.50" 
+              borderRadius="lg" 
+              border="1px solid" 
+              borderColor="orange.200"
+            >
+              <Text fontSize="md" fontWeight="bold" color="orange.700" mb={2}>
+                ⚠️ {t("VERIFICATION_REQUIRED_TITLE")}
+              </Text>
+              <Text fontSize="sm" color="orange.600" mb={3}>
+                {t("VERIFICATION_REQUIRED_MESSAGE")}
+              </Text>
+              <VStack align="stretch" spacing={1}>
+                {getPendingVerificationSteps().map((step, index) => (
+                  <Text key={index} fontSize="sm" color="orange.600">
+                    • {step}
+                  </Text>
+                ))}
+              </VStack>
+            </Box>
+          )}
+
+          {/* Verification Complete Indicator */}
+          {showActionButtons && canApproveOrReject() && (
+            <Box 
+              p={4} 
+              bg="green.50" 
+              borderRadius="lg" 
+              border="1px solid" 
+              borderColor="green.200"
+            >
+              <Text fontSize="md" fontWeight="bold" color="green.700">
+                {t("VERIFICATION_COMPLETE_TITLE")}
+              </Text>
+              <Text fontSize="sm" color="green.600">
+                {t("VERIFICATION_COMPLETE_MESSAGE")}
+              </Text>
+            </Box>
+          )}
+
           {/* Action Buttons for Pending Applications */}
           {showActionButtons && (
             <HStack
@@ -806,6 +917,8 @@ const ApplicationDetails: React.FC = () => {
                 width="200px"
                 size="lg"
                 onClick={() => openConfirmationModal("rejected")}
+                isDisabled={!canApproveOrReject()}
+                opacity={!canApproveOrReject() ? 0.6 : 1}
               >
                 Reject
               </Button>
@@ -818,10 +931,17 @@ const ApplicationDetails: React.FC = () => {
                 onClick={() => openConfirmationModal("approved")}
                 borderRadius="50px"
                 leftIcon={<CheckIcon />}
+                isDisabled={!canApproveOrReject()}
+                opacity={!canApproveOrReject() ? 0.6 : 1}
                 _hover={{
-                  bg: "#2A4BC7",
+                  bg: canApproveOrReject() ? "#2A4BC7" : "#3C5FDD",
                   transform: "none",
                   boxShadow: "none",
+                }}
+                _disabled={{
+                  bg: "#3C5FDD",
+                  color: "white",
+                  opacity: 0.6,
                 }}
               >
                 Approve

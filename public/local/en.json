@@ -64,5 +64,12 @@
   "USER_PROFILE_EMAIL_NOT_AVAILABLE": "Email not available",
   "USER_PROFILE_FULL_NAME_LABEL": "Full Name",
   "USER_PROFILE_NAME_NOT_AVAILABLE": "Name not available",
-  "USER_PROFILE_ROLE_LABEL": "Role / Organization"
+  "USER_PROFILE_ROLE_LABEL": "Role / Organization",
+  "VERIFICATION_REQUIRED_TITLE": "Verification Required",
+  "VERIFICATION_REQUIRED_MESSAGE": "Complete verification before approval/rejection:",
+  "VERIFICATION_COMPLETE_TITLE": "Ready for Decision",
+  "VERIFICATION_COMPLETE_MESSAGE": "All verification completed. You can now approve or reject.",
+  "VERIFICATION_DOCUMENT_REQUIRED": "Document verification required",
+  "VERIFICATION_ELIGIBILITY_REQUIRED": "Eligibility check required",
+  "VERIFICATION_CALCULATION_REQUIRED": "Amount calculation required"
 }
