@@ -116,9 +116,7 @@ const ApplicationDetails: React.FC = () => {
   const [showDisabilityStatus, setShowDisabilityStatus] = useState(false);
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   // Add new state for verification workflow checks
-  const [isEligibilityComplete, setIsEligibilityComplete] = useState(false);
   const [isDocumentVerificationComplete, setIsDocumentVerificationComplete] = useState(false);
-  const [isCalculationComplete, setIsCalculationComplete] = useState(false);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedStatus, setSelectedStatus] = useState<
@@ -351,9 +349,6 @@ const ApplicationDetails: React.FC = () => {
           ? { ...rest, "Total Payout": totalPayout }
           : { ...rest };
       setAmountDetail(reorderedAmount);
-      setIsCalculationComplete(true);
-    } else {
-      setIsCalculationComplete(false);
     }
   };
 
@@ -420,16 +415,12 @@ const ApplicationDetails: React.FC = () => {
     ) {
       const ineligibleDetails = eligibilityResponse.ineligibleUsers[0].details;
       setCriteriaResults(ineligibleDetails.criteriaResults);
-      setIsEligibilityComplete(true);
     } else if (
       eligibilityResponse?.eligibleUsers?.length &&
       eligibilityResponse.eligibleUsers[0]?.details
     ) {
       const eligibleDetails = eligibilityResponse.eligibleUsers[0].details;
       setCriteriaResults(eligibleDetails.criteriaResults);
-      setIsEligibilityComplete(true);
-    } else {
-      setIsEligibilityComplete(false);
     }
   };
 
@@ -543,7 +534,7 @@ const ApplicationDetails: React.FC = () => {
 
   // Helper function to check if all verification steps are complete
   const areAllVerificationStepsComplete = () => {
-    return isDocumentVerificationComplete && isEligibilityComplete && isCalculationComplete;
+    return isDocumentVerificationComplete;
   };
 
   if (loading) return <Loading />;
