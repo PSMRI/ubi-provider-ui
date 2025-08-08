@@ -871,7 +871,7 @@ const ApplicationDetails: React.FC = () => {
               borderColor="orange.200"
             >
               <Text fontSize="md" fontWeight="bold" color="orange.700" mb={2}>
-                ⚠️ {t("VERIFICATION_REQUIRED_TITLE")}
+                {t("VERIFICATION_REQUIRED_TITLE")}
               </Text>
               <Text fontSize="sm" color="orange.600" mb={3}>
                 {t("VERIFICATION_REQUIRED_MESSAGE")}
