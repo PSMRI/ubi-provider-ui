@@ -24,6 +24,7 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import { CheckIcon, CloseIcon, ArrowBackIcon } from "@chakra-ui/icons";
+import { useTranslation } from "react-i18next";
 import Layout from "../../../components/layout/Layout";
 import { useParams, useNavigate } from "react-router-dom";
 import Loading from "../../../components/common/Loading";
@@ -95,6 +96,7 @@ interface Document {
 
 const ApplicationDetails: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const [applicantData, setApplicantData] = useState<ApplicantData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,6 +115,8 @@ const ApplicationDetails: React.FC = () => {
   const [applicationForm, setApplicationForm] = useState<any>(null);
   const [showDisabilityStatus, setShowDisabilityStatus] = useState(false);
   const [activeTabIndex, setActiveTabIndex] = useState(0);
+  // Add new state for verification workflow checks
+  const [isDocumentVerificationComplete, setIsDocumentVerificationComplete] = useState(false);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedStatus, setSelectedStatus] = useState<
@@ -394,11 +398,12 @@ const ApplicationDetails: React.FC = () => {
 
     setDocuments(docs);
 
-    const allDocsUnverified =
-      docs.length > 0 && docs.every((doc: any) => doc.status == null);
-    const anyDocFailed =
-      docs.length > 0 && docs.some((doc: any) => doc.status === "Unverified");
+    // Check document verification status
+    const allDocsVerified = docs.length > 0 && docs.every((doc: any) => doc.status === "Verified");
+    const allDocsUnverified = docs.length > 0 && docs.every((doc: any) => doc.status == null);
+    const anyDocFailed = docs.length > 0 && docs.some((doc: any) => doc.status === "Unverified");
 
+    setIsDocumentVerificationComplete(allDocsVerified);
     setIsVerifyButtonVisible(allDocsUnverified);
     setIsReverifyButtonVisible(!allDocsUnverified && anyDocFailed);
   };
@@ -525,6 +530,11 @@ const ApplicationDetails: React.FC = () => {
     return benefitData?.benefitCalculationRules &&
            Array.isArray(benefitData.benefitCalculationRules) &&
            benefitData.benefitCalculationRules.length > 0;
+  };
+
+  // Helper function to check if all verification steps are complete
+  const areAllVerificationStepsComplete = () => {
+    return isDocumentVerificationComplete;
   };
 
   if (loading) return <Loading />;
@@ -696,9 +706,9 @@ const ApplicationDetails: React.FC = () => {
                             textAlign: "center",
                             verticalAlign: "middle",
                           }}
-                        >
-                          Verify All Documents
-                        </Button>
+                                                  >
+                            {t("APPLICATION_DETAILS_VERIFY_ALL_DOCUMENTS")}
+                          </Button>
                       )}
                       {isReverifyButtonVisible && (
                         <Button
@@ -723,9 +733,9 @@ const ApplicationDetails: React.FC = () => {
                             textAlign: "center",
                             verticalAlign: "middle",
                           }}
-                        >
-                          Re-verify Failed Documents
-                        </Button>
+                                                  >
+                            {t("APPLICATION_DETAILS_REVERIFY_FAILED_DOCUMENTS")}
+                          </Button>
                       )}
                     </HStack>
                   )}
@@ -815,45 +825,91 @@ const ApplicationDetails: React.FC = () => {
               width="100%"
               flexWrap="wrap"
             >
+              {/* Reject button on the left */}
               <Button
                 colorScheme="red"
                 variant="outline"
                 leftIcon={<CloseIcon />}
-                borderRadius="50px"
+                borderRadius="8px"
                 width="200px"
                 size="lg"
                 onClick={() => openConfirmationModal("rejected")}
-              >
-                Reject
-              </Button>
-
-              <Button
-                bg="#3C5FDD"
-                color="white"
-                width="200px"
-                size="lg"
-                onClick={() => openConfirmationModal("approved")}
-                borderRadius="50px"
-                leftIcon={<CheckIcon />}
-                _hover={{
-                  bg: "#2A4BC7",
-                  transform: "none",
-                  boxShadow: "none",
+                sx={{
+                  fontFamily: "Poppins",
+                  fontWeight: 500,
+                  fontSize: "14px",
+                  lineHeight: "20px",
+                  letterSpacing: "0.1px",
                 }}
               >
-                Approve
+                {t("APPLICATION_DETAILS_REJECT_BUTTON")}
               </Button>
 
-              <Button
-                colorScheme="orange"
-                variant="outline"
-                width="260px"
-                size="lg"
-                borderRadius="50px"
-                onClick={() => openConfirmationModal("resubmit")}
-              >
-                Send Back for Changes
-              </Button>
+              {/* Send Back and Approve buttons on the right */}
+              <HStack spacing={4}>
+                <Button
+                  colorScheme="orange"
+                  variant="outline"
+                  width="200px"
+                  size="lg"
+                  borderRadius="8px"
+                  onClick={() => openConfirmationModal("resubmit")}
+                  sx={{
+                    fontFamily: "Poppins",
+                    fontWeight: 500,
+                    fontSize: "14px",
+                    lineHeight: "20px",
+                    letterSpacing: "0.1px",
+                  }}
+                >
+                  {t("APPLICATION_DETAILS_SEND_BACK_BUTTON")}
+                </Button>
+
+                <Button
+                  bg={!areAllVerificationStepsComplete() ? "#B0B0B0" : "#3C5FDD"}
+                  color="white"
+                  width="220px"
+                  size="lg"
+                  onClick={() => !areAllVerificationStepsComplete() ? undefined : openConfirmationModal("approved")}
+                  borderRadius="8px"
+                  leftIcon={!areAllVerificationStepsComplete() ? undefined : <CheckIcon />}
+                  isDisabled={!areAllVerificationStepsComplete()}
+                  cursor={!areAllVerificationStepsComplete() ? "not-allowed" : "pointer"}
+                  _hover={{
+                    bg: areAllVerificationStepsComplete() ? "#2A4BC7" : "#B0B0B0",
+                    transform: "none",
+                    boxShadow: "none",
+                  }}
+                  _disabled={{
+                    bg: "#B0B0B0",
+                    cursor: "not-allowed",
+                    _hover: {
+                      bg: "#B0B0B0",
+                      transform: "none"
+                    }
+                  }}
+                  sx={{
+                    fontFamily: "Poppins",
+                    fontWeight: 500,
+                    fontSize: "12px",
+                    lineHeight: "18px",
+                    letterSpacing: "0.1px",
+                  }}
+                >
+                  {!areAllVerificationStepsComplete() ? (
+                                          <VStack spacing={0}>
+                        <Text fontSize="14px" fontWeight="500" lineHeight="20px">
+                          {t("APPLICATION_DETAILS_APPROVE_BUTTON")}
+                        </Text>
+                        <Text fontSize="10px" fontWeight="400" lineHeight="12px" opacity={0.8}>
+                          {t("APPLICATION_DETAILS_DOCUMENT_VERIFICATION_REQUIRED")}
+                        </Text>
+                      </VStack>
+                    ) : (
+                      t("APPLICATION_DETAILS_APPROVE_BUTTON")
+                    )}
+                </Button>
+              </HStack>
             </HStack>
           )}
         </VStack>

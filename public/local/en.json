@@ -64,5 +64,11 @@
   "USER_PROFILE_EMAIL_NOT_AVAILABLE": "Email not available",
   "USER_PROFILE_FULL_NAME_LABEL": "Full Name",
   "USER_PROFILE_NAME_NOT_AVAILABLE": "Name not available",
-  "USER_PROFILE_ROLE_LABEL": "Role / Organization"
+  "USER_PROFILE_ROLE_LABEL": "Role / Organization",
+  "APPLICATION_DETAILS_REJECT_BUTTON": "Reject Application",
+  "APPLICATION_DETAILS_SEND_BACK_BUTTON": "Send Back for Changes",
+  "APPLICATION_DETAILS_APPROVE_BUTTON": "Approve Application",
+  "APPLICATION_DETAILS_DOCUMENT_VERIFICATION_REQUIRED": "Document Verification is Required",
+  "APPLICATION_DETAILS_VERIFY_ALL_DOCUMENTS": "Verify All Documents",
+  "APPLICATION_DETAILS_REVERIFY_FAILED_DOCUMENTS": "Re-verify Failed Documents"
 }
