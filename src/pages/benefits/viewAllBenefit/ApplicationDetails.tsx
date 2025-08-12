@@ -380,10 +380,10 @@ const ApplicationDetails: React.FC = () => {
       name: `${applicantDetails.firstName ?? ""} ${
         applicantDetails.middleName ? applicantDetails.middleName + " " : ""
       }${applicantDetails.lastName ?? ""}`.trim(),
-      applicationId: applicationData.id ?? "-",
-      orderId: applicationData.orderId ?? "-",
-      submittedOn: applicationData.createdAt ?? "-",
-      lastUpdatedOn: applicationData.updatedAt ?? "-",
+      applicationId: String(applicationData.id ?? "-"),
+      orderId: String(applicationData.orderId ?? "-"),
+      submittedOn: String(applicationData.createdAt ?? "-"),
+      lastUpdatedOn: String(applicationData.updatedAt ?? "-"),
       applicationStatus: applicationData.status,
     };
 
@@ -613,7 +613,10 @@ const ApplicationDetails: React.FC = () => {
     const isComplete = docStatus.verified === docStatus.total && docStatus.total > 0;
     return {
       isComplete,
-      text: `(${docStatus.verified}/${docStatus.total} verified)`,
+      text: t("APPLICATION_DETAILS_TAB_STATUS_DOCUMENTS", {
+        verified: docStatus.verified,
+        total: docStatus.total,
+      }),
       icon: isComplete ? CheckIcon : WarningIcon,
       color: isComplete ? "green.500" : "orange.500"
     };
@@ -626,7 +629,11 @@ const ApplicationDetails: React.FC = () => {
     
     return {
       isComplete: hasResults && isEligible,
-      text: hasResults ? (isEligible ? "(Matched)" : "(Not Matched)") : "(Pending)",
+      text: hasResults
+        ? (isEligible
+            ? t("APPLICATION_DETAILS_TAB_STATUS_ELIGIBILITY_MATCHED")
+            : t("APPLICATION_DETAILS_TAB_STATUS_ELIGIBILITY_NOT_MATCHED"))
+        : t("APPLICATION_DETAILS_TAB_STATUS_PENDING"),
       icon: hasResults ? (isEligible ? CheckIcon : CloseIcon) : TimeIcon,
       color: hasResults ? (isEligible ? "green.500" : "red.500") : "gray.500"
     };
@@ -636,7 +643,7 @@ const ApplicationDetails: React.FC = () => {
     const isComplete = amountDetail && Object.keys(amountDetail).length > 0;
     return {
       isComplete,
-      text: isComplete ? "(Completed)" : "(Pending)",
+      text: isComplete ? t("APPLICATION_DETAILS_TAB_STATUS_COMPLETED") : t("APPLICATION_DETAILS_TAB_STATUS_PENDING"),
       icon: isComplete ? CheckIcon : TimeIcon,
       color: isComplete ? "green.500" : "gray.500"
     };
@@ -651,9 +658,9 @@ const ApplicationDetails: React.FC = () => {
   }: {
     title: string;
     statusText: string;
-    icon: any;
+    icon: React.ElementType;
     color: string;
-    tabStyles: any;
+    tabStyles?: Record<string, any>;
   }) => (
     <Tab {...tabStyles}>
       <VStack spacing={1} align="center">
@@ -736,7 +743,23 @@ const ApplicationDetails: React.FC = () => {
         <VStack spacing="30px" align="stretch" width="full" maxWidth="1400px">
           {/* Application Status Header */}
           {applicantData.length > 0 && (
-            <Box id="application-details-table">
+            <Box
+              id="application-details-table"
+              sx={{
+                "& .ka-thead-cell, & .ka-cell": {
+                  textAlign: "center !important",
+                  wordWrap: "break-word !important",
+                  wordBreak: "break-word !important",
+                  whiteSpace: "normal !important",
+                  overflow: "hidden !important",
+                  maxWidth: "0 !important",
+                },
+                "& .ka-table": {
+                  tableLayout: "fixed !important",
+                  width: "100% !important",
+                },
+              }}
+            >
               <Table
                 columns={applicantColumns}
                 data={applicantData}
@@ -747,26 +770,6 @@ const ApplicationDetails: React.FC = () => {
                   },
                 }}
               />
-              
-              {/* Simple center alignment for ka-table */}
-              <style>
-                {`
-                  #application-details-table .ka-thead-cell,
-                  #application-details-table .ka-cell {
-                    text-align: center !important;
-                    word-wrap: break-word !important;
-                    word-break: break-word !important;
-                    white-space: normal !important;
-                    overflow: hidden !important;
-                    max-width: 0 !important;
-                  }
-
-                  #application-details-table .ka-table {
-                    table-layout: fixed !important;
-                    width: 100% !important;
-                  }
-                `}
-              </style>
             </Box>
           )}
 
@@ -784,7 +787,7 @@ const ApplicationDetails: React.FC = () => {
                 <VStack spacing={1} align="center">
                   <HStack spacing={2}>
                     <ViewIcon color="blue.500" boxSize={3} />
-                    <Text>Applicant Details</Text>
+                    <Text>{t("APPLICATION_DETAILS_TAB_APPLICANT_DETAILS_TITLE")}</Text>
                   </HStack>
                   <Text fontSize="xs" color="blue.500" fontWeight="500">
                     ({t("APPLICATION_DETAILS_TAB_VIEW_APPLICANT_DETAILS")})
@@ -797,7 +800,7 @@ const ApplicationDetails: React.FC = () => {
                 const docStatus = getDocumentStatus();
                 return (
                   <EnhancedTab
-                    title="Supporting Documents"
+                    title={t("APPLICATION_DETAILS_TAB_SUPPORTING_DOCUMENTS_TITLE")}
                     statusText={docStatus.text}
                     icon={docStatus.icon}
                     color={docStatus.color}
@@ -811,7 +814,7 @@ const ApplicationDetails: React.FC = () => {
                 const eligibilityStatus = getEligibilityStatus();
                 return (
                   <EnhancedTab
-                    title="Eligibility Criteria"
+                    title={t("APPLICATION_DETAILS_TAB_ELIGIBILITY_CRITERIA_TITLE")}
                     statusText={eligibilityStatus.text}
                     icon={eligibilityStatus.icon}
                     color={eligibilityStatus.color}
@@ -825,7 +828,7 @@ const ApplicationDetails: React.FC = () => {
                 const amountStatus = getAmountStatus();
                 return (
                   <EnhancedTab
-                    title="Amount Breakdown"
+                    title={t("APPLICATION_DETAILS_TAB_AMOUNT_BREAKDOWN_TITLE")}
                     statusText={amountStatus.text}
                     icon={amountStatus.icon}
                     color={amountStatus.color}
@@ -839,7 +842,7 @@ const ApplicationDetails: React.FC = () => {
                 <VStack spacing={1} align="center">
                   <HStack spacing={2}>
                     <InfoIcon color="purple.500" boxSize={3} />
-                    <Text>Action History</Text>
+                    <Text>{t("APPLICATION_DETAILS_TAB_ACTION_HISTORY_TITLE")}</Text>
                   </HStack>
                   <Text fontSize="xs" color="purple.500" fontWeight="500">
                     ({t("APPLICATION_DETAILS_TAB_VIEW_APPLICATION_HISTORY")})
@@ -981,7 +984,7 @@ const ApplicationDetails: React.FC = () => {
                         bg="gray.50"
                       >
                         <Text fontSize="lg" color="gray.500">
-                          No amount breakdown available
+                          {t("APPLICATION_DETAILS_NO_AMOUNT_BREAKDOWN_AVAILABLE")}
                         </Text>
                       </Box>
                     )}
