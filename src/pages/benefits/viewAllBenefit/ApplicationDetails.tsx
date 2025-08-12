@@ -23,7 +23,15 @@ import {
   TabPanel,
   Badge,
 } from "@chakra-ui/react";
-import { CheckIcon, CloseIcon, ArrowBackIcon } from "@chakra-ui/icons";
+import {
+  CheckIcon,
+  CloseIcon,
+  ArrowBackIcon,
+  InfoIcon,
+  WarningIcon,
+  TimeIcon,
+  ViewIcon
+} from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
 import Layout from "../../../components/layout/Layout";
 import { useParams, useNavigate } from "react-router-dom";
@@ -44,12 +52,6 @@ import {
 } from "../../../services/benefits";
 import EligibilityTable from "../../../components/EligibilityTable";
 import { createDocumentTitle, formatDate } from "../../../services/helperService";
-import {
-  InfoIcon,
-  WarningIcon,
-  TimeIcon,
-  ViewIcon
-} from "@chakra-ui/icons";
 
 const tabStyles = {
   fontWeight: "500",
@@ -627,15 +629,31 @@ const ApplicationDetails: React.FC = () => {
       criteriaResults.every(criteria => criteria.passed);
     const hasResults = criteriaResults.length > 0;
     
+    let eligibilityText;
+    if (hasResults) {
+      eligibilityText = isEligible
+        ? t("APPLICATION_DETAILS_TAB_STATUS_ELIGIBILITY_MATCHED")
+        : t("APPLICATION_DETAILS_TAB_STATUS_ELIGIBILITY_NOT_MATCHED");
+    } else {
+      eligibilityText = t("APPLICATION_DETAILS_TAB_STATUS_PENDING");
+    }
+    let eligibilityIcon;
+    if (hasResults) {
+      eligibilityIcon = isEligible ? CheckIcon : CloseIcon;
+    } else {
+      eligibilityIcon = TimeIcon;
+    }
+    let eligibilityColor;
+    if (hasResults) {
+      eligibilityColor = isEligible ? "green.500" : "red.500";
+    } else {
+      eligibilityColor = "gray.500";
+    }
     return {
       isComplete: hasResults && isEligible,
-      text: hasResults
-        ? (isEligible
-            ? t("APPLICATION_DETAILS_TAB_STATUS_ELIGIBILITY_MATCHED")
-            : t("APPLICATION_DETAILS_TAB_STATUS_ELIGIBILITY_NOT_MATCHED"))
-        : t("APPLICATION_DETAILS_TAB_STATUS_PENDING"),
-      icon: hasResults ? (isEligible ? CheckIcon : CloseIcon) : TimeIcon,
-      color: hasResults ? (isEligible ? "green.500" : "red.500") : "gray.500"
+      text: eligibilityText,
+      icon: eligibilityIcon,
+      color: eligibilityColor
     };
   };
 
