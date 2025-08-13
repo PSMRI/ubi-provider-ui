@@ -625,45 +625,36 @@ const ApplicationDetails: React.FC = () => {
   };
 
   const getEligibilityStatus = () => {
-    const isEligible = criteriaResults.length > 0 && 
-      criteriaResults.every(criteria => criteria.passed);
     const hasResults = criteriaResults.length > 0;
-    
-    let eligibilityText;
-    if (hasResults) {
-      eligibilityText = isEligible
-        ? t("APPLICATION_DETAILS_TAB_STATUS_ELIGIBILITY_MATCHED")
-        : t("APPLICATION_DETAILS_TAB_STATUS_ELIGIBILITY_NOT_MATCHED");
-    } else {
-      eligibilityText = t("APPLICATION_DETAILS_TAB_STATUS_PENDING");
+    const isEligible = hasResults && criteriaResults.every((criteria) => criteria.passed);
+
+    if (isEligible) {
+      return {
+        isComplete: true,
+        text: t("APPLICATION_DETAILS_TAB_STATUS_ELIGIBILITY_MATCHED"),
+        icon: CheckIcon,
+        color: "green.500",
+      };
     }
-    let eligibilityIcon;
-    if (hasResults) {
-      eligibilityIcon = isEligible ? CheckIcon : CloseIcon;
-    } else {
-      eligibilityIcon = TimeIcon;
-    }
-    let eligibilityColor;
-    if (hasResults) {
-      eligibilityColor = isEligible ? "green.500" : "red.500";
-    } else {
-      eligibilityColor = "gray.500";
-    }
+
+    // Show Pending when not matched or no results
     return {
-      isComplete: hasResults && isEligible,
-      text: eligibilityText,
-      icon: eligibilityIcon,
-      color: eligibilityColor
+      isComplete: false,
+      text: t("APPLICATION_DETAILS_TAB_STATUS_PENDING"),
+      icon: TimeIcon,
+      color: "orange.500",
     };
   };
 
   const getAmountStatus = () => {
-    const isComplete = amountDetail && Object.keys(amountDetail).length > 0;
+    const isComplete = Boolean(amountDetail && Object.keys(amountDetail).length > 0);
     return {
       isComplete,
-      text: isComplete ? t("APPLICATION_DETAILS_TAB_STATUS_COMPLETED") : t("APPLICATION_DETAILS_TAB_STATUS_PENDING"),
+      text: isComplete
+        ? t("APPLICATION_DETAILS_TAB_STATUS_COMPLETED")
+        : t("APPLICATION_DETAILS_TAB_STATUS_PENDING"),
       icon: isComplete ? CheckIcon : TimeIcon,
-      color: isComplete ? "green.500" : "gray.500"
+      color: isComplete ? "green.500" : "orange.500",
     };
   };
 
