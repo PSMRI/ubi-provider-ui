@@ -33,6 +33,7 @@ import {
   ViewIcon
 } from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
+import type React from "react";
 import Layout from "../../../components/layout/Layout";
 import { useParams, useNavigate } from "react-router-dom";
 import Loading from "../../../components/common/Loading";
@@ -669,7 +670,7 @@ const ApplicationDetails: React.FC = () => {
     statusText: string;
     icon: React.ElementType;
     color: string;
-    tabStyles?: Record<string, any>;
+    tabStyles?: React.ComponentProps<typeof Tab>;
   }) => (
     <Tab {...tabStyles}>
       <VStack spacing={1} align="center">
