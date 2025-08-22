@@ -23,8 +23,17 @@ import {
   TabPanel,
   Badge,
 } from "@chakra-ui/react";
-import { CheckIcon, CloseIcon, ArrowBackIcon } from "@chakra-ui/icons";
+import {
+  CheckIcon,
+  CloseIcon,
+  ArrowBackIcon,
+  InfoIcon,
+  WarningIcon,
+  TimeIcon,
+  ViewIcon
+} from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
+import type React from "react";
 import Layout from "../../../components/layout/Layout";
 import { useParams, useNavigate } from "react-router-dom";
 import Loading from "../../../components/common/Loading";
@@ -43,7 +52,7 @@ import {
   getBenefitById,
 } from "../../../services/benefits";
 import EligibilityTable from "../../../components/EligibilityTable";
-import { createDocumentTitle } from "../../../services/helperService";
+import { createDocumentTitle, formatDate } from "../../../services/helperService";
 
 const tabStyles = {
   fontWeight: "500",
@@ -70,6 +79,10 @@ const tabStyles = {
 interface ApplicantData {
   id: number;
   name: string;
+  applicationId: string;
+  orderId: string;
+  submittedOn: string;
+  lastUpdatedOn: string;
   applicationStatus: string;
   disabilityStatus?: string;
 }
@@ -352,6 +365,8 @@ const ApplicationDetails: React.FC = () => {
     }
   };
 
+
+
   const setApplicantInfo = (applicationData: any) => {
     const applicantDetails = applicationData.applicationData;
     setApplicant(applicantDetails);
@@ -368,6 +383,10 @@ const ApplicationDetails: React.FC = () => {
       name: `${applicantDetails.firstName ?? ""} ${
         applicantDetails.middleName ? applicantDetails.middleName + " " : ""
       }${applicantDetails.lastName ?? ""}`.trim(),
+      applicationId: String(applicationData.id ?? "-"),
+      orderId: String(applicationData.orderId ?? "-"),
+      submittedOn: String(applicationData.createdAt ?? "-"),
+      lastUpdatedOn: String(applicationData.updatedAt ?? "-"),
       applicationStatus: applicationData.status,
     };
 
@@ -459,19 +478,52 @@ const ApplicationDetails: React.FC = () => {
     fetchApplicationData();
   }, [id]);
 
+
+
   const applicantColumns = [
-    { key: "name", title: "Name", dataType: "string" },
+    { 
+      key: "name", 
+      title: t("APPLICATION_DETAILS_TABLE_NAME_LABEL"), 
+      dataType: "string",
+      style: { width: "20%", minWidth: 150, whiteSpace: "normal", textAlign: "center" }
+    },
+    { 
+      key: "applicationId", 
+      title: t("APPLICATION_DETAILS_TABLE_APPLICATION_ID_LABEL"), 
+      dataType: "string",
+      style: { width: "15%", minWidth: 80, whiteSpace: "nowrap", textAlign: "center" }
+    },
+    { 
+      key: "orderId", 
+      title: t("APPLICATION_DETAILS_TABLE_ORDER_ID_LABEL"), 
+      dataType: "string",
+      style: { width: "25%", minWidth: 150, whiteSpace: "normal", textAlign: "center" }
+    },
+    { 
+      key: "submittedOn", 
+      title: t("APPLICATION_DETAILS_TABLE_SUBMITTED_ON_LABEL"), 
+      dataType: "string",
+      style: { width: "15%", minWidth: 90, whiteSpace: "nowrap", textAlign: "center" }
+    },
+    { 
+      key: "lastUpdatedOn", 
+      title: t("APPLICATION_DETAILS_TABLE_LAST_UPDATED_ON_LABEL"), 
+      dataType: "string",
+      style: { width: "15%", minWidth: 90, whiteSpace: "nowrap", textAlign: "center" }
+    },
     {
       key: "applicationStatus",
-      title: "Application Status",
+      title: t("APPLICATION_DETAILS_TABLE_APPLICATION_STATUS_LABEL"),
       dataType: "string",
+      style: { width: "16%", minWidth: 100, whiteSpace: "nowrap", textAlign: "center" }
     },
     ...(showDisabilityStatus
       ? [
           {
             key: "disabilityStatus",
-            title: "Disability Status",
+            title: t("APPLICATION_DETAILS_TABLE_DISABILITY_STATUS_LABEL"),
             dataType: "string",
+            style: { width: "16%", minWidth: 100, whiteSpace: "nowrap", textAlign: "center" }
           },
         ]
       : []),
@@ -494,6 +546,7 @@ const ApplicationDetails: React.FC = () => {
             color={statusColor}
             fontWeight="bold"
             textTransform="capitalize"
+            textAlign="center"
           >
             {props.value}
           </Text>
@@ -505,8 +558,28 @@ const ApplicationDetails: React.FC = () => {
         ) : (
           <CloseIcon color="red.500" />
         );
+      case "submittedOn":
+      case "lastUpdatedOn": {
+        if (!props.value || props.value === "-") {
+          return <Text textAlign="center">-</Text>;
+        }
+        return (
+          <Text
+            textAlign="center"
+            isTruncated
+            whiteSpace="nowrap"
+            title={formatDate(props.value, { withTime: true })}
+          >
+            {formatDate(props.value)}
+          </Text>
+        );
+      }
       default:
-        return props.value ?? "-";
+        return (
+          <Text textAlign="center">
+            {props.value ?? "-"}
+          </Text>
+        );
     }
   };
 
@@ -536,6 +609,81 @@ const ApplicationDetails: React.FC = () => {
   const areAllVerificationStepsComplete = () => {
     return isDocumentVerificationComplete;
   };
+
+  // Helper functions for tab status
+  const getDocumentStatus = () => {
+    const docStatus = getDocumentStatusCount();
+    const isComplete = docStatus.verified === docStatus.total && docStatus.total > 0;
+    return {
+      isComplete,
+      text: t("APPLICATION_DETAILS_TAB_STATUS_DOCUMENTS", {
+        verified: docStatus.verified,
+        total: docStatus.total,
+      }),
+      icon: isComplete ? CheckIcon : WarningIcon,
+      color: isComplete ? "green.500" : "orange.500"
+    };
+  };
+
+  const getEligibilityStatus = () => {
+    const hasResults = criteriaResults.length > 0;
+    const isEligible = hasResults && criteriaResults.every((criteria) => criteria.passed);
+
+    if (isEligible) {
+      return {
+        isComplete: true,
+        text: t("APPLICATION_DETAILS_TAB_STATUS_ELIGIBILITY_MATCHED"),
+        icon: CheckIcon,
+        color: "green.500",
+      };
+    }
+
+    // Show Pending when not matched or no results
+    return {
+      isComplete: false,
+      text: t("APPLICATION_DETAILS_TAB_STATUS_PENDING"),
+      icon: TimeIcon,
+      color: "orange.500",
+    };
+  };
+
+  const getAmountStatus = () => {
+    const isComplete = Boolean(amountDetail && Object.keys(amountDetail).length > 0);
+    return {
+      isComplete,
+      text: isComplete
+        ? t("APPLICATION_DETAILS_TAB_STATUS_COMPLETED")
+        : t("APPLICATION_DETAILS_TAB_STATUS_PENDING"),
+      icon: isComplete ? CheckIcon : TimeIcon,
+      color: isComplete ? "green.500" : "orange.500",
+    };
+  };
+
+  const EnhancedTab = ({ 
+    title, 
+    statusText, 
+    icon: StatusIcon, 
+    color,
+    tabStyles 
+  }: {
+    title: string;
+    statusText: string;
+    icon: React.ElementType;
+    color: string;
+    tabStyles?: React.ComponentProps<typeof Tab>;
+  }) => (
+    <Tab {...tabStyles}>
+      <VStack spacing={1} align="center">
+        <HStack spacing={2}>
+          <StatusIcon color={color} boxSize={3} />
+          <Text>{title}</Text>
+        </HStack>
+        <Text fontSize="xs" color={color} fontWeight="500">
+          {statusText}
+        </Text>
+      </VStack>
+    </Tab>
+  );
 
   if (loading) return <Loading />;
 
@@ -605,7 +753,23 @@ const ApplicationDetails: React.FC = () => {
         <VStack spacing="30px" align="stretch" width="full" maxWidth="1400px">
           {/* Application Status Header */}
           {applicantData.length > 0 && (
-            <Box>
+            <Box
+              id="application-details-table"
+              sx={{
+                "& .ka-thead-cell, & .ka-cell": {
+                  textAlign: "center !important",
+                  wordWrap: "break-word !important",
+                  wordBreak: "break-word !important",
+                  whiteSpace: "normal !important",
+                  overflow: "hidden !important",
+                  maxWidth: "0 !important",
+                },
+                "& .ka-table": {
+                  tableLayout: "fixed !important",
+                  width: "100% !important",
+                },
+              }}
+            >
               <Table
                 columns={applicantColumns}
                 data={applicantData}
@@ -615,8 +779,6 @@ const ApplicationDetails: React.FC = () => {
                     content: (props: any) => customCellText(props),
                   },
                 }}
-                rowStyle={{ textAlign: "center" }}
-                columnStyle={{ textAlign: "center" }}
               />
             </Box>
           )}
@@ -630,13 +792,73 @@ const ApplicationDetails: React.FC = () => {
             onChange={(index) => setActiveTabIndex(index)}
           >
             <TabList borderBottom="1px solid" borderColor="gray.200">
-              <Tab {...tabStyles}>Applicant Details</Tab>
-              <Tab {...tabStyles}>Supporting Documents</Tab>
-              <Tab {...tabStyles}>Eligibility Criteria</Tab>
-              {shouldShowAmountBreakdown() && (
-                <Tab {...tabStyles}>Amount Breakdown</Tab>
-              )}
-              <Tab {...tabStyles}>Action History</Tab>
+              {/* Applicant Details Tab */}
+              <Tab {...tabStyles}>
+                <VStack spacing={1} align="center">
+                  <HStack spacing={2}>
+                    <ViewIcon color="blue.500" boxSize={3} />
+                    <Text>{t("APPLICATION_DETAILS_TAB_APPLICANT_DETAILS_TITLE")}</Text>
+                  </HStack>
+                  <Text fontSize="xs" color="blue.500" fontWeight="500">
+                    ({t("APPLICATION_DETAILS_TAB_VIEW_APPLICANT_DETAILS")})
+                  </Text>
+                </VStack>
+              </Tab>
+
+              {/* Supporting Documents Tab */}
+              {(() => {
+                const docStatus = getDocumentStatus();
+                return (
+                  <EnhancedTab
+                    title={t("APPLICATION_DETAILS_TAB_SUPPORTING_DOCUMENTS_TITLE")}
+                    statusText={docStatus.text}
+                    icon={docStatus.icon}
+                    color={docStatus.color}
+                    tabStyles={tabStyles}
+                  />
+                );
+              })()}
+
+              {/* Eligibility Criteria Tab */}
+              {(() => {
+                const eligibilityStatus = getEligibilityStatus();
+                return (
+                  <EnhancedTab
+                    title={t("APPLICATION_DETAILS_TAB_ELIGIBILITY_CRITERIA_TITLE")}
+                    statusText={eligibilityStatus.text}
+                    icon={eligibilityStatus.icon}
+                    color={eligibilityStatus.color}
+                    tabStyles={tabStyles}
+                  />
+                );
+              })()}
+
+              {/* Amount Breakdown Tab - Only show if calculation rules exist */}
+              {shouldShowAmountBreakdown() && (() => {
+                const amountStatus = getAmountStatus();
+                return (
+                  <EnhancedTab
+                    title={t("APPLICATION_DETAILS_TAB_AMOUNT_BREAKDOWN_TITLE")}
+                    statusText={amountStatus.text}
+                    icon={amountStatus.icon}
+                    color={amountStatus.color}
+                    tabStyles={tabStyles}
+                  />
+                );
+              })()}
+
+              {/* Action History Tab */}
+              <Tab {...tabStyles}>
+                <VStack spacing={1} align="center">
+                  <HStack spacing={2}>
+                    <InfoIcon color="purple.500" boxSize={3} />
+                    <Text>{t("APPLICATION_DETAILS_TAB_ACTION_HISTORY_TITLE")}</Text>
+                  </HStack>
+                  <Text fontSize="xs" color="purple.500" fontWeight="500">
+                    ({t("APPLICATION_DETAILS_TAB_VIEW_APPLICATION_HISTORY")})
+                  </Text>
+                </VStack>
+              </Tab>
             </TabList>
 
             <TabPanels>
@@ -772,7 +994,7 @@ const ApplicationDetails: React.FC = () => {
                         bg="gray.50"
                       >
                         <Text fontSize="lg" color="gray.500">
-                          No amount breakdown available
+                          {t("APPLICATION_DETAILS_NO_AMOUNT_BREAKDOWN_AVAILABLE")}
                         </Text>
                       </Box>
                     )}
