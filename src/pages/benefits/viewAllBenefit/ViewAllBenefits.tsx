@@ -14,7 +14,6 @@ import {
 } from "@chakra-ui/react";
 
 import Table from "../../../components/common/table/Table";
-import Loading from "../../../components/common/Loading";
 import { DataType } from "ka-table/enums";
 import { ICellTextProps } from "ka-table/props";
 import { useEffect, useState } from "react";
@@ -168,7 +167,9 @@ const ViewAllBenefits = () => {
 
         {/* Table and Pagination */}
         {isLoading ? (
-          <Loading />
+          <Text fontSize="lg" textAlign="center" color="blue.500">
+            Loading...
+          </Text>
         ) : filteredData?.length > 0 ? (
           <Table
             columns={columns}
