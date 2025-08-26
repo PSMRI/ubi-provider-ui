@@ -98,3 +98,46 @@ export const formatTitle = (title: string): string => {
 
   return cleanedTitle.toLowerCase();
 };
+export const createDocumentTitle = (
+  documentName: string,
+  documentSubmissionReason: string = ""
+) => {
+  // Validate inputs and create formatted label first
+  if (!documentName || typeof documentName !== 'string') {
+    console.error('Invalid documentName provided to createDocumentTitle');
+    return "";
+  }
+
+  const label = documentName
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/^./, (str) => str.toUpperCase());
+
+  // Check if documentSubmissionReason is a non-empty string before parsing
+  if (!documentSubmissionReason || typeof documentSubmissionReason !== 'string' || documentSubmissionReason.trim() === '') {
+    console.error("documentSubmissionReason is empty or not a valid string");
+    return label;
+  }
+
+  try {
+    const parsedReasons = JSON.parse(documentSubmissionReason);
+    
+    // Validate that parsed result is an array with content
+    if (!Array.isArray(parsedReasons) || parsedReasons.length === 0) {
+      console.error(
+        "Invalid or empty documentSubmissionReason array provided to createDocumentTitle"
+      );
+      return label;
+    }
+    
+    if (parsedReasons.length === 1) {
+      return `Document for ${parsedReasons[0]} (${label})`;
+    }
+
+    return `Document for ${parsedReasons
+      .slice(0, -1)
+      .join(", ")} and ${parsedReasons.at(-1)} (${label})`;
+  } catch (error) {
+    console.error("Error parsing documentSubmissionReason JSON:", error);
+    return label;
+  }
+};

@@ -64,10 +64,10 @@ const getStatusIcon = (status: string) => {
     case "rejected":
       return <CloseIcon color="red.500" />;
     case "resubmit":
-      return <RepeatIcon color="orange.500" />;
-    case "pending":
-    case "application submitted":
-      return <EditIcon color="blue.500" />;
+      return <RepeatIcon color="blue.500" />;
+    case "application_submitted":
+    case "application_resubmitted":
+      return <EditIcon color="orange.500" />;
     default:
       return <TimeIcon color="gray.500" />;
   }
@@ -81,10 +81,10 @@ const getStatusColor = (status: string): string => {
     case "rejected":
       return "red";
     case "resubmit":
-      return "orange";
-    case "pending":
-    case "application submitted":
       return "blue";
+    case "application_resubmitted":
+    case "application_submitted":
+      return "orange";
     default:
       return "gray";
   }
@@ -95,8 +95,10 @@ const getStatusDisplayText = (status: string): string => {
   switch (status.toLowerCase()) {
     case "resubmit":
       return "Asked for resubmit";
-    case "pending":
+    case "application_submitted":
       return "Application Submitted";
+    case "application_resubmitted":
+      return "Application Resubmitted";
     default:
       return status.charAt(0).toUpperCase() + status.slice(1);
   }
@@ -112,14 +114,17 @@ interface TimelineContentProps {
   isLeft: boolean;
 }
 
-const TimelineContent: React.FC<TimelineContentProps> = ({ item, isLeft }) => (
-  <Box
-    width="45%"
-    pr={isLeft ? 8 : 0}
-    pl={isLeft ? 0 : 8}
-    textAlign={isLeft ? "right" : "left"}
-  >
-    <Flex justify={isLeft ? "flex-end" : "flex-start"} mb={2}>
+const TimelineContent: React.FC<TimelineContentProps> = ({ item, isLeft }) => {
+  const justifyValue = isLeft ? "flex-end" : "flex-start";
+  
+  return (
+    <Box
+      width="45%"
+      pr={isLeft ? 8 : 0}
+      pl={isLeft ? 0 : 8}
+      textAlign={isLeft ? "right" : "left"}
+    >
+      <Flex justify={justifyValue} mb={2}>
       <Badge
         colorScheme={getStatusColor(item.status)}
         variant="solid"
@@ -142,8 +147,9 @@ const TimelineContent: React.FC<TimelineContentProps> = ({ item, isLeft }) => (
         {item.remark}
       </Text>
     )}
-  </Box>
-);
+    </Box>
+  );
+};
 
 const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
   applicationData,
@@ -178,30 +184,28 @@ const ApplicationActionLog: React.FC<ApplicationActionLogProps> = ({
 
   // Create timeline items
   const createTimelineItems = () => {
-    const items = [];
+    const items: {
+      date: string;
+      status: string;
+      remark?: string;
+
+    }[] = [];
     const actionLogEntries = parseActionLogEntries();
 
-    // First item: Application submission
-    if (applicationData.createdAt) {
-      items.push({
-        date: applicationData.createdAt,
-        status: "Application Submitted",
-        remark: "Application was submitted for review",
-        isFirst: true,
-      });
-    }
 
     // Add action log entries
 
     actionLogEntries.forEach((entry) => {
       const reviewerComment =
-        entry.remark || `Application status changed to ${entry.status}`;
-      items.push({
+        entry.remark;
+      
+      const item = {
         date: entry.updatedAt,
         status: entry.status,
-        remark: `Reviewer Comment: "${reviewerComment}"`,
-        isFirst: false,
-      });
+        remark: reviewerComment != null ? `Reviewer Comment: "${reviewerComment}"` : undefined,
+      };
+      
+      items.push(item);
     });
 
     return items;

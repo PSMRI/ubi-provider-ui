@@ -23,7 +23,17 @@ import {
   TabPanel,
   Badge,
 } from "@chakra-ui/react";
-import { CheckIcon, CloseIcon, ArrowBackIcon } from "@chakra-ui/icons";
+import {
+  CheckIcon,
+  CloseIcon,
+  ArrowBackIcon,
+  InfoIcon,
+  WarningIcon,
+  TimeIcon,
+  ViewIcon
+} from "@chakra-ui/icons";
+import { useTranslation } from "react-i18next";
+import type React from "react";
 import Layout from "../../../components/layout/Layout";
 import { useParams, useNavigate } from "react-router-dom";
 import Loading from "../../../components/common/Loading";
@@ -42,6 +52,7 @@ import {
   getBenefitById,
 } from "../../../services/benefits";
 import EligibilityTable from "../../../components/EligibilityTable";
+import { createDocumentTitle, formatDate } from "../../../services/helperService";
 
 const tabStyles = {
   fontWeight: "500",
@@ -68,6 +79,10 @@ const tabStyles = {
 interface ApplicantData {
   id: number;
   name: string;
+  applicationId: string;
+  orderId: string;
+  submittedOn: string;
+  lastUpdatedOn: string;
   applicationStatus: string;
   disabilityStatus?: string;
 }
@@ -94,6 +109,7 @@ interface Document {
 
 const ApplicationDetails: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const [applicantData, setApplicantData] = useState<ApplicantData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -112,6 +128,8 @@ const ApplicationDetails: React.FC = () => {
   const [applicationForm, setApplicationForm] = useState<any>(null);
   const [showDisabilityStatus, setShowDisabilityStatus] = useState(false);
   const [activeTabIndex, setActiveTabIndex] = useState(0);
+  // Add new state for verification workflow checks
+  const [isDocumentVerificationComplete, setIsDocumentVerificationComplete] = useState(false);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedStatus, setSelectedStatus] = useState<
@@ -119,6 +137,7 @@ const ApplicationDetails: React.FC = () => {
   >();
   const [criteriaResults, setCriteriaResults] = useState<any[]>([]);
   const [fullApplicationData, setFullApplicationData] = useState<ApplicationData | null>(null);
+  const [benefitData, setBenefitData] = useState<any>(null);
   const openConfirmationModal = (
     status: "approved" | "rejected" | "resubmit"
   ) => {
@@ -346,6 +365,8 @@ const ApplicationDetails: React.FC = () => {
     }
   };
 
+
+
   const setApplicantInfo = (applicationData: any) => {
     const applicantDetails = applicationData.applicationData;
     setApplicant(applicantDetails);
@@ -362,6 +383,10 @@ const ApplicationDetails: React.FC = () => {
       name: `${applicantDetails.firstName ?? ""} ${
         applicantDetails.middleName ? applicantDetails.middleName + " " : ""
       }${applicantDetails.lastName ?? ""}`.trim(),
+      applicationId: String(applicationData.id ?? "-"),
+      orderId: String(applicationData.orderId ?? "-"),
+      submittedOn: String(applicationData.createdAt ?? "-"),
+      lastUpdatedOn: String(applicationData.updatedAt ?? "-"),
       applicationStatus: applicationData.status,
     };
 
@@ -385,15 +410,19 @@ const ApplicationDetails: React.FC = () => {
       verificationErrors: file?.verificationStatus?.verificationErrors ?? [
         "Some error occurred in verification",
       ],
+      documentTitle: file.documentSubmissionReason 
+        ? createDocumentTitle(file.documentSubtype, file.documentSubmissionReason)
+        : undefined,
     }));
 
     setDocuments(docs);
 
-    const allDocsUnverified =
-      docs.length > 0 && docs.every((doc: any) => doc.status == null);
-    const anyDocFailed =
-      docs.length > 0 && docs.some((doc: any) => doc.status === "Unverified");
+    // Check document verification status
+    const allDocsVerified = docs.length > 0 && docs.every((doc: any) => doc.status === "Verified");
+    const allDocsUnverified = docs.length > 0 && docs.every((doc: any) => doc.status == null);
+    const anyDocFailed = docs.length > 0 && docs.some((doc: any) => doc.status === "Unverified");
 
+    setIsDocumentVerificationComplete(allDocsVerified);
     setIsVerifyButtonVisible(allDocsUnverified);
     setIsReverifyButtonVisible(!allDocsUnverified && anyDocFailed);
   };
@@ -430,6 +459,7 @@ const ApplicationDetails: React.FC = () => {
 
       if (applicationData?.benefitId) {
         const benefitResponse = await getBenefitById(applicationData.benefitId);
+        setBenefitData(benefitResponse?.data);
         setApplicationForm(benefitResponse?.data?.applicationForm ?? []);
       }
 
@@ -448,19 +478,52 @@ const ApplicationDetails: React.FC = () => {
     fetchApplicationData();
   }, [id]);
 
+
+
   const applicantColumns = [
-    { key: "name", title: "Name", dataType: "string" },
+    { 
+      key: "name", 
+      title: t("APPLICATION_DETAILS_TABLE_NAME_LABEL"), 
+      dataType: "string",
+      style: { width: "20%", minWidth: 150, whiteSpace: "normal", textAlign: "center" }
+    },
+    { 
+      key: "applicationId", 
+      title: t("APPLICATION_DETAILS_TABLE_APPLICATION_ID_LABEL"), 
+      dataType: "string",
+      style: { width: "15%", minWidth: 80, whiteSpace: "nowrap", textAlign: "center" }
+    },
+    { 
+      key: "orderId", 
+      title: t("APPLICATION_DETAILS_TABLE_ORDER_ID_LABEL"), 
+      dataType: "string",
+      style: { width: "25%", minWidth: 150, whiteSpace: "normal", textAlign: "center" }
+    },
+    { 
+      key: "submittedOn", 
+      title: t("APPLICATION_DETAILS_TABLE_SUBMITTED_ON_LABEL"), 
+      dataType: "string",
+      style: { width: "15%", minWidth: 90, whiteSpace: "nowrap", textAlign: "center" }
+    },
+    { 
+      key: "lastUpdatedOn", 
+      title: t("APPLICATION_DETAILS_TABLE_LAST_UPDATED_ON_LABEL"), 
+      dataType: "string",
+      style: { width: "15%", minWidth: 90, whiteSpace: "nowrap", textAlign: "center" }
+    },
     {
       key: "applicationStatus",
-      title: "Application Status",
+      title: t("APPLICATION_DETAILS_TABLE_APPLICATION_STATUS_LABEL"),
       dataType: "string",
+      style: { width: "16%", minWidth: 100, whiteSpace: "nowrap", textAlign: "center" }
     },
     ...(showDisabilityStatus
       ? [
           {
             key: "disabilityStatus",
-            title: "Disability Status",
+            title: t("APPLICATION_DETAILS_TABLE_DISABILITY_STATUS_LABEL"),
             dataType: "string",
+            style: { width: "16%", minWidth: 100, whiteSpace: "nowrap", textAlign: "center" }
           },
         ]
       : []),
@@ -483,6 +546,7 @@ const ApplicationDetails: React.FC = () => {
             color={statusColor}
             fontWeight="bold"
             textTransform="capitalize"
+            textAlign="center"
           >
             {props.value}
           </Text>
@@ -494,8 +558,28 @@ const ApplicationDetails: React.FC = () => {
         ) : (
           <CloseIcon color="red.500" />
         );
+      case "submittedOn":
+      case "lastUpdatedOn": {
+        if (!props.value || props.value === "-") {
+          return <Text textAlign="center">-</Text>;
+        }
+        return (
+          <Text
+            textAlign="center"
+            isTruncated
+            whiteSpace="nowrap"
+            title={formatDate(props.value, { withTime: true })}
+          >
+            {formatDate(props.value)}
+          </Text>
+        );
+      }
       default:
-        return props.value ?? "-";
+        return (
+          <Text textAlign="center">
+            {props.value ?? "-"}
+          </Text>
+        );
     }
   };
 
@@ -513,6 +597,93 @@ const ApplicationDetails: React.FC = () => {
   };
 
   // Helper function to get eligibility status
+
+  // Helper function to check if Amount Breakdown tab should be shown
+  const shouldShowAmountBreakdown = () => {
+    return benefitData?.benefitCalculationRules &&
+           Array.isArray(benefitData.benefitCalculationRules) &&
+           benefitData.benefitCalculationRules.length > 0;
+  };
+
+  // Helper function to check if all verification steps are complete
+  const areAllVerificationStepsComplete = () => {
+    return isDocumentVerificationComplete;
+  };
+
+  // Helper functions for tab status
+  const getDocumentStatus = () => {
+    const docStatus = getDocumentStatusCount();
+    const isComplete = docStatus.verified === docStatus.total && docStatus.total > 0;
+    return {
+      isComplete,
+      text: t("APPLICATION_DETAILS_TAB_STATUS_DOCUMENTS", {
+        verified: docStatus.verified,
+        total: docStatus.total,
+      }),
+      icon: isComplete ? CheckIcon : WarningIcon,
+      color: isComplete ? "green.500" : "orange.500"
+    };
+  };
+
+  const getEligibilityStatus = () => {
+    const hasResults = criteriaResults.length > 0;
+    const isEligible = hasResults && criteriaResults.every((criteria) => criteria.passed);
+
+    if (isEligible) {
+      return {
+        isComplete: true,
+        text: t("APPLICATION_DETAILS_TAB_STATUS_ELIGIBILITY_MATCHED"),
+        icon: CheckIcon,
+        color: "green.500",
+      };
+    }
+
+    // Show Pending when not matched or no results
+    return {
+      isComplete: false,
+      text: t("APPLICATION_DETAILS_TAB_STATUS_PENDING"),
+      icon: TimeIcon,
+      color: "orange.500",
+    };
+  };
+
+  const getAmountStatus = () => {
+    const isComplete = Boolean(amountDetail && Object.keys(amountDetail).length > 0);
+    return {
+      isComplete,
+      text: isComplete
+        ? t("APPLICATION_DETAILS_TAB_STATUS_COMPLETED")
+        : t("APPLICATION_DETAILS_TAB_STATUS_PENDING"),
+      icon: isComplete ? CheckIcon : TimeIcon,
+      color: isComplete ? "green.500" : "orange.500",
+    };
+  };
+
+  const EnhancedTab = ({ 
+    title, 
+    statusText, 
+    icon: StatusIcon, 
+    color,
+    tabStyles 
+  }: {
+    title: string;
+    statusText: string;
+    icon: React.ElementType;
+    color: string;
+    tabStyles?: React.ComponentProps<typeof Tab>;
+  }) => (
+    <Tab {...tabStyles}>
+      <VStack spacing={1} align="center">
+        <HStack spacing={2}>
+          <StatusIcon color={color} boxSize={3} />
+          <Text>{title}</Text>
+        </HStack>
+        <Text fontSize="xs" color={color} fontWeight="500">
+          {statusText}
+        </Text>
+      </VStack>
+    </Tab>
+  );
 
   if (loading) return <Loading />;
 
@@ -582,7 +753,23 @@ const ApplicationDetails: React.FC = () => {
         <VStack spacing="30px" align="stretch" width="full" maxWidth="1400px">
           {/* Application Status Header */}
           {applicantData.length > 0 && (
-            <Box>
+            <Box
+              id="application-details-table"
+              sx={{
+                "& .ka-thead-cell, & .ka-cell": {
+                  textAlign: "center !important",
+                  wordWrap: "break-word !important",
+                  wordBreak: "break-word !important",
+                  whiteSpace: "normal !important",
+                  overflow: "hidden !important",
+                  maxWidth: "0 !important",
+                },
+                "& .ka-table": {
+                  tableLayout: "fixed !important",
+                  width: "100% !important",
+                },
+              }}
+            >
               <Table
                 columns={applicantColumns}
                 data={applicantData}
@@ -592,8 +779,6 @@ const ApplicationDetails: React.FC = () => {
                     content: (props: any) => customCellText(props),
                   },
                 }}
-                rowStyle={{ textAlign: "center" }}
-                columnStyle={{ textAlign: "center" }}
               />
             </Box>
           )}
@@ -607,11 +792,73 @@ const ApplicationDetails: React.FC = () => {
             onChange={(index) => setActiveTabIndex(index)}
           >
             <TabList borderBottom="1px solid" borderColor="gray.200">
-              <Tab {...tabStyles}>Applicant Details</Tab>
-              <Tab {...tabStyles}>Supporting Documents</Tab>
-              <Tab {...tabStyles}>Eligibility Criteria</Tab>
-              <Tab {...tabStyles}>Amount Breakdown</Tab>
-              <Tab {...tabStyles}>Action History</Tab>
+              {/* Applicant Details Tab */}
+              <Tab {...tabStyles}>
+                <VStack spacing={1} align="center">
+                  <HStack spacing={2}>
+                    <ViewIcon color="blue.500" boxSize={3} />
+                    <Text>{t("APPLICATION_DETAILS_TAB_APPLICANT_DETAILS_TITLE")}</Text>
+                  </HStack>
+                  <Text fontSize="xs" color="blue.500" fontWeight="500">
+                    ({t("APPLICATION_DETAILS_TAB_VIEW_APPLICANT_DETAILS")})
+                  </Text>
+                </VStack>
+              </Tab>
+
+              {/* Supporting Documents Tab */}
+              {(() => {
+                const docStatus = getDocumentStatus();
+                return (
+                  <EnhancedTab
+                    title={t("APPLICATION_DETAILS_TAB_SUPPORTING_DOCUMENTS_TITLE")}
+                    statusText={docStatus.text}
+                    icon={docStatus.icon}
+                    color={docStatus.color}
+                    tabStyles={tabStyles}
+                  />
+                );
+              })()}
+
+              {/* Eligibility Criteria Tab */}
+              {(() => {
+                const eligibilityStatus = getEligibilityStatus();
+                return (
+                  <EnhancedTab
+                    title={t("APPLICATION_DETAILS_TAB_ELIGIBILITY_CRITERIA_TITLE")}
+                    statusText={eligibilityStatus.text}
+                    icon={eligibilityStatus.icon}
+                    color={eligibilityStatus.color}
+                    tabStyles={tabStyles}
+                  />
+                );
+              })()}
+
+              {/* Amount Breakdown Tab - Only show if calculation rules exist */}
+              {shouldShowAmountBreakdown() && (() => {
+                const amountStatus = getAmountStatus();
+                return (
+                  <EnhancedTab
+                    title={t("APPLICATION_DETAILS_TAB_AMOUNT_BREAKDOWN_TITLE")}
+                    statusText={amountStatus.text}
+                    icon={amountStatus.icon}
+                    color={amountStatus.color}
+                    tabStyles={tabStyles}
+                  />
+                );
+              })()}
+
+              {/* Action History Tab */}
+              <Tab {...tabStyles}>
+                <VStack spacing={1} align="center">
+                  <HStack spacing={2}>
+                    <InfoIcon color="purple.500" boxSize={3} />
+                    <Text>{t("APPLICATION_DETAILS_TAB_ACTION_HISTORY_TITLE")}</Text>
+                  </HStack>
+                  <Text fontSize="xs" color="purple.500" fontWeight="500">
+                    ({t("APPLICATION_DETAILS_TAB_VIEW_APPLICATION_HISTORY")})
+                  </Text>
+                </VStack>
+              </Tab>
             </TabList>
 
             <TabPanels>
@@ -681,9 +928,9 @@ const ApplicationDetails: React.FC = () => {
                             textAlign: "center",
                             verticalAlign: "middle",
                           }}
-                        >
-                          Verify All Documents
-                        </Button>
+                                                  >
+                            {t("APPLICATION_DETAILS_VERIFY_ALL_DOCUMENTS")}
+                          </Button>
                       )}
                       {isReverifyButtonVisible && (
                         <Button
@@ -708,9 +955,9 @@ const ApplicationDetails: React.FC = () => {
                             textAlign: "center",
                             verticalAlign: "middle",
                           }}
-                        >
-                          Re-verify Failed Documents
-                        </Button>
+                                                  >
+                            {t("APPLICATION_DETAILS_REVERIFY_FAILED_DOCUMENTS")}
+                          </Button>
                       )}
                     </HStack>
                   )}
@@ -727,31 +974,33 @@ const ApplicationDetails: React.FC = () => {
               </TabPanel>
 
               {/* Tab 4: Amount Breakdown */}
-              <TabPanel>
-                <VStack spacing={6} align="stretch">
-                  {amountDetail ? (
-                    <Box p={6}>
-                      <ApplicationInfo
-                        data={amountDetail}
-                        columnsLayout="one"
-                      />
-                    </Box>
-                  ) : (
-                    <Box
-                      p={8}
-                      textAlign="center"
-                      border="2px dashed"
-                      borderColor="gray.300"
-                      borderRadius="lg"
-                      bg="gray.50"
-                    >
-                      <Text fontSize="lg" color="gray.500">
-                        No amount breakdown available
-                      </Text>
-                    </Box>
-                  )}
-                </VStack>
-              </TabPanel>
+              {shouldShowAmountBreakdown() && (
+                <TabPanel>
+                  <VStack spacing={6} align="stretch">
+                    {amountDetail ? (
+                      <Box p={6}>
+                        <ApplicationInfo
+                          data={amountDetail}
+                          columnsLayout="one"
+                        />
+                      </Box>
+                    ) : (
+                      <Box
+                        p={8}
+                        textAlign="center"
+                        border="2px dashed"
+                        borderColor="gray.300"
+                        borderRadius="lg"
+                        bg="gray.50"
+                      >
+                        <Text fontSize="lg" color="gray.500">
+                          {t("APPLICATION_DETAILS_NO_AMOUNT_BREAKDOWN_AVAILABLE")}
+                        </Text>
+                      </Box>
+                    )}
+                  </VStack>
+                </TabPanel>
+              )}
 
               {/* Tab 5: Action History */}
               <TabPanel>
@@ -798,45 +1047,91 @@ const ApplicationDetails: React.FC = () => {
               width="100%"
               flexWrap="wrap"
             >
+              {/* Reject button on the left */}
               <Button
                 colorScheme="red"
                 variant="outline"
                 leftIcon={<CloseIcon />}
-                borderRadius="50px"
+                borderRadius="8px"
                 width="200px"
                 size="lg"
                 onClick={() => openConfirmationModal("rejected")}
-              >
-                Reject
-              </Button>
-
-              <Button
-                bg="#3C5FDD"
-                color="white"
-                width="200px"
-                size="lg"
-                onClick={() => openConfirmationModal("approved")}
-                borderRadius="50px"
-                leftIcon={<CheckIcon />}
-                _hover={{
-                  bg: "#2A4BC7",
-                  transform: "none",
-                  boxShadow: "none",
+                sx={{
+                  fontFamily: "Poppins",
+                  fontWeight: 500,
+                  fontSize: "14px",
+                  lineHeight: "20px",
+                  letterSpacing: "0.1px",
                 }}
               >
-                Approve
+                {t("APPLICATION_DETAILS_REJECT_BUTTON")}
               </Button>
 
-              <Button
-                colorScheme="orange"
-                variant="outline"
-                width="260px"
-                size="lg"
-                borderRadius="50px"
-                onClick={() => openConfirmationModal("resubmit")}
-              >
-                Send Back for Changes
-              </Button>
+              {/* Send Back and Approve buttons on the right */}
+              <HStack spacing={4}>
+                <Button
+                  colorScheme="orange"
+                  variant="outline"
+                  width="200px"
+                  size="lg"
+                  borderRadius="8px"
+                  onClick={() => openConfirmationModal("resubmit")}
+                  sx={{
+                    fontFamily: "Poppins",
+                    fontWeight: 500,
+                    fontSize: "14px",
+                    lineHeight: "20px",
+                    letterSpacing: "0.1px",
+                  }}
+                >
+                  {t("APPLICATION_DETAILS_SEND_BACK_BUTTON")}
+                </Button>
+
+                <Button
+                  bg={!areAllVerificationStepsComplete() ? "#B0B0B0" : "#3C5FDD"}
+                  color="white"
+                  width="220px"
+                  size="lg"
+                  onClick={() => !areAllVerificationStepsComplete() ? undefined : openConfirmationModal("approved")}
+                  borderRadius="8px"
+                  leftIcon={!areAllVerificationStepsComplete() ? undefined : <CheckIcon />}
+                  isDisabled={!areAllVerificationStepsComplete()}
+                  cursor={!areAllVerificationStepsComplete() ? "not-allowed" : "pointer"}
+                  _hover={{
+                    bg: areAllVerificationStepsComplete() ? "#2A4BC7" : "#B0B0B0",
+                    transform: "none",
+                    boxShadow: "none",
+                  }}
+                  _disabled={{
+                    bg: "#B0B0B0",
+                    cursor: "not-allowed",
+                    _hover: {
+                      bg: "#B0B0B0",
+                      transform: "none"
+                    }
+                  }}
+                  sx={{
+                    fontFamily: "Poppins",
+                    fontWeight: 500,
+                    fontSize: "12px",
+                    lineHeight: "18px",
+                    letterSpacing: "0.1px",
+                  }}
+                >
+                  {!areAllVerificationStepsComplete() ? (
+                                          <VStack spacing={0}>
+                        <Text fontSize="14px" fontWeight="500" lineHeight="20px">
+                          {t("APPLICATION_DETAILS_APPROVE_BUTTON")}
+                        </Text>
+                        <Text fontSize="10px" fontWeight="400" lineHeight="12px" opacity={0.8}>
+                          {t("APPLICATION_DETAILS_DOCUMENT_VERIFICATION_REQUIRED")}
+                        </Text>
+                      </VStack>
+                    ) : (
+                      t("APPLICATION_DETAILS_APPROVE_BUTTON")
+                    )}
+                </Button>
+              </HStack>
             </HStack>
           )}
         </VStack>
