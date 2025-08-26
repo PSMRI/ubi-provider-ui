@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 
 import Table from "../../../components/common/table/Table";
+import Loading from "../../../components/common/Loading";
 import { DataType } from "ka-table/enums";
 import { ICellTextProps } from "ka-table/props";
 import { useEffect, useState } from "react";
@@ -66,11 +67,13 @@ const ViewAllBenefits = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const PAGE_SIZE = 10;
   const [pageIndex, setPageIndex] = useState(0);
 
   const fetchAllBenefits = async () => {
     try {
+      setIsLoading(true);
       const response = await getBenefitList();
       console.log("Response from API:", response);
       if (response?.results) {
@@ -86,6 +89,8 @@ const ViewAllBenefits = () => {
       }
     } catch (error) {
       console.error("Error fetching all benefits:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -162,7 +167,9 @@ const ViewAllBenefits = () => {
         </HStack>
 
         {/* Table and Pagination */}
-        {filteredData?.length > 0 ? (
+        {isLoading ? (
+          <Loading />
+        ) : filteredData?.length > 0 ? (
           <Table
             columns={columns}
             data={paginatedData}
@@ -178,12 +185,14 @@ const ViewAllBenefits = () => {
             No data available
           </Text>
         )}
-        <PaginationList
-          total={filteredData?.length}
-          pageSize={PAGE_SIZE}
-          currentPage={pageIndex}
-          onPageChange={handlePageChange}
-        />
+        {!isLoading && filteredData?.length > 0 && (
+          <PaginationList
+            total={filteredData?.length}
+            pageSize={PAGE_SIZE}
+            currentPage={pageIndex}
+            onPageChange={handlePageChange}
+          />
+        )}
       </VStack>
     </Layout>
   );
