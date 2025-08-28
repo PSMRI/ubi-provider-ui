@@ -170,27 +170,6 @@ const ApplicationLists: React.FC = () => {
     pageIndex * pageSize + pageSize
   );
 
-  const tableContent = isLoading ? (
-    <Text fontSize="lg" textAlign="center" color="blue.500">
-      Loading...
-    </Text>
-  ) : sortedData?.length > 0 ? (
-    <Table
-      columns={columns}
-      data={paginatedData}
-      rowKeyField={"applicationId"}
-      childComponents={{
-        cellText: {
-          content: (props: ICellTextProps) => CellTextContent(props),
-        },
-      }}
-    />
-  ) : (
-    <Text fontSize="lg" textAlign="center" color="gray.500">
-      No applications available
-    </Text>
-  );
-
   return (
     <Layout
       _titleBar={{
@@ -243,7 +222,34 @@ const ApplicationLists: React.FC = () => {
         )}
 
         {/* Table and Pagination */}
-        {tableContent}
+        {(() => {
+          if (isLoading) {
+            return (
+              <Text fontSize="lg" textAlign="center" color="blue.500">
+                Loading...
+              </Text>
+            );
+          } else if (sortedData?.length > 0) {
+            return (
+              <Table
+                columns={columns}
+                data={paginatedData}
+                rowKeyField={"applicationId"}
+                childComponents={{
+                  cellText: {
+                    content: (props: ICellTextProps) => CellTextContent(props),
+                  },
+                }}
+              />
+            );
+          } else {
+            return (
+              <Text fontSize="lg" textAlign="center" color="gray.500">
+                No applications available
+              </Text>
+            );
+          }
+        })()}
 
         {!isLoading && sortedData?.length > 0 && (
           <PaginationList
