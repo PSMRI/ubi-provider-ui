@@ -89,6 +89,7 @@ const ApplicationLists: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [applicationData, setApplicationData] = useState<any[]>([]);
   const [pageIndex, setPageIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const pageSize = 10;
   const [benefitName, setBenefitName] = useState<string>("");
   const navigate = useNavigate();
@@ -97,6 +98,7 @@ const ApplicationLists: React.FC = () => {
     const fetchApplicationData = async () => {
       if (id) {
         try {
+          setIsLoading(true);
           const applicantionDataResponse = await viewAllApplicationByBenefitId(
             id
           );
@@ -125,9 +127,12 @@ const ApplicationLists: React.FC = () => {
           setApplicationData(processedData);
         } catch (error) {
           console.error(error);
+        } finally {
+          setIsLoading(false);
         }
       } else {
         console.error("id is undefined");
+        setIsLoading(false);
       }
     };
     fetchApplicationData();
@@ -188,7 +193,7 @@ const ApplicationLists: React.FC = () => {
     >
       <VStack spacing="50px" p={"20px"} align="stretch">
         {/* Search and Sort Controls - Only show when applications are available */}
-        {sortedData?.length > 0 && (
+        {!isLoading && sortedData?.length > 0 && (
           <HStack spacing={4}>
             <InputGroup maxWidth="300px" rounded={"full"} size="lg">
               <Input
@@ -217,7 +222,11 @@ const ApplicationLists: React.FC = () => {
         )}
 
         {/* Table and Pagination */}
-        {sortedData?.length > 0 ? (
+        {isLoading ? (
+          <Text fontSize="lg" textAlign="center" color="blue.500">
+            Loading...
+          </Text>
+        ) : sortedData?.length > 0 ? (
           <Table
             columns={columns}
             data={paginatedData}
@@ -234,12 +243,14 @@ const ApplicationLists: React.FC = () => {
           </Text>
         )}
 
-        <PaginationList
-          total={sortedData.length}
-          pageSize={pageSize}
-          currentPage={pageIndex}
-          onPageChange={handlePageChange}
-        />
+        {!isLoading && sortedData?.length > 0 && (
+          <PaginationList
+            total={sortedData.length}
+            pageSize={pageSize}
+            currentPage={pageIndex}
+            onPageChange={handlePageChange}
+          />
+        )}
       </VStack>
     </Layout>
   );
