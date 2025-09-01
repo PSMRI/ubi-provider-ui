@@ -1,9 +1,9 @@
-name: Deploy to s3_bucket
+name: Deploy to UBA-DePWD-Pilot
 
 on:
   push:
     branches:
-      - depwd-pilot
+      - main
 
 jobs:
   build_and_test:
@@ -68,3 +68,12 @@ jobs:
         run: |
           echo "Cleanup done."
         continue-on-error: true
+
+      ## Notify on Slack
+      - name: Notify on Slack channel
+        uses: iRoachie/slack-github-actions@v2.3.2
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        with:
+          status: ${{ job.status }}
+        if: ${{ always() }}        
