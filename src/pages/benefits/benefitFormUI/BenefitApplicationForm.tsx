@@ -89,7 +89,7 @@ const BenefitApplicationForm: React.FC = () => {
 
   // State variables for form schema, data, refs, etc.
   const [formSchema, setFormSchema] = useState<any>(null);
-  const [formData, setFormData] = useState<object>({});
+  const [formData, setFormData] = useState<Record<string, any>>({});
   const formRef = useRef<any>(null);
   const [docSchema, setDocSchema] = useState<any>(null);
   const [extraErrors, setExtraErrors] = useState<any>(null);
@@ -521,7 +521,10 @@ const BenefitApplicationForm: React.FC = () => {
       if (vcDocuments.length > 0) {
         formDataNew.vc_documents = vcDocuments;
       }
-
+      if (formData?.orderId) {
+        formDataNew.orderId = formData.orderId;
+      }
+     
       // Submit the form
       const response = await submitForm(formDataNew as any);
       if (response) {
