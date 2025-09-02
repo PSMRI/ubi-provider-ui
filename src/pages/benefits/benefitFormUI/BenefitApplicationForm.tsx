@@ -524,7 +524,7 @@ const BenefitApplicationForm: React.FC = () => {
       if (formData?.orderId) {
         formDataNew.orderId = formData.orderId;
       }
-      console.log("formDataNew", formDataNew);
+     
       // Submit the form
       const response = await submitForm(formDataNew as any);
       if (response) {
