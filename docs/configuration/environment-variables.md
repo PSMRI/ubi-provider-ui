@@ -9,7 +9,7 @@
 | VITE_BAP_URI | Beckn App Platform URI | `https://benefits-bap.example.com` |
 | VITE_BPP_ID | Beckn Provider Platform ID | `benefits-bpp` |
 | VITE_BPP_URI | Beckn Provider Platform URI | `https://benefits-bpp.example.com` |
-| VITE_BENEFICIERY_IFRAME_URL | URL for beneficiary iframe integration | `https://beneficiary.example.com` |
+| VITE_BENEFICIARY_IFRAME_URL | URL for beneficiary iframe integration | `https://beneficiary.example.com` |
 | VITE_BENEFIT_SCHEMA_API | API endpoint for benefit schema | `https://schema.example.com` |
 
 ## Environment Types
@@ -20,6 +20,8 @@ The application supports different environment configurations:
 - Test: Used for running tests
 
 ## Security Notes
+
+Important: All variables prefixed with `VITE_` are exposed to the client in the browser. Never use VITE_ prefix for secrets or sensitive data!
 
 - Never commit the `.env` file to version control
 - Use `.env.example` as a template
