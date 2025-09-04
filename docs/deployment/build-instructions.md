@@ -28,6 +28,4 @@ The `dist/` directory will contain:
 
 ## Deployment Options
 
-See detailed guides for:
-- [AWS Deployment](aws-deployment.md)
-- [Docker Deployment](docker-deployment.md)
+For all deployment configurations (Docker, AWS, and other environments), please refer to the deployment workflows in the `.github/workflows/` directory.
