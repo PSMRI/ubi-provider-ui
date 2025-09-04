@@ -32,8 +32,8 @@ CMD ["nginx", "-g", "daemon off;"]
 
 ## Environment Configuration
 
-1. Build-time Environment:
-   - Create `.env.production` with your VITE_* variables
+1. Build-time Environment (Required):
+   - Create `.env.production` with your VITE_* variables before building
    - These variables will be baked into the build:
    ```bash
    # Example .env.production
@@ -41,12 +41,40 @@ CMD ["nginx", "-g", "daemon off;"]
    # Add other VITE_* variables
    ```
 
-2. Build Docker image:
+2. Runtime Environment (Optional Advanced Pattern):
+   If you need to change environment variables without rebuilding:
+   
+   a. Create a runtime config file:
+   ```javascript
+   // public/env.js
+   window.__ENV = {
+     VITE_PROVIDER_BASE_URL: "https://api.example.com",
+     // other runtime configs
+   };
+   ```
+   
+   b. Add to index.html:
+   ```html
+   <script src="/env.js"></script>
+   ```
+   
+   c. Mount the config in container:
+   ```bash
+   docker run -d \
+     -p 80:80 \
+     -v $(pwd)/env.js:/usr/share/nginx/html/env.js \
+     --name benefits-ui \
+     benefits-provider-ui
+   ```
+
+   Note: Only use runtime config for non-sensitive values that need to change frequently.
+
+3. Build Docker image:
    ```bash
    docker build -t benefits-provider-ui .
    ```
 
-3. Run container:
+4. Run container:
    ```bash
    docker run -d -p 80:80 --name benefits-ui benefits-provider-ui
    ```
