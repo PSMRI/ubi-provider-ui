@@ -43,8 +43,6 @@ This guide will help you set up and run the UBI Provider UI application.
 - `yarn dev`: Start development server
 - `yarn build`: Build for production
 - `yarn preview`: Preview production build
-- `yarn lint`: Run code linting
-- `yarn test`: Run tests
 
 ## Documentation Structure
 

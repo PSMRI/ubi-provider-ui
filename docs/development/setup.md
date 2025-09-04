@@ -60,18 +60,13 @@ Ensure your preferred IDE/editor has support for:
 
 2. Make changes and test locally
 
-3. Run linting:
-   ```bash
-   yarn lint
-   ```
-
-4. Build and test:
+3. Build and test:
    ```bash
    yarn build
    yarn preview
    ```
 
-5. Commit changes:
+4. Commit changes:
    ```bash
    git add .
    git commit -m "feat: your feature description"
@@ -79,17 +74,9 @@ Ensure your preferred IDE/editor has support for:
 
 ### Code Quality Tools
 
-- ESLint for code linting
 - TypeScript for type checking
 - Husky for git hooks
 - Prettier for code formatting
-
-### Testing
-
-Run tests using:
-```bash
-yarn test
-```
 
 ### Debugging
 
