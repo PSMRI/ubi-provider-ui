@@ -14,6 +14,4 @@ Welcome to the Benefits Provider App UI documentation. This documentation will h
 
 - [Environment Setup](configuration/environment-variables.md)
 - [Local Development](development/setup.md)
-- [Build Instructions](deployment/build-instructions.md)
-- [AWS Deployment](deployment/aws-deployment.md)
-- [Docker Deployment](deployment/docker-deployment.md)
+- [Build & Deploy Instructions](deployment/build-instructions.md)
