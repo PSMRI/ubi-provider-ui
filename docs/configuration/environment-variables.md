@@ -2,15 +2,15 @@
 
 ## Required Environment Variables
 
-| Variable | Description | Example Value |
-|----------|-------------|---------------|
-| VITE_PROVIDER_BASE_URL | Base URL for all API endpoints | `http://localhost:3000/api` |
-| VITE_BAP_ID | Beckn App Platform ID | `benefits-bap` |
-| VITE_BAP_URI | Beckn App Platform URI | `https://benefits-bap.example.com` |
-| VITE_BPP_ID | Beckn Provider Platform ID | `benefits-bpp` |
-| VITE_BPP_URI | Beckn Provider Platform URI | `https://benefits-bpp.example.com` |
-| VITE_BENEFICIERY_IFRAME_URL | URL for beneficiary iframe integration | `https://beneficiary.example.com` |
-| VITE_BENEFIT_SCHEMA_API | API endpoint for benefit schema | `https://schema.example.com` |
+| Variable | Description | Example Value | Notes |
+|----------|-------------|---------------|-------|
+| VITE_PROVIDER_BASE_URL | Base URL for all API endpoints | `http://localhost:3000/api` | Must not end with a slash (/). All endpoint paths will start with / |
+| VITE_BAP_ID | Beckn App Platform ID | `benefits-bap` |  |
+| VITE_BAP_URI | Beckn App Platform URI | `https://benefits-bap.example.com` |  |
+| VITE_BPP_ID | Beckn Provider Platform ID | `benefits-bpp` |  |
+| VITE_BPP_URI | Beckn Provider Platform URI | `https://benefits-bpp.example.com` |  |
+| VITE_BENEFICIARY_IFRAME_URL | URL for beneficiary iframe integration | `https://beneficiary.example.com` |  |
+| VITE_BENEFIT_SCHEMA_API | API endpoint for benefit schema | `https://schema.example.com` |  |
 
 ## Environment Types
 
