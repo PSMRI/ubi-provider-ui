@@ -8,12 +8,11 @@
 ## Project Structure
 
 The deployment uses two key files:
-- `Dockerfile`: Container configuration
+- `Dockerfile`: Multi-stage build configuration
 - `nginx.conf`: Nginx server configuration with CORS and caching rules
 
 ## Dockerfile
 
-Recommended multi-stage build:
 ```dockerfile
 # Build stage
 FROM node:20-alpine AS build
@@ -31,11 +30,16 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-## Build Process
+## Environment Configuration
 
-1. Configure environment:
-   - Create `.env.production` with required VITE_* variables before building
-   - These variables will be baked into the build
+1. Build-time Environment:
+   - Create `.env.production` with your VITE_* variables
+   - These variables will be baked into the build:
+   ```bash
+   # Example .env.production
+   VITE_PROVIDER_BASE_URL=https://api.example.com
+   # Add other VITE_* variables
+   ```
 
 2. Build Docker image:
    ```bash
@@ -47,21 +51,39 @@ CMD ["nginx", "-g", "daemon off;"]
    docker run -d -p 80:80 --name benefits-ui benefits-provider-ui
    ```
 
-## Nginx Configuration Requirements
+## Nginx Configuration
 
 The nginx.conf must include:
-- SPA routing fallback: `try_files $uri /index.html;`
-- CORS configuration for API requests
-- Static file caching (30 days for assets)
-- No caching for HTML files
-- Proxy header configuration
-- Health check endpoint
-
-Example location block:
 ```nginx
-location / {
-    try_files $uri /index.html;
-    # Other existing configurations...
+server {
+    listen 80;
+    
+    # SPA routing fallback
+    location / {
+        try_files $uri /index.html;
+        # CORS headers
+        add_header 'Access-Control-Allow-Origin' '*';
+        # ... other CORS headers
+    }
+
+    # Static file caching
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+    }
+
+    # No caching for HTML
+    location ~* \.html$ {
+        expires -1;
+        add_header Cache-Control "no-store, no-cache, must-revalidate";
+    }
+
+    # Health check
+    location /health {
+        access_log off;
+        return 200 'OK';
+        add_header Content-Type text/plain;
+    }
 }
 ```
 
