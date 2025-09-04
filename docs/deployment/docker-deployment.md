@@ -13,23 +13,29 @@ The deployment uses two key files:
 
 ## Dockerfile
 
-Current project Dockerfile:
+Recommended multi-stage build:
 ```dockerfile
+# Build stage
+FROM node:20-alpine AS build
+WORKDIR /app
+COPY package.json yarn.lock ./
+RUN corepack enable && yarn install --frozen-lockfile
+COPY . .
+RUN yarn build
+
+# Production stage
 FROM nginx:1.25.3
-WORKDIR /usr/share/nginx/html/
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY . /usr/share/nginx/html
+COPY --from=build /app/dist/ /usr/share/nginx/html/
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
 ## Build Process
 
-1. Build the application locally:
-   ```bash
-   yarn install
-   yarn build
-   ```
+1. Configure environment:
+   - Create `.env.production` with required VITE_* variables before building
+   - These variables will be baked into the build
 
 2. Build Docker image:
    ```bash
@@ -41,29 +47,23 @@ CMD ["nginx", "-g", "daemon off;"]
    docker run -d -p 80:80 --name benefits-ui benefits-provider-ui
    ```
 
-## Environment Configuration
+## Nginx Configuration Requirements
 
-1. Create `.env` file with required variables:
-   - `VITE_PROVIDER_BASE_URL`
-   - Other variables from environment-variables.md
-
-2. Build with environment:
-   ```bash
-   docker run -d \
-     -p 80:80 \
-     --env-file .env \
-     --name benefits-ui \
-     benefits-provider-ui
-   ```
-
-## Nginx Configuration Features
-
-The included `nginx.conf` provides:
+The nginx.conf must include:
+- SPA routing fallback: `try_files $uri /index.html;`
 - CORS configuration for API requests
 - Static file caching (30 days for assets)
 - No caching for HTML files
 - Proxy header configuration
 - Health check endpoint
+
+Example location block:
+```nginx
+location / {
+    try_files $uri /index.html;
+    # Other existing configurations...
+}
+```
 
 ## Production Guidelines
 
@@ -87,17 +87,6 @@ The included `nginx.conf` provides:
 
 3. Security Updates:
    ```bash
-   # Pull latest nginx base image
    docker pull nginx:1.25.3
-   # Rebuild with no cache
    docker build --no-cache -t benefits-provider-ui .
    ```
-
-## Health Check
-
-The application can be checked at:
-```bash
-curl -I http://localhost:80/
-```
-
-Expected response: HTTP 200 OK

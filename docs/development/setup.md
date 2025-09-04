@@ -31,8 +31,8 @@ Ensure your preferred IDE/editor has support for:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/PSMRI/benefits-provider-app-ui.git
-   cd benefits-provider-app-ui
+   git clone https://github.com/PSMRI/ubi-provider-ui.git
+   cd ubi-provider-ui
    ```
 
 2. Install dependencies:

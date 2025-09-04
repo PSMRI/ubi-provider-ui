@@ -1,51 +1,54 @@
 # Getting Started
 
-## Prerequisites
-
-- Node.js v20
-- Yarn package manager
-- Git
+This guide will help you set up and run the UBI Provider UI application.
 
 ## Quick Start
 
-1. Clone the repository:
+1. Install prerequisites:
+   - Node.js v20
+   - Yarn package manager
+   - Git
+
+2. Clone the repository:
    ```bash
-   git clone https://github.com/PSMRI/benefits-provider-app-ui.git
-   cd benefits-provider-app-ui
+   git clone https://github.com/PSMRI/ubi-provider-ui.git
+   cd ubi-provider-ui
    ```
 
-2. Install dependencies:
+3. Install dependencies:
    ```bash
    yarn install
    ```
 
-3. Set up environment variables:
-   - Copy `.env.example` to `.env`
-   - Update the variables (see [Environment Variables](configuration/environment-variables.md))
+4. Set up environment:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
 
-4. Start development server:
+5. Start development server:
    ```bash
    yarn dev
    ```
 
-## Development Environment
+## Next Steps
 
-The application uses:
-- React 18
-- TypeScript
-- Vite
-- Chakra UI
-- React Router DOM
-- i18next for internationalization
+- Read the [Development Guide](development/setup.md) for detailed setup
+- Check [Environment Variables](configuration/environment-variables.md) for configuration
+- See [API Integration](api/integration-guide.md) for backend communication
+- Review [Deployment Guides](deployment/build-instructions.md) for production setup
 
 ## Available Scripts
 
-- `yarn dev` - Start development server
-- `yarn build` - Create production build
-- `yarn preview` - Preview production build
-- `yarn lint` - Run ESLint
-- `yarn clean:vite` - Clean Vite cache
+- `yarn dev`: Start development server
+- `yarn build`: Build for production
+- `yarn preview`: Preview production build
+- `yarn lint`: Run code linting
+- `yarn test`: Run tests
 
-## Next Steps
-- Set up your [Development Environment](development/setup.md)
-- Learn about [Deployment Options](deployment/build-instructions.md)
+## Documentation Structure
+
+- `/docs/development`: Development guides and standards
+- `/docs/deployment`: Deployment and build instructions
+- `/docs/configuration`: Environment and app configuration
+- `/docs/api`: API integration documentation
