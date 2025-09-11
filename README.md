@@ -1,38 +1,11 @@
-# UBI Provider UI (benefits-provider-app-ui)
+# UBI Provider UI (ubi-provider-ui)
 
-## Description
-This is a React based Frontend UI for Reference Provider App
+Frontend UI for Reference Provider App
 
-## Project setup
-```bash
-$ yarn install
-```
+## Resources
+Visit below links hosted with Gitbook for documentation:
 
-## Compile and run the project
-```bash
-# Start dev mode
-$ yarn dev
-
-# Create build
-$ yarn build
-```
-
-# 🐕 Husky Git Hooks Setup Guide
-
-## Manual Setup
-
-```bash
-# Install Husky hooks
-npm run install && npm run prepare
-
-# Set Git hooks path (required for Husky to work)
-git config core.hooksPath .husky/_
-
-# Verify hooks are executable
-chmod +x .husky/pre-commit
-chmod +x .husky/commit-msg
-
-# Check Git configuration
-git config core.hooksPath
-# Should output: .husky/_
-```
+- [Provider UI Overview](https://piramal-swasthya.gitbook.io/uba/toasters/provider-toaster/developer-guide/frontend-guide/benefits-provider-app-ui)
+- [Prerequisites](https://piramal-swasthya.gitbook.io/uba/toasters/provider-toaster/developer-guide/frontend-guide/benefits-provider-app-ui/prerequisites)
+- [Environment Variables](https://piramal-swasthya.gitbook.io/uba/toasters/provider-toaster/developer-guide/frontend-guide/benefits-provider-app-ui/environment-variables)
+- [Build and Run Instructions](https://piramal-swasthya.gitbook.io/uba/toasters/provider-toaster/developer-guide/frontend-guide/benefits-provider-app-ui/build-and-run-instructions)
