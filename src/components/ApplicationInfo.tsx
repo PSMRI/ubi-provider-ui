@@ -1,7 +1,5 @@
 import React from "react";
-import { Table, DataType } from "ka-table";
-import { Box, Text, VStack } from "@chakra-ui/react";
-import "ka-table/style.css";
+import { Box, Text, VStack, HStack, SimpleGrid } from "@chakra-ui/react";
 
 // Field interface
 interface Field {
@@ -73,7 +71,7 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
   // Helper: Create entry objects from data keys
   const createEntries = (keys: string[], fieldMap: { [key: string]: Field } = {}) => {
     return keys
-      .filter((key) => Object.prototype.hasOwnProperty.call(data, key))
+      .filter((key) => Object.hasOwn(data, key))
       .map((key) => {
         const field = fieldMap[key];
         const label = field?.label ?? camelToTitle(key);
@@ -141,104 +139,98 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
     }
   }, [data, mapping, columnsLayout]);
 
-  // Define table columns based on layout
-  const getColumns = () => {
-    const baseColumns = [
-      {
-        key: "col1Label",
-        title: "Field",
-        dataType: DataType.String,
-        style: { fontWeight: "bold", width: "25%" },
-      },
-      {
-        key: "col1Value",
-        title: "Value",
-        dataType: DataType.String,
-        style: { width: "25%" },
-      },
-    ];
-
-    if (columnsLayout === "two") {
-      return [
-        ...baseColumns,
-        {
-          key: "col2Label",
-          title: "Field",
-          dataType: DataType.String,
-          style: { fontWeight: "bold", width: "25%" },
-        },
-        {
-          key: "col2Value",
-          title: "Value",
-          dataType: DataType.String,
-          style: { width: "25%" },
-        },
-      ];
-    }
-
-    return baseColumns;
-  };
-
-  const columns = getColumns();
-
-  // Render the table with custom styles
+  // Render the label-value pairs
   return (
-    <div
-      style={{ display: "flex", justifyContent: "center", marginTop: "24px" }}
-    >
-      <div style={{ width: columnsLayout === "two" ? "100%" : "50%" }}>
-
-        <VStack spacing={6} align="stretch">
-          {processedData.map((group, index) => {
-            const groupKey = group.groupId || `group-${index}`;
-            return (
-              <Box key={groupKey}>
-                {group.groupLabel && (
-                  <Text
-                    fontSize="lg"
-                    fontWeight="bold"
-                    mb={4}
-                    color="blue.600"
-                    borderBottom="2px solid"
-                    borderColor="blue.200"
-                    pb={2}
-                  >
-                    {group.groupLabel}
-                  </Text>
-                )}
-                <Table
-                  rowKeyField="col1Label"
-                  data={group.data}
-                  columns={columns}
-                  childComponents={{
-                    table: {
-                      elementAttributes: () => ({
-                        style: { width: "100%", borderCollapse: "collapse" },
-                      }),
-                    },
-                  }}
-                />
-              </Box>
-            );
-          })}
-        </VStack>
-
-        {/* Inline styles for table header and cells */}
-        <style>
-          {`
-            .ka-thead-cell {
-              font-weight: bold;
-              background-color: #f5f5f5;
-              text-align: left !important;
-            }
-            .ka-cell {
-              padding: 8px;
-              text-align: left !important;
-            }
-          `}
-        </style>
-      </div>
-    </div>
+    <Box mt={6} width="100%">
+      <VStack spacing={6} align="stretch">
+        {processedData.map((group, index) => {
+          const groupKey = group.groupId || `group-${index}`;
+          return (
+            <Box key={groupKey}>
+              {group.groupLabel && (
+                <Text
+                  fontSize="lg"
+                  fontWeight="bold"
+                  mb={4}
+                  color="blue.600"
+                  borderBottom="2px solid"
+                  borderColor="blue.200"
+                  pb={2}
+                >
+                  {group.groupLabel}
+                </Text>
+              )}
+              <SimpleGrid
+                columns={columnsLayout === "two" ? 2 : 1}
+                spacing={4}
+                bg="transparent"
+              >
+                {group.data.map((row) => (
+                  <React.Fragment key={`${row.col1Label}-${row.col1Value}`}>
+                    <HStack spacing={0} align="stretch" width="100%">
+                      <Box
+                        width="30%"
+                        border="1px"
+                        borderColor="gray.200"
+                        borderRight="none"
+                        px={3}
+                        py={2}
+                        bg="gray.50"
+                        display="flex"
+                        alignItems="center"
+                      >
+                        <Text fontWeight="bold">
+                          {row.col1Label}
+                        </Text>
+                      </Box>
+                      <Box
+                        flex="1"
+                        border="1px"
+                        borderColor="gray.200"
+                        px={3}
+                        py={2}
+                        bg="white"
+                      >
+                        <Text>{row.col1Value}</Text>
+                      </Box>
+                    </HStack>
+                    {columnsLayout === "two" && row.col2Label && (
+                      <HStack spacing={0} align="stretch" width="100%">
+                        <Box
+                          width="30%"
+                          border="1px"
+                          borderColor="gray.200"
+                          borderRight="none"
+                          px={3}
+                          py={2}
+                          bg="gray.50"
+                          display="flex"
+                          alignItems="center"
+                        >
+                          <Text fontWeight="bold">
+                            {row.col2Label}
+                          </Text>
+                        </Box>
+                        <Box
+                          flex="1"
+                          border="1px"
+                          borderColor="gray.200"
+                          px={3}
+                          py={2}
+                          bg="white"
+                        >
+                          <Text>{row.col2Value}</Text>
+                        </Box>
+                      </HStack>
+                    )}
+                  </React.Fragment>
+                ))}
+              </SimpleGrid>
+            </Box>
+          );
+        })}
+      </VStack>
+    </Box>
   );
 };
 
