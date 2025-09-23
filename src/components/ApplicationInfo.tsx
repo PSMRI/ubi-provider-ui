@@ -46,7 +46,7 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
 }) => {
   // Helper: Converts camelCase to Title Case
   const camelToTitle = (str: string): string =>
-    str.replace(/([A-Z])/g, " $1").replace(/^./, (char) => char.toUpperCase());
+    str.split(/(?=[A-Z])/).join(" ").replace(/^./, (char) => char.toUpperCase());
 
   // Helper: Get display value based on field type
   const getDisplayValue = (field: any, value: any): string => {
