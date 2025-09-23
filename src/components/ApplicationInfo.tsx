@@ -87,7 +87,7 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
         if (idx % 2 === 0) {
           rows.push({ col1Label: item.label, col1Value: item.value });
         } else {
-          const lastRow = rows.at(-1);
+          const lastRow = rows[rows.length - 1];
           if (lastRow) {
             Object.assign(lastRow, {
             col2Label: item.label,
