@@ -172,7 +172,7 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
                   <React.Fragment key={`${row.col1Label}-${row.col1Value}`}>
                     <HStack spacing={0} align="stretch" width="100%">
                       <Box
-                        width="30%"
+                        width="50%"
                         border="1px"
                         borderColor="gray.200"
                         borderRight="none"
@@ -181,7 +181,7 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
                         bg="gray.50"
                         display="flex"
                         alignItems="center"
-                        height="40px"
+                        height="auto"
                       >
                         <Text fontWeight="bold">
                           {row.col1Label}
@@ -194,7 +194,7 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
                         px={2}
                         py={1}
                         bg="white"
-                        height="40px"
+                        height="auto"
                         display="flex"
                         alignItems="center"
                       >
@@ -204,7 +204,7 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
                     {columnsLayout === "two" && row.col2Label && (
                       <HStack spacing={0} align="stretch" width="100%">
                         <Box
-                          width="30%"
+                          width="50%"
                           border="1px"
                           borderColor="gray.200"
                           borderRight="none"
@@ -213,7 +213,7 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
                           bg="gray.50"
                           display="flex"
                           alignItems="center"
-                          height="40px"
+                          height="auto"
                         >
                           <Text fontWeight="bold">
                             {row.col2Label}
@@ -226,7 +226,7 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
                           px={2}
                           py={1}
                           bg="white"
-                          height="40px"
+                          height="auto"
                           display="flex"
                           alignItems="center"
                         >
