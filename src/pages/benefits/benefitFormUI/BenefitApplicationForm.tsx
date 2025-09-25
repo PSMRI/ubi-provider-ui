@@ -527,19 +527,31 @@ const BenefitApplicationForm: React.FC = () => {
      
       // Submit the form
       const response = await submitForm(formDataNew as any);
-      if (response) {
-        setDisableSubmit(true);
-        const targetOrigin = import.meta.env.VITE_BENEFICIERY_IFRAME_URL;
+
+    if (response) {
+    setDisableSubmit(true);
+
+  // Read env and split by comma
+    const targetOrigins = import.meta.env.VITE_BENEFICIERY_IFRAME_URL?.split(",") || [];
+
+    for (const origin of targetOrigins) {
+      const trimmedOrigin = origin.trim();
+      if (trimmedOrigin) {
         window.parent.postMessage(
           {
             type: "FORM_SUBMIT",
             data: { submit: response, userData: formDataNew },
           },
-          targetOrigin
+          trimmedOrigin
         );
-      } else {
-        setDisableSubmit(false);
       }
+    }
+  } 
+  else {
+    setDisableSubmit(false);
+  }
+
+
     } catch (error) {
       console.error("Form submission error:", error);
       setDisableSubmit(false);
