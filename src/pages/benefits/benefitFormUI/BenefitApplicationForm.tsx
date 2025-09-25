@@ -522,21 +522,32 @@ const BenefitApplicationForm: React.FC = () => {
         formDataNew.vc_documents = vcDocuments;
       }
 
-      // Submit the form
+    
       const response = await submitForm(formDataNew as any);
+
       if (response) {
         setDisableSubmit(true);
-        const targetOrigin = import.meta.env.VITE_BENEFICIERY_IFRAME_URL;
+
+        const targetOrigins = [
+          import.meta.env.VITE_BENEFICIERY_IFRAME_URL,
+          import.meta.env.VITE_SECOND_BENEFICIERY_IFRAME_URL,
+        ];
+
+      targetOrigins.forEach((origin) => {
+      if (origin) {
         window.parent.postMessage(
           {
             type: "FORM_SUBMIT",
             data: { submit: response, userData: formDataNew },
           },
-          targetOrigin
-        );
-      } else {
-        setDisableSubmit(false);
-      }
+            origin
+          );
+        }
+      });
+    } else {
+      setDisableSubmit(false);
+    }
+
     } catch (error) {
       console.error("Form submission error:", error);
       setDisableSubmit(false);
