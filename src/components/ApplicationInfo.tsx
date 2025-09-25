@@ -48,7 +48,7 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
 }) => {
   // Helper: Converts camelCase to Title Case
   const camelToTitle = (str: string): string =>
-    str.replace(/([A-Z])/g, " $1").replace(/^./, (char) => char.toUpperCase());
+    str.split(/(?=[A-Z])/).join(" ").replace(/^./, (char) => char.toUpperCase());
 
   // Helper: Get display value based on field type
   const getDisplayValue = (field: any, value: any): string => {
@@ -89,10 +89,13 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
         if (idx % 2 === 0) {
           rows.push({ col1Label: item.label, col1Value: item.value });
         } else {
-          Object.assign(rows[rows.length - 1], {
-            col2Label: item.label,
-            col2Value: item.value,
-          });
+        const lastRow = rows.at(-1);
+          if (lastRow) {
+            Object.assign(lastRow, {
+              col2Label: item.label,
+              col2Value: item.value,
+            });
+          }
         }
         return rows;
       }, []);
