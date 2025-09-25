@@ -1,5 +1,4 @@
 import apiClient from "../utils/apiClient";
-import externalApiClient from "../utils/externalApiClient";
 import { generateUUID } from "../utils/dataJSON/helper/helper";
 
 interface BenefitRequestInfo {
@@ -193,16 +192,13 @@ export const getSchema = async (id: string) => {
           },
         ],
         provider: {
-          id: id,
+          id: import.meta.env.VITE_BPP_ID,
         },
       },
     },
   };
   try {
-    const response = await externalApiClient.post(
-      `${import.meta.env.VITE_BENEFIT_SCHEMA_API}/api/select`,
-      payload
-    );
+    const response = await apiClient.post(`benefits/dsep/select`, payload);
     return response?.data;
   } catch (error) {
     console.log(error);
