@@ -536,17 +536,18 @@ const BenefitApplicationForm: React.FC = () => {
           import.meta.env.VITE_SECOND_BENEFICIERY_IFRAME_URL,
         ];
 
-      targetOrigins.forEach((origin) => {
-      if (origin) {
-        window.parent.postMessage(
-          {
-            type: "FORM_SUBMIT",
-            data: { submit: response, userData: formDataNew },
-          },
-            origin
-          );
-        }
-      });
+        for (const origin of targetOrigins) {
+          if (origin) {
+            window.parent.postMessage(
+              {
+                type: "FORM_SUBMIT",
+                data: { submit: response, userData: formDataNew },
+              },
+              origin
+            );
+          }
+        
+      }
     } else {
       setDisableSubmit(false);
     }
