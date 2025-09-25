@@ -48,7 +48,7 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
 }) => {
   // Helper: Converts camelCase to Title Case
   const camelToTitle = (str: string): string =>
-    str.replace(/([A-Z])/g, " $1").replace(/^./, (char) => char.toUpperCase());
+    str.split(/(?=[A-Z])/).join(" ").trim().replace(/^./, (char) => char.toUpperCase());
 
   // Helper: Get display value based on field type
   const getDisplayValue = (field: any, value: any): string => {
@@ -89,10 +89,13 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
         if (idx % 2 === 0) {
           rows.push({ col1Label: item.label, col1Value: item.value });
         } else {
-          Object.assign(rows[rows.length - 1], {
-            col2Label: item.label,
-            col2Value: item.value,
-          });
+        const lastRow = rows.at(-1);
+          if (lastRow) {
+            Object.assign(lastRow, {
+              col2Label: item.label,
+              col2Value: item.value,
+            });
+          }
         }
         return rows;
       }, []);
@@ -146,13 +149,13 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
     const baseColumns = [
       {
         key: "col1Label",
-        title: "Field",
+        title: "",
         dataType: DataType.String,
         style: { fontWeight: "bold", width: "25%" },
       },
       {
         key: "col1Value",
-        title: "Value",
+        title: "",
         dataType: DataType.String,
         style: { width: "25%" },
       },
@@ -163,13 +166,13 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
         ...baseColumns,
         {
           key: "col2Label",
-          title: "Field",
+          title: "",
           dataType: DataType.String,
           style: { fontWeight: "bold", width: "25%" },
         },
         {
           key: "col2Value",
-          title: "Value",
+          title: "",
           dataType: DataType.String,
           style: { width: "25%" },
         },
@@ -226,14 +229,15 @@ const ApplicationInfo: React.FC<ApplicationInfoProps> = ({
         {/* Inline styles for table header and cells */}
         <style>
           {`
-            .ka-thead-cell {
-              font-weight: bold;
-              background-color: #f5f5f5;
-              text-align: left !important;
-            }
             .ka-cell {
               padding: 8px;
               text-align: left !important;
+            }
+            .ka-thead th .ka-thead-cell-content span:empty {
+              display: none;
+            }
+            .ka-thead th:has(.ka-thead-cell-content span:empty) {
+              display: none;
             }
           `}
         </style>
