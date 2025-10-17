@@ -125,14 +125,24 @@ export const viewAllBenefitsData = async (payload: ViewAllBenefits) => {
   }
 };
 
-export const viewAllApplicationByBenefitId = async (id: string) => {
+interface ApplicationListPayload {
+  benefitId: string;
+  limit: number;
+  offset: number;
+  status?: string[];
+  orderBy?: "createdAt" | "updatedAt" | "id";
+  orderDirection?: "asc" | "desc";
+}
+
+export const fetchApplicationsList = async (
+  payload: ApplicationListPayload
+) => {
   try {
-    const response = await apiClient.get(`/applications`, {
-      params: { benefitId: id }, // Pass benefitId as a query parameter
-    });
+    const response = await apiClient.post(`/applications/list`, payload);
     return response?.data;
   } catch (error) {
-    console.error("Error fetching applications by benefit ID:", error);
+    console.error("Error fetching applications list:", error);
+    throw error;
   }
 };
 
