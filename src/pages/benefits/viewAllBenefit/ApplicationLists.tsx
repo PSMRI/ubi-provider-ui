@@ -1,10 +1,7 @@
-import { ArrowBackIcon, SearchIcon, ArrowForwardIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 import {
   HStack,
   IconButton,
-  Input,
-  InputGroup,
-  InputRightElement,
   Select,
   VStack,
   Text,
@@ -18,54 +15,15 @@ import Layout from "../../../components/layout/Layout";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate, useParams } from "react-router-dom";
 import PaginationList from "./PaginationList";
-import { viewAllApplicationByBenefitId } from "../../../services/benefits";
+import {
+  fetchApplicationsList,
+  SortByOption,
+  SortDirection,
+  ApplicationListItem,
+  ApplicationsListResponse,
+} from "../../../services/benefits";
 import DownloadCSV from "../../../components/DownloadCSV";
 import { formatDate } from "../../../services/helperService";
-
-const columns = [
-  { 
-    key: "studentName", 
-    title: "Name", 
-    dataType: DataType.String, 
-    style: { width: "15%", minWidth: 80, whiteSpace: "nowrap" }
-  },
-  { 
-    key: "applicationId", 
-    title: "App ID",
-    dataType: DataType.Number, 
-    style: { width: "5%", minWidth: 10, whiteSpace: "nowrap", textAlign: "center" } 
-  },
-  { 
-    key: "orderId", 
-    title: "Order ID", 
-    dataType: DataType.String, 
-    style: { width: "15%", minWidth: 80, whiteSpace: "nowrap", textAlign: "center" }
-  },
-  { 
-    key: "submittedAt", 
-    title: "Submitted At", 
-    dataType: DataType.String, 
-    style: { width: "10%", minWidth: 50, whiteSpace: "nowrap", textAlign: "center" }
-  },
-  { 
-    key: "lastUpdatedAt", 
-    title: "Last Updated At", 
-    dataType: DataType.String, 
-    style: { width: "10%", minWidth: 50, whiteSpace: "nowrap", textAlign: "center" }
-  },
-  { 
-    key: "status", 
-    title: "Status", 
-    dataType: DataType.String, 
-    style: { width: "10%", minWidth: 30, whiteSpace: "nowrap", textAlign: "center" }
-  },
-  { 
-    key: "actions", 
-    title: "Actions", 
-    dataType: DataType.String, 
-    style: { width: "10%", minWidth: 30, whiteSpace: "nowrap", textAlign: "center" }
-  },
-];
 
 const DetailsButton = ({ rowData }: ICellTextProps) => {
   const navigate = useNavigate();
@@ -83,50 +41,181 @@ const DetailsButton = ({ rowData }: ICellTextProps) => {
   );
 };
 
+type AppRow = {
+  studentName: string;
+  applicationId: string;
+  orderId: string;
+  submittedAt: Date | null;
+  lastUpdatedAt: Date | null;
+  status: string;
+  submittedAtDisplay: string;
+  lastUpdatedAtDisplay: string;
+};
+
 const ApplicationLists: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState<string>("asc");
   const { id } = useParams<{ id: string }>();
-  const [applicationData, setApplicationData] = useState<any[]>([]);
+  const [applicationData, setApplicationData] = useState<AppRow[]>([]);
   const [pageIndex, setPageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const pageSize = 10;
   const [benefitName, setBenefitName] = useState<string>("");
+  const [totalApplications, setTotalApplications] = useState(0);
+  const [sortConfig, setSortConfig] = useState({
+    orderBy: "updatedAt" as SortByOption,
+    orderDirection: "desc" as SortDirection,
+  });
   const navigate = useNavigate();
+
+  const columns = [
+    {
+      key: "studentName",
+      title: "Name",
+      dataType: DataType.String,
+      isSortEnabled: false,
+      style: {
+        width: "15%",
+        minWidth: 80,
+        whiteSpace: "nowrap",
+      },
+    },
+    {
+      key: "applicationId",
+      title: "App ID",
+      dataType: DataType.Number,
+      isSortEnabled: false,
+      style: {
+        width: "5%",
+        minWidth: 10,
+        whiteSpace: "nowrap",
+        textAlign: "center",
+      },
+    },
+    {
+      key: "orderId",
+      title: "Order ID",
+      dataType: DataType.String,
+      isSortEnabled: false,
+      style: {
+        width: "15%",
+        minWidth: 80,
+        whiteSpace: "nowrap",
+        textAlign: "center",
+        color: "#666",
+      },
+    },
+    {
+      key: "submittedAt",
+      title: "Submitted At",
+      dataType: DataType.Date,
+      isSortEnabled: false,
+      style: {
+        width: "10%",
+        minWidth: 50,
+        whiteSpace: "nowrap",
+        textAlign: "center",
+      },
+    },
+    {
+      key: "lastUpdatedAt",
+      title: "Last Updated At",
+      dataType: DataType.Date,
+      isSortEnabled: false,
+      style: {
+        width: "10%",
+        minWidth: 50,
+        whiteSpace: "nowrap",
+        textAlign: "center",
+      },
+    },
+    {
+      key: "status",
+      title: "Status",
+      dataType: DataType.String,
+      isSortEnabled: false,
+      style: {
+        width: "10%",
+        minWidth: 30,
+        whiteSpace: "nowrap",
+        textAlign: "center",
+      },
+    },
+    {
+      key: "actions",
+      title: "Actions",
+      dataType: DataType.String,
+      isSortEnabled: false,
+      style: {
+        width: "10%",
+        minWidth: 30,
+        whiteSpace: "nowrap",
+        textAlign: "center",
+        color: "#666",
+      },
+    },
+  ];
 
   useEffect(() => {
     const fetchApplicationData = async () => {
       if (id) {
         try {
           setIsLoading(true);
-          const applicantionDataResponse = await viewAllApplicationByBenefitId(
-            id
-          );
-          console.log("applicantionDataResponse", applicantionDataResponse);
-          setBenefitName(applicantionDataResponse?.benefit?.title ?? "");
+          const payload = {
+            benefitId: id,
+            limit: pageSize,
+            offset: pageIndex * pageSize,
+            orderBy: sortConfig.orderBy,
+            orderDirection: sortConfig.orderDirection,
+          };
+
+          const response = (await fetchApplicationsList(
+            payload
+          )) as ApplicationsListResponse;
+          if (import.meta.env.DEV) {
+            console.debug("applicationsResponse", response);
+          }
+
+          setBenefitName(response?.benefit?.title ?? "");
+          setTotalApplications(response?.pagination?.total ?? 0);
+
           if (
-            !applicantionDataResponse?.applications ||
-            !Array.isArray(applicantionDataResponse?.applications)
+            !response?.applications ||
+            !Array.isArray(response?.applications)
           ) {
             console.error("Invalid response format from API");
             setApplicationData([]);
             return;
           }
-          const processedData = applicantionDataResponse?.applications?.map(
-            (item: any) => ({
-              studentName: `${item?.applicationData?.firstName ?? "N/A"} ${
-                item?.applicationData?.middleName ?? ""
-              } ${item?.applicationData?.lastName ?? ""}`.trim(),
-              applicationId: item?.id ?? "-",
-              orderId: item?.orderId ?? "-",
-              submittedAt: item?.createdAt ?? "-",
-              lastUpdatedAt: item?.updatedAt ?? "-",
-              status: item?.status ?? "-",
-            })
+
+          const processedData: AppRow[] = response.applications.map(
+            (item: ApplicationListItem) => {
+              const { firstName, middleName, lastName } =
+                item.applicationData || {};
+              const nameParts = [firstName, middleName, lastName].filter(
+                Boolean
+              );
+              const studentName =
+                nameParts.length > 0 ? nameParts.join(" ") : "N/A";
+
+              return {
+                studentName,
+                applicationId: item?.id ?? "-",
+                orderId: item?.orderId ?? "-",
+                submittedAt: item?.createdAt ? new Date(item.createdAt) : null,
+                lastUpdatedAt: item?.updatedAt
+                  ? new Date(item.updatedAt)
+                  : null,
+                status: item?.status ?? "-",
+                // Store original date strings for display
+                submittedAtDisplay: item?.createdAt ?? "-",
+                lastUpdatedAtDisplay: item?.updatedAt ?? "-",
+              };
+            }
           );
+
           setApplicationData(processedData);
         } catch (error) {
           console.error(error);
+          setApplicationData([]);
         } finally {
           setIsLoading(false);
         }
@@ -136,39 +225,22 @@ const ApplicationLists: React.FC = () => {
       }
     };
     fetchApplicationData();
-  }, [id]);
+  }, [id, pageIndex, sortConfig]);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value.toLowerCase());
+  const handleSortChange = (
+    orderBy: SortByOption,
+    orderDirection: SortDirection
+  ) => {
+    setSortConfig({ orderBy, orderDirection });
     setPageIndex(0);
   };
 
-  const handleSortOrderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSortOrder(e.target.value);
-    setPageIndex(0);
-  };
+  // Use all application data since we removed client-side search
+  const filteredData = applicationData || [];
 
   const handlePageChange = (newPageIndex: number) => {
     setPageIndex(newPageIndex);
   };
-
-  const filteredData = applicationData?.filter((item) =>
-    item?.studentName.toLowerCase().includes(searchTerm)
-  );
-
-  const sortedData = [...filteredData].sort((a, b) => {
-    if (sortOrder === "asc") {
-      return a.studentName.localeCompare(b.studentName);
-    } else if (sortOrder === "desc") {
-      return b.studentName.localeCompare(a.studentName);
-    }
-    return 0;
-  });
-
-  const paginatedData = sortedData.slice(
-    pageIndex * pageSize,
-    pageIndex * pageSize + pageSize
-  );
 
   return (
     <Layout
@@ -192,31 +264,47 @@ const ApplicationLists: React.FC = () => {
       showLanguage={false}
     >
       <VStack spacing="50px" p={"20px"} align="stretch">
-        {/* Search and Sort Controls - Only show when applications are available */}
-        {!isLoading && sortedData?.length > 0 && (
-          <HStack spacing={4}>
-            <InputGroup maxWidth="300px" rounded={"full"} size="lg">
-              <Input
-                placeholder="Search by name.."
-                rounded={"full"}
-                bg="#E9E7EF"
-                value={searchTerm}
-                onChange={handleSearchChange}
-              />
-              <InputRightElement>
-                <SearchIcon color="gray.500" />
-              </InputRightElement>
-            </InputGroup>
+        {/* Controls - Only show when not loading and data is available */}
+        {!isLoading && filteredData.length > 0 && (
+          <HStack justify="space-between" align="center" spacing={4}>
+            <HStack spacing={4} align="center">
+              <Select
+                value={sortConfig.orderBy}
+                onChange={(e) =>
+                  handleSortChange(
+                    e.target.value as SortByOption,
+                    sortConfig.orderDirection
+                  )
+                }
+                width="180px"
+                bg="white"
+              >
+                <option value="" disabled>
+                  Order By
+                </option>
+                <option value="id">App ID</option>
+                <option value="createdAt">Submitted At</option>
+                <option value="updatedAt">Last Updated At</option>
+              </Select>
 
-            <Select
-              placeholder="Sort Order"
-              onChange={handleSortOrderChange}
-              value={sortOrder}
-              maxWidth="150px"
-            >
-              <option value="asc">Ascending</option>
-              <option value="desc">Descending</option>
-            </Select>
+              <Select
+                value={sortConfig.orderDirection}
+                onChange={(e) =>
+                  handleSortChange(
+                    sortConfig.orderBy,
+                    e.target.value as SortDirection
+                  )
+                }
+                width="150px"
+                bg="white"
+              >
+                <option value="" disabled>
+                  Sort Order
+                </option>
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </Select>
+            </HStack>
             {id && <DownloadCSV benefitId={id} benefitName={benefitName} />}
           </HStack>
         )}
@@ -229,11 +317,11 @@ const ApplicationLists: React.FC = () => {
                 Loading...
               </Text>
             );
-          } else if (sortedData?.length > 0) {
+          } else if (filteredData?.length > 0) {
             return (
               <Table
                 columns={columns}
-                data={paginatedData}
+                data={filteredData}
                 rowKeyField={"applicationId"}
                 childComponents={{
                   cellText: {
@@ -251,9 +339,9 @@ const ApplicationLists: React.FC = () => {
           }
         })()}
 
-        {!isLoading && sortedData?.length > 0 && (
+        {!isLoading && totalApplications > 0 && (
           <PaginationList
-            total={sortedData.length}
+            total={totalApplications}
             pageSize={pageSize}
             currentPage={pageIndex}
             onPageChange={handlePageChange}
@@ -277,7 +365,9 @@ const CellTextContent = (props: ICellTextProps) => {
     if (status === "pending") color = "orange.500";
     else if (status === "approved") color = "green.500";
     else if (status === "rejected") color = "red.500";
-    const titleCaseStatus = status ? status.charAt(0).toUpperCase() + status.slice(1) : "";
+    const titleCaseStatus = status
+      ? status.charAt(0).toUpperCase() + status.slice(1)
+      : "";
     return (
       <Text color={color} fontWeight="bold">
         {titleCaseStatus}
@@ -289,16 +379,21 @@ const CellTextContent = (props: ICellTextProps) => {
     props.column.key === "submittedAt" ||
     props.column.key === "lastUpdatedAt"
   ) {
-    if (!props.value || props.value === "-") {
+    const displayValue =
+      props.column.key === "submittedAt"
+        ? props.rowData?.submittedAtDisplay
+        : props.rowData?.lastUpdatedAtDisplay;
+
+    if (!displayValue || displayValue === "-") {
       return <Text>-</Text>;
     }
     return (
       <Text
         isTruncated
         whiteSpace="nowrap"
-        title={formatDate(props.value, { withTime: true })}
+        title={formatDate(displayValue, { withTime: true })}
       >
-        {formatDate(props.value)}
+        {formatDate(displayValue)}
       </Text>
     );
   }

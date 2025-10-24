@@ -125,14 +125,52 @@ export const viewAllBenefitsData = async (payload: ViewAllBenefits) => {
   }
 };
 
-export const viewAllApplicationByBenefitId = async (id: string) => {
+export type SortByOption = "createdAt" | "updatedAt" | "id";
+export type SortDirection = "asc" | "desc";
+
+export interface ApplicationListItem {
+  id: string;
+  orderId: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  applicationData: {
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+  };
+}
+
+export interface ApplicationsListResponse {
+  applications: ApplicationListItem[];
+  benefit: {
+    title: string;
+  };
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+  };
+}
+
+interface ApplicationListPayload {
+  benefitId: string;
+  limit: number;
+  offset: number;
+  status?: string[];
+  orderBy?: SortByOption;
+  orderDirection?: SortDirection;
+}
+
+export const fetchApplicationsList = async (
+  payload: ApplicationListPayload
+) => {
   try {
-    const response = await apiClient.get(`/applications`, {
-      params: { benefitId: id }, // Pass benefitId as a query parameter
-    });
+    const response = await apiClient.post(`/applications/list`, payload);
     return response?.data;
   } catch (error) {
-    console.error("Error fetching applications by benefit ID:", error);
+    console.error("Error fetching applications list:", error);
+    throw error;
   }
 };
 
