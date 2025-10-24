@@ -125,13 +125,41 @@ export const viewAllBenefitsData = async (payload: ViewAllBenefits) => {
   }
 };
 
+export type SortByOption = "createdAt" | "updatedAt" | "id";
+export type SortDirection = "asc" | "desc";
+
+export interface ApplicationListItem {
+  id: string;
+  orderId: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  applicationData: {
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+  };
+}
+
+export interface ApplicationsListResponse {
+  applications: ApplicationListItem[];
+  benefit: {
+    title: string;
+  };
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+  };
+}
+
 interface ApplicationListPayload {
   benefitId: string;
   limit: number;
   offset: number;
   status?: string[];
-  orderBy?: "createdAt" | "updatedAt" | "id";
-  orderDirection?: "asc" | "desc";
+  orderBy?: SortByOption;
+  orderDirection?: SortDirection;
 }
 
 export const fetchApplicationsList = async (

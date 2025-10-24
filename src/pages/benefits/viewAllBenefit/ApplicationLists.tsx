@@ -15,7 +15,13 @@ import Layout from "../../../components/layout/Layout";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate, useParams } from "react-router-dom";
 import PaginationList from "./PaginationList";
-import { fetchApplicationsList } from "../../../services/benefits";
+import {
+  fetchApplicationsList,
+  SortByOption,
+  SortDirection,
+  ApplicationListItem,
+  ApplicationsListResponse,
+} from "../../../services/benefits";
 import DownloadCSV from "../../../components/DownloadCSV";
 import { formatDate } from "../../../services/helperService";
 
@@ -35,12 +41,20 @@ const DetailsButton = ({ rowData }: ICellTextProps) => {
   );
 };
 
-type SortByOption = "createdAt" | "updatedAt" | "id";
-type SortDirection = "asc" | "desc";
+type AppRow = {
+  studentName: string;
+  applicationId: string;
+  orderId: string;
+  submittedAt: Date | null;
+  lastUpdatedAt: Date | null;
+  status: string;
+  submittedAtDisplay: string;
+  lastUpdatedAtDisplay: string;
+};
 
 const ApplicationLists: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [applicationData, setApplicationData] = useState<any[]>([]);
+  const [applicationData, setApplicationData] = useState<AppRow[]>([]);
   const [pageIndex, setPageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const pageSize = 10;
@@ -153,21 +167,15 @@ const ApplicationLists: React.FC = () => {
             orderDirection: sortConfig.orderDirection,
           };
 
-          const response = await fetchApplicationsList(payload);
-          console.log("applicationsResponse", response);
+          const response = (await fetchApplicationsList(
+            payload
+          )) as ApplicationsListResponse;
+          if (import.meta.env.DEV) {
+            console.debug("applicationsResponse", response);
+          }
 
           setBenefitName(response?.benefit?.title ?? "");
           setTotalApplications(response?.pagination?.total ?? 0);
-          console.log("Pagination data:", {
-            total: response?.pagination?.total,
-            limit: response?.pagination?.limit,
-            offset: response?.pagination?.offset,
-            pageSize,
-            currentPage: pageIndex,
-            totalPages: Math.ceil(
-              (response?.pagination?.total || 0) / pageSize
-            ),
-          });
 
           if (
             !response?.applications ||
@@ -178,19 +186,31 @@ const ApplicationLists: React.FC = () => {
             return;
           }
 
-          const processedData = response?.applications?.map((item: any) => ({
-            studentName: `${item?.applicationData?.firstName ?? "N/A"} ${
-              item?.applicationData?.middleName ?? ""
-            } ${item?.applicationData?.lastName ?? ""}`.trim(),
-            applicationId: item?.id ?? "-",
-            orderId: item?.orderId ?? "-",
-            submittedAt: item?.createdAt ? new Date(item.createdAt) : null,
-            lastUpdatedAt: item?.updatedAt ? new Date(item.updatedAt) : null,
-            status: item?.status ?? "-",
-            // Store original date strings for display
-            submittedAtDisplay: item?.createdAt ?? "-",
-            lastUpdatedAtDisplay: item?.updatedAt ?? "-",
-          }));
+          const processedData: AppRow[] = response.applications.map(
+            (item: ApplicationListItem) => {
+              const { firstName, middleName, lastName } =
+                item.applicationData || {};
+              const nameParts = [firstName, middleName, lastName].filter(
+                Boolean
+              );
+              const studentName =
+                nameParts.length > 0 ? nameParts.join(" ") : "N/A";
+
+              return {
+                studentName,
+                applicationId: item?.id ?? "-",
+                orderId: item?.orderId ?? "-",
+                submittedAt: item?.createdAt ? new Date(item.createdAt) : null,
+                lastUpdatedAt: item?.updatedAt
+                  ? new Date(item.updatedAt)
+                  : null,
+                status: item?.status ?? "-",
+                // Store original date strings for display
+                submittedAtDisplay: item?.createdAt ?? "-",
+                lastUpdatedAtDisplay: item?.updatedAt ?? "-",
+              };
+            }
+          );
 
           setApplicationData(processedData);
         } catch (error) {
