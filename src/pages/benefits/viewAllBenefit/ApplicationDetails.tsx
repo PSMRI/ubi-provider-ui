@@ -22,6 +22,10 @@ import {
   Tab,
   TabPanel,
   Badge,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
 } from "@chakra-ui/react";
 import {
   CheckIcon,
@@ -130,6 +134,7 @@ const ApplicationDetails: React.FC = () => {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   // Add new state for verification workflow checks
   const [isDocumentVerificationComplete, setIsDocumentVerificationComplete] = useState(false);
+  const [isApplicationNotConfirmed, setIsApplicationNotConfirmed] = useState(false);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedStatus, setSelectedStatus] = useState<
@@ -370,6 +375,11 @@ const ApplicationDetails: React.FC = () => {
   const setApplicantInfo = (applicationData: any) => {
     const applicantDetails = applicationData.applicationData;
     setApplicant(applicantDetails);
+
+    // Check if orderId is missing or empty - indicates beneficiary hasn't confirmed the application
+    const orderIdValue = applicationData.orderId;
+    const isNotConfirmed = !orderIdValue || String(orderIdValue).trim() === "" || orderIdValue === "-";
+    setIsApplicationNotConfirmed(isNotConfirmed);
 
     if (applicationData.status !== "pending") {
       setShowActionButtons(false);
@@ -783,6 +793,41 @@ const ApplicationDetails: React.FC = () => {
             </Box>
           )}
 
+          {/* Alert for applications awaiting beneficiary confirmation */}
+          {isApplicationNotConfirmed && (
+            <Alert
+              status="info"
+              variant="left-accent"
+              borderRadius="8px"
+              bg="#E3F2FD"
+              borderColor="#1976D2"
+              borderLeft="4px solid"
+              p={4}
+            >
+              <AlertIcon color="#1976D2" boxSize={5} />
+              <Box flex="1">
+                <AlertTitle
+                  fontSize="16px"
+                  fontWeight="600"
+                  mb={1}
+                  color="#0D47A1"
+                  fontFamily="Poppins"
+                >
+                  {t("APPLICATION_DETAILS_AWAITING_BENEFICIARY_CONFIRMATION")}
+                </AlertTitle>
+                <AlertDescription
+                  display="block"
+                  fontSize="14px"
+                  color="#1565C0"
+                  fontFamily="Poppins"
+                  lineHeight="1.5"
+                >
+                  {t("APPLICATION_DETAILS_NOT_CONFIRMED_WARNING_MESSAGE")}
+                </AlertDescription>
+              </Box>
+            </Alert>
+          )}
+
           {/* Tabs Section */}
           <Tabs
             variant="unstyled"
@@ -928,9 +973,9 @@ const ApplicationDetails: React.FC = () => {
                             textAlign: "center",
                             verticalAlign: "middle",
                           }}
-                                                  >
-                            {t("APPLICATION_DETAILS_VERIFY_ALL_DOCUMENTS")}
-                          </Button>
+                        >
+                          {t("APPLICATION_DETAILS_VERIFY_ALL_DOCUMENTS")}
+                        </Button>
                       )}
                       {isReverifyButtonVisible && (
                         <Button
@@ -955,9 +1000,9 @@ const ApplicationDetails: React.FC = () => {
                             textAlign: "center",
                             verticalAlign: "middle",
                           }}
-                                                  >
-                            {t("APPLICATION_DETAILS_REVERIFY_FAILED_DOCUMENTS")}
-                          </Button>
+                        >
+                          {t("APPLICATION_DETAILS_REVERIFY_FAILED_DOCUMENTS")}
+                        </Button>
                       )}
                     </HStack>
                   )}
@@ -1090,7 +1135,7 @@ const ApplicationDetails: React.FC = () => {
                 <Button
                   bg={!areAllVerificationStepsComplete() ? "#B0B0B0" : "#3C5FDD"}
                   color="white"
-                  width="220px"
+                  width="280px"
                   size="lg"
                   onClick={() => !areAllVerificationStepsComplete() ? undefined : openConfirmationModal("approved")}
                   borderRadius="8px"
@@ -1105,6 +1150,7 @@ const ApplicationDetails: React.FC = () => {
                   _disabled={{
                     bg: "#B0B0B0",
                     cursor: "not-allowed",
+                    opacity: 0.6,
                     _hover: {
                       bg: "#B0B0B0",
                       transform: "none"
@@ -1113,23 +1159,30 @@ const ApplicationDetails: React.FC = () => {
                   sx={{
                     fontFamily: "Poppins",
                     fontWeight: 500,
-                    fontSize: "12px",
-                    lineHeight: "18px",
-                    letterSpacing: "0.1px",
                   }}
                 >
                   {!areAllVerificationStepsComplete() ? (
-                                          <VStack spacing={0}>
-                        <Text fontSize="14px" fontWeight="500" lineHeight="20px">
-                          {t("APPLICATION_DETAILS_APPROVE_BUTTON")}
-                        </Text>
-                        <Text fontSize="10px" fontWeight="400" lineHeight="12px" opacity={0.8}>
-                          {t("APPLICATION_DETAILS_DOCUMENT_VERIFICATION_REQUIRED")}
-                        </Text>
-                      </VStack>
-                    ) : (
-                      t("APPLICATION_DETAILS_APPROVE_BUTTON")
-                    )}
+                    <VStack spacing={0} align="center">
+                      <Text fontSize="14px" fontWeight="500" lineHeight="20px">
+                        {t("APPLICATION_DETAILS_APPROVE_BUTTON")}
+                      </Text>
+                      <Text
+                        fontSize="10px"
+                        fontWeight="400"
+                        lineHeight="14px"
+                        opacity={0.9}
+                        maxW="100%"
+                        whiteSpace="normal"
+                        textAlign="center"
+                      >
+                        {t("APPLICATION_DETAILS_DOCUMENT_VERIFICATION_REQUIRED")}
+                      </Text>
+                    </VStack>
+                  ) : (
+                    <Text fontSize="14px" fontWeight="500" lineHeight="20px">
+                      {t("APPLICATION_DETAILS_APPROVE_BUTTON")}
+                    </Text>
+                  )}
                 </Button>
               </HStack>
             </HStack>

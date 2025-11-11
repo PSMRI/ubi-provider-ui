@@ -90,5 +90,7 @@
   "APPLICATION_DETAILS_TAB_STATUS_ELIGIBILITY_NOT_MATCHED": "(Not Matched)",
   "APPLICATION_DETAILS_TAB_STATUS_PENDING": "(Pending)",
   "APPLICATION_DETAILS_TAB_STATUS_COMPLETED": "(Completed)",
-  "APPLICATION_DETAILS_NO_AMOUNT_BREAKDOWN_AVAILABLE": "No amount breakdown available"
+  "APPLICATION_DETAILS_NO_AMOUNT_BREAKDOWN_AVAILABLE": "No amount breakdown available",
+  "APPLICATION_DETAILS_NOT_CONFIRMED_WARNING_MESSAGE": "This application cannot be processed because the beneficiary has not yet confirmed their application. Verification and approval actions will become available once the beneficiary confirms the application.",
+  "APPLICATION_DETAILS_AWAITING_BENEFICIARY_CONFIRMATION": "Awaiting Beneficiary Confirmation"
 }
