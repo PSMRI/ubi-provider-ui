@@ -381,7 +381,8 @@ const ApplicationDetails: React.FC = () => {
     const isNotConfirmed = !orderIdValue || String(orderIdValue).trim() === "" || orderIdValue === "-";
     setIsApplicationNotConfirmed(isNotConfirmed);
 
-    if (applicationData.status !== "pending") {
+    // Hide action buttons if status is not pending OR if status is pending but application not confirmed
+    if (applicationData.status !== "pending" || isNotConfirmed) {
       setShowActionButtons(false);
     }
 
