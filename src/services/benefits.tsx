@@ -275,19 +275,27 @@ export const updateApplicationStatus = async (
 interface ExportCsvParams {
   benefitId: string;
   type: string;
+  status?: string;
 }
 
 export const exportApplicationsCsv = async ({
   benefitId,
   type,
+  status,
 }: ExportCsvParams) => {
   try {
     const token = localStorage.getItem("token");
+    const params: Record<string, any> = {
+      benefitId,
+      type,
+    };
+    
+    if (status) {
+      params.status = [status];
+    }
+    
     const response = await apiClient.get("/applications/reports/csvexport", {
-      params: {
-        benefitId,
-        type,
-      },
+      params,
       headers: {
         Authorization: `Bearer ${token}`,
       },
