@@ -26,6 +26,7 @@ import {
   ApplicationsListResponse,
 } from "../../../services/benefits";
 import DownloadCSV from "../../../components/DownloadCSV";
+import DownloadZIP from "../../../components/DownloadZIP";
 import { formatDate } from "../../../services/helperService";
 
 const DetailsButton = ({ rowData }: ICellTextProps) => {
@@ -341,11 +342,18 @@ const ApplicationLists: React.FC = () => {
               </Select>
             </HStack>
             {id && (
-              <DownloadCSV
-                benefitId={id}
-                benefitName={benefitName}
-                selectedStatus={selectedStatus}
-              />
+              <HStack spacing={3}>
+                <DownloadZIP
+                  benefitId={id}
+                  benefitName={benefitName}
+                  selectedStatus={selectedStatus}
+                />
+                <DownloadCSV
+                  benefitId={id}
+                  benefitName={benefitName}
+                  selectedStatus={selectedStatus}
+                />
+              </HStack>
             )}
           </HStack>
         )}
