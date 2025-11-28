@@ -17,6 +17,7 @@ import { exportApplicationsCsv } from "../services/benefits";
 interface DownloadCSVProps {
   benefitId: string;
   benefitName: string;
+  selectedStatus?: string;
 }
 
 const options = [
@@ -31,6 +32,7 @@ const options = [
 const DownloadCSV: React.FC<DownloadCSVProps> = ({
   benefitId,
   benefitName,
+  selectedStatus = "",
 }) => {
   const [loadingOption, setLoadingOption] = useState<string | null>(null);
   const toast = useToast();
@@ -41,6 +43,7 @@ const DownloadCSV: React.FC<DownloadCSVProps> = ({
       const data = await exportApplicationsCsv({
         benefitId,
         type: selectedOption,
+        status: selectedStatus || undefined,
       });
 
       // If data is a Blob or Response, convert to text

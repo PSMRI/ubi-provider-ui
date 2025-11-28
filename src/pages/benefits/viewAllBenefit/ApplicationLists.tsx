@@ -1,11 +1,14 @@
-import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 import {
+  ArrowBackIcon,
+  ArrowForwardIcon,
+} from "@chakra-ui/icons";
+import {
+  Flex,
   HStack,
   IconButton,
   Select,
-  VStack,
   Text,
-  Flex,
+  VStack,
 } from "@chakra-ui/react";
 import Table from "../../../components/common/table/Table";
 import { DataType } from "ka-table/enums";
@@ -52,6 +55,13 @@ type AppRow = {
   lastUpdatedAtDisplay: string;
 };
 
+const STATUS_OPTIONS = [
+  { label: "Pending", value: "pending" },
+  { label: "Approved", value: "approved" },
+  { label: "Rejected", value: "rejected" },
+  { label: "Resubmit", value: "resubmit" }
+];
+
 const ApplicationLists: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [applicationData, setApplicationData] = useState<AppRow[]>([]);
@@ -64,6 +74,8 @@ const ApplicationLists: React.FC = () => {
     orderBy: "updatedAt" as SortByOption,
     orderDirection: "desc" as SortDirection,
   });
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
+
   const navigate = useNavigate();
 
   const columns = [
@@ -154,6 +166,7 @@ const ApplicationLists: React.FC = () => {
     },
   ];
 
+
   useEffect(() => {
     const fetchApplicationData = async () => {
       if (id) {
@@ -165,6 +178,9 @@ const ApplicationLists: React.FC = () => {
             offset: pageIndex * pageSize,
             orderBy: sortConfig.orderBy,
             orderDirection: sortConfig.orderDirection,
+            ...(selectedStatus
+              ? { status: [selectedStatus] }
+              : {}),
           };
 
           const response = (await fetchApplicationsList(
@@ -225,7 +241,13 @@ const ApplicationLists: React.FC = () => {
       }
     };
     fetchApplicationData();
-  }, [id, pageIndex, sortConfig]);
+  }, [id, pageIndex, sortConfig, selectedStatus]);
+  
+  const handleStatusChange = (value: string) => {
+    setSelectedStatus(value);
+    setPageIndex(0);
+  };
+
 
   const handleSortChange = (
     orderBy: SortByOption,
@@ -304,8 +326,27 @@ const ApplicationLists: React.FC = () => {
                 <option value="asc">Ascending</option>
                 <option value="desc">Descending</option>
               </Select>
+              <Select
+                value={selectedStatus}
+                onChange={(e) => handleStatusChange(e.target.value)}
+                width="220px"
+                bg="white"
+                placeholder="Status"
+              >
+                {STATUS_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
             </HStack>
-            {id && <DownloadCSV benefitId={id} benefitName={benefitName} />}
+            {id && (
+              <DownloadCSV
+                benefitId={id}
+                benefitName={benefitName}
+                selectedStatus={selectedStatus}
+              />
+            )}
           </HStack>
         )}
 
