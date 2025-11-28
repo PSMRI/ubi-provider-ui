@@ -35,8 +35,8 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
   // Helper function to sanitize file names
   const sanitizeFileName = (name: string | number) =>
     String(name)
-      .replace(/[\\/:*?"<>|]/g, "_")
-      .replace(/\s+/g, "_");
+      .replaceAll(/[\\/:*?"<>|]/g, "_")
+      .replaceAll(/\s+/g, "_");
 
   // Helper function to convert application data to CSV
   const convertApplicationToCSV = (applicationData: any): string => {
@@ -57,7 +57,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
         const stringValue = String(value);
         const escapedValue =
           stringValue.includes(",") || stringValue.includes("\n")
-            ? `"${stringValue.replace(/"/g, '""')}"`
+            ? `"${stringValue.replaceAll(/"/g, '""')}"`
             : stringValue;
         values.push(escapedValue);
       }
@@ -111,7 +111,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
       const byteCharacters = atob(base64Data);
       const byteNumbers = new Array(byteCharacters.length);
       for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
+        byteNumbers[i] = byteCharacters.codePointAt(i) ?? 0;
       }
       const byteArray = new Uint8Array(byteNumbers);
       return new Blob([byteArray], { type: contentType });
@@ -121,19 +121,186 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
     }
   };
 
+  // Helper function to add CSV to application folder
+  const addApplicationCSV = (
+    folder: JSZip,
+    applicationData: any,
+    identifier: string
+  ) => {
+    try {
+      const csvContent = convertApplicationToCSV(applicationData);
+      if (csvContent) {
+        const BOM = "\uFEFF";
+        folder.file("application_data.csv", BOM + csvContent);
+      }
+    } catch (error) {
+      console.error(
+        `Failed to create CSV for application ${identifier}:`,
+        error
+      );
+    }
+  };
+
+  // Helper function to download images from VC
+  const downloadVCImages = async (
+    credentialSubject: any,
+    folder: JSZip,
+    vcFileName: string,
+    docIndex: number
+  ) => {
+    if (!credentialSubject || typeof credentialSubject !== "object") return;
+
+    let imageCounter = 0;
+    for (const [, entry] of Object.entries(credentialSubject)) {
+      const hasUrl = entry && typeof entry === "object" && "url" in entry;
+      const urlValue = hasUrl ? (entry as { url: unknown }).url : null;
+
+      if (hasUrl && typeof urlValue === "string") {
+        try {
+          const imageBlob = await downloadDocumentFromUrl(urlValue);
+          const imageExt = urlValue.split(".").pop()?.split("?")[0] || "jpg";
+          const imageName = `${docIndex + 1}_${vcFileName}_image_${
+            imageCounter + 1
+          }.${imageExt}`;
+          folder.file(imageName, imageBlob);
+          imageCounter++;
+        } catch (error) {
+          console.error(`Failed to download image from ${urlValue}:`, error);
+        }
+      }
+    }
+  };
+
+  // Helper function to save fallback document
+  const saveFallbackDocument = (file: any, folder: JSZip, docIndex: number) => {
+    const contentType =
+      file.fileType || file.documentType || "application/octet-stream";
+    const documentBlob = base64ToBlob(file.fileContent, contentType);
+    const documentName =
+      file.documentName ||
+      file.documentSubtype ||
+      extractFilename(file.filePath || `document_${docIndex + 1}`);
+
+    let finalDocName = documentName;
+    if (!finalDocName.includes(".")) {
+      const ext = getFileExtension(contentType, file.filePath);
+      finalDocName = `${finalDocName}.${ext}`;
+    }
+
+    const sanitizedName = sanitizeFileName(finalDocName);
+    folder.file(`${docIndex + 1}_${sanitizedName}`, documentBlob);
+  };
+
+  // Helper function to process VC document
+  const processVCDocument = async (
+    file: any,
+    folder: JSZip,
+    docIndex: number,
+    identifier: string
+  ) => {
+    try {
+      const decodedVC = decodeBase64ToJson(file.fileContent);
+      const vcFileName = sanitizeFileName(
+        file.documentSubtype || `document_${docIndex + 1}`
+      );
+
+      // Save VC JSON
+      folder.file(
+        `${docIndex + 1}_${vcFileName}_vc.json`,
+        JSON.stringify(decodedVC, null, 2)
+      );
+
+      // Download images from VC
+      await downloadVCImages(
+        decodedVC?.credentialSubject,
+        folder,
+        vcFileName,
+        docIndex
+      );
+    } catch (error) {
+      console.error(
+        `Failed to decode VC for document ${docIndex} in ${identifier}:`,
+        error
+      );
+      // Fallback: Save raw base64 content
+      saveFallbackDocument(file, folder, docIndex);
+    }
+  };
+
+  // Helper function to process documents
+  const processApplicationDocuments = async (
+    files: any[],
+    folder: JSZip,
+    identifier: string
+  ) => {
+    for (let j = 0; j < files.length; j++) {
+      const file = files[j];
+      try {
+        if (file.fileContent) {
+          await processVCDocument(file, folder, j, identifier);
+        } else if (file.filePath?.startsWith("http")) {
+          const documentBlob = await downloadDocumentFromUrl(file.filePath);
+          const documentName = extractFilename(file.filePath);
+          const sanitizedName = sanitizeFileName(documentName);
+          folder.file(`${j + 1}_${sanitizedName}`, documentBlob);
+        } else {
+          console.warn(
+            `No valid file content or path for document ${j} in ${identifier}`
+          );
+        }
+      } catch (error) {
+        console.error(
+          `Failed to add document ${j} for application ${identifier}:`,
+          error
+        );
+      }
+    }
+  };
+
+  // Helper function to process single application
+  const processApplication = async (
+    application: any,
+    zip: JSZip,
+    index: number,
+    total: number
+  ) => {
+    const identifier =
+      application.orderId || application.id || `application_${index + 1}`;
+    const folderName = sanitizeFileName(identifier);
+    const applicationFolder = zip.folder(folderName);
+
+    if (!applicationFolder) {
+      console.error(`Failed to create folder for ${identifier}`);
+      return;
+    }
+
+    setProgress(((index + 1) / total) * 100);
+    setStatusText(`Processing application ${index + 1} of ${total}...`);
+
+    // Add CSV
+    addApplicationCSV(
+      applicationFolder,
+      application.applicationData || application,
+      identifier
+    );
+
+    // Process documents
+    const files = application.applicationFiles || application.files || [];
+    await processApplicationDocuments(files, applicationFolder, identifier);
+  };
+
   const handleDownloadZip = async () => {
     setIsLoading(true);
     setProgress(0);
     setStatusText("Fetching applications...");
 
     try {
-      // Fetch all applications with documents
       const applications = await fetchAllApplicationsWithDocuments({
         benefitId,
         status: selectedStatus || undefined,
       });
 
-      if (!applications || applications.length === 0) {
+      if (!applications?.length) {
         toast({
           title: "No applications found",
           description: "There are no applications to download.",
@@ -150,154 +317,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
 
       // Process each application
       for (let i = 0; i < applications.length; i++) {
-        const application = applications[i];
-        // Use orderId if available, otherwise use id
-        const identifier =
-          application.orderId || application.id || `application_${i + 1}`;
-        const folderName = sanitizeFileName(identifier);
-
-        // Create a folder for this application
-        const applicationFolder = zip.folder(folderName);
-
-        if (!applicationFolder) {
-          console.error(`Failed to create folder for ${identifier}`);
-          continue;
-        }
-
-        setProgress(((i + 1) / applications.length) * 100);
-        setStatusText(
-          `Processing application ${i + 1} of ${applications.length}...`
-        );
-
-        // Add application data CSV
-        try {
-          const csvContent = convertApplicationToCSV(
-            application.applicationData || application
-          );
-          if (csvContent) {
-            // Add UTF-8 BOM for Excel compatibility
-            const BOM = "\uFEFF";
-            applicationFolder.file("application_data.csv", BOM + csvContent);
-          }
-        } catch (error) {
-          console.error(
-            `Failed to create CSV for application ${identifier}:`,
-            error
-          );
-        }
-
-        // Download and add documents
-        const files = application.applicationFiles || application.files || [];
-
-        for (let j = 0; j < files.length; j++) {
-          const file = files[j];
-
-          try {
-            // Process file content (VC JSON)
-            if (file.fileContent) {
-              try {
-                // Decode the VC and save as JSON
-                const decodedVC = decodeBase64ToJson(file.fileContent);
-                const vcFileName = sanitizeFileName(
-                  file.documentSubtype || `document_${j + 1}`
-                );
-                applicationFolder.file(
-                  `${j + 1}_${vcFileName}_vc.json`,
-                  JSON.stringify(decodedVC, null, 2)
-                );
-
-                // Extract and download original images from VC
-                const credentialSubject = decodedVC?.credentialSubject;
-                if (
-                  credentialSubject &&
-                  typeof credentialSubject === "object"
-                ) {
-                  let imageCounter = 0;
-
-                  // Iterate through all fields to find image URLs
-                  for (const [, entry] of Object.entries(credentialSubject)) {
-                    if (
-                      typeof entry === "object" &&
-                      entry !== null &&
-                      "url" in entry &&
-                      typeof (entry as { url: unknown }).url === "string"
-                    ) {
-                      const imageUrl = (entry as { url: string }).url;
-
-                      try {
-                        // Download the image from S3
-                        const imageBlob = await downloadDocumentFromUrl(
-                          imageUrl
-                        );
-                        const imageExt =
-                          imageUrl.split(".").pop()?.split("?")[0] || "jpg";
-                        const imageName = `${j + 1}_${vcFileName}_image_${
-                          imageCounter + 1
-                        }.${imageExt}`;
-
-                        applicationFolder.file(imageName, imageBlob);
-                        imageCounter++;
-                      } catch (error) {
-                        console.error(
-                          `Failed to download image from ${imageUrl}:`,
-                          error
-                        );
-                      }
-                    }
-                  }
-                }
-              } catch (error) {
-                console.error(
-                  `Failed to decode VC for document ${j} in ${identifier}:`,
-                  error
-                );
-
-                // Fallback: Save raw base64 content as is
-                const contentType =
-                  file.fileType ||
-                  file.documentType ||
-                  "application/octet-stream";
-                const documentBlob = base64ToBlob(
-                  file.fileContent,
-                  contentType
-                );
-                const documentName =
-                  file.documentName ||
-                  file.documentSubtype ||
-                  extractFilename(file.filePath || `document_${j + 1}`);
-
-                let finalDocName = documentName;
-                if (!finalDocName.includes(".")) {
-                  const ext = getFileExtension(contentType, file.filePath);
-                  finalDocName = `${finalDocName}.${ext}`;
-                }
-
-                const sanitizedName = sanitizeFileName(finalDocName);
-                applicationFolder.file(
-                  `${j + 1}_${sanitizedName}`,
-                  documentBlob
-                );
-              }
-            } else if (file.filePath && file.filePath.startsWith("http")) {
-              // Direct URL download (fallback)
-              const documentBlob = await downloadDocumentFromUrl(file.filePath);
-              const documentName = extractFilename(file.filePath);
-              const sanitizedName = sanitizeFileName(documentName);
-              applicationFolder.file(`${j + 1}_${sanitizedName}`, documentBlob);
-            } else {
-              console.warn(
-                `No valid file content or path for document ${j} in ${identifier}`
-              );
-              continue;
-            }
-          } catch (error) {
-            console.error(
-              `Failed to add document ${j} for application ${identifier}:`,
-              error
-            );
-            // Continue with next document
-          }
-        }
+        await processApplication(applications[i], zip, i, applications.length);
       }
 
       // Generate and download the ZIP file
