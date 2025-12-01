@@ -289,11 +289,11 @@ export const exportApplicationsCsv = async ({
       benefitId,
       type,
     };
-    
+
     if (status) {
       params.status = [status];
     }
-    
+
     const response = await apiClient.get("/applications/reports/csvexport", {
       params,
       headers: {
@@ -315,6 +315,79 @@ export const getBenefitById = async (benefitId: string) => {
     return response?.data;
   } catch (error) {
     console.error("Error fetching benefit by ID:", error);
+    throw error;
+  }
+};
+
+interface ExportZipParams {
+  benefitId: string;
+  status?: string;
+}
+
+export const fetchAllApplicationsWithDocuments = async ({
+  benefitId,
+  status,
+}: ExportZipParams) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    // Fetch all applications for the benefit (with a large limit to get all)
+    const payload: ApplicationListPayload = {
+      benefitId,
+      limit: 100, // Large number to get all applications
+      offset: 0,
+    };
+
+    if (status) {
+      payload.status = [status];
+    }
+
+    const applicationsResponse = await apiClient.post(
+      `/applications/list`,
+      payload
+    );
+    const applications = applicationsResponse?.data?.applications || [];
+
+    // Fetch full details for each application including documents
+    const applicationDetailsPromises = applications.map(
+      async (app: ApplicationListItem) => {
+        try {
+          const detailResponse = await apiClient.get(
+            `/applications/${app.id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          return detailResponse.data;
+        } catch (error) {
+          console.error(
+            `Failed to fetch details for application ${app.id}:`,
+            error
+          );
+          return null;
+        }
+      }
+    );
+
+    const applicationDetails = await Promise.all(applicationDetailsPromises);
+    return applicationDetails.filter((detail) => detail !== null);
+  } catch (error) {
+    console.error("Failed to fetch applications with documents:", error);
+    throw error;
+  }
+};
+
+export const downloadDocumentFromUrl = async (url: string): Promise<Blob> => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to download document: ${response.statusText}`);
+    }
+    return await response.blob();
+  } catch (error) {
+    console.error("Error downloading document from URL:", error);
     throw error;
   }
 };
