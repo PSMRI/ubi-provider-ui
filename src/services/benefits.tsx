@@ -331,25 +331,48 @@ export const fetchAllApplicationsWithDocuments = async ({
   try {
     const token = localStorage.getItem("token");
 
-    // Fetch all applications for the benefit (with a large limit to get all)
-    const payload: ApplicationListPayload = {
-      benefitId,
-      limit: 100, // Large number to get all applications
-      offset: 0,
-    };
+    const allApplications: ApplicationListItem[] = [];
+    const limit = 100;
+    let offset = 0;
+    let total = 0;
 
-    if (status) {
-      payload.status = [status];
-    }
+    do {
+      const payload: ApplicationListPayload = {
+        benefitId,
+        limit,
+        offset,
+      };
 
-    const applicationsResponse = await apiClient.post(
-      `/applications/list`,
-      payload
-    );
-    const applications = applicationsResponse?.data?.applications || [];
+      if (status) {
+        payload.status = [status];
+      }
+
+      const applicationsResponse = await apiClient.post(
+        `/applications/list`,
+        payload
+      );
+
+      const applications = applicationsResponse?.data?.applications || [];
+      const pagination = applicationsResponse?.data?.pagination;
+
+      console.log(`Fetched batch of applications: ${applications.length} (Offset: ${offset})`);
+
+      if (applications.length > 0) {
+        allApplications.push(...applications);
+      }
+
+      total = pagination?.total || 0;
+      offset += limit;
+
+      // Safety break to prevent infinite loops if API behaves unexpectedly
+      if (applications.length === 0 && offset < total) {
+        console.warn("Received empty application list but total count not reached. Stopping fetch.");
+        break;
+      }
+    } while (offset < total);
 
     // Fetch full details for each application including documents
-    const applicationDetailsPromises = applications.map(
+    const applicationDetailsPromises = allApplications.map(
       async (app: ApplicationListItem) => {
         try {
           const detailResponse = await apiClient.get(
