@@ -304,8 +304,6 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
       return;
     }
 
-    console.log(`Processing application for CSV: ${identifier}`, application);
-
     setProgress(((index + 1) / total) * 100);
     setStatusText(`Processing application ${index + 1} of ${total}...`);
 
@@ -323,81 +321,58 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
 
     // Prepare rows for root-level applications_data.csv
     const appData = application.applicationData || application;
-    const nameParts = [appData.firstName, appData.middleName, appData.lastName]
-      .filter(Boolean)
-      .join(" ");
 
-    const commonData = {
+    // Construct dynamic data part
+    const dynamicData: Record<string, any> = {};
+    Object.keys(appData).forEach(key => {
+      if (appData[key] !== null && typeof appData[key] !== 'object') {
+        dynamicData[key] = appData[key];
+      }
+    });
+
+    const commonFixedData = {
       Sno: index + 1,
-      "OTR No": orderId,
-      Name: nameParts || "N/A",
-      Gender: appData.gender || "",
-      Class: appData.class || "",
+      "Order Id": orderId,
       Status: application.status || "",
     };
 
     if (docRecords.length > 0) {
       docRecords.forEach((doc, i) => {
-        const rowData: any = {
-          ...commonData,
-          // Clear common data for subsequent rows
-          ...(i > 0
-            ? {
-              Sno: "",
-              "OTR No": "",
-              Name: "",
-              Gender: "",
-              Class: "",
-              Status: "",
-            }
-            : {}),
-          documentSubtype: doc.documentSubtype,
-          doc_type: doc.doc_type,
-          Path: doc.path,
-        };
-        // Add other dynamic keys ONLY to the first row to avoid clutter, or as requested
-        // Plan says: "Append any other dynamic keys ... at the end ... strictly keep to these 8 columns if implied"
-        // But to be safe and match "table format" strictly, I will ONLY output the requested columns + dynamic keys.
-        // Actually, for cleanliness, let's keep dynamic keys on the first row only if we add them.
-        // User asked for specific columns. Let's stick to them + dynamic keys on first row?
-        // Ref: "add name column also,also share updated zip structure in table format"
-        // Implies strict structure.
-        // BUT, I should preserve other data. I'll add other data to the FIRST row only.
+        let rowData: any;
 
         if (i === 0) {
-          Object.keys(appData).forEach((key) => {
-            if (
-              !["firstName", "middleName", "lastName", "gender", "class"].includes(
-                key
-              ) &&
-              appData[key] !== null &&
-              typeof appData[key] !== "object"
-            ) {
-              rowData[key] = appData[key];
-            }
-          });
+          // First row: Full data (Fixed + Dynamic + Doc)
+          rowData = {
+            ...commonFixedData,
+            ...dynamicData,
+            documentSubtype: doc.documentSubtype,
+            doc_type: doc.doc_type,
+            Path: doc.path
+          };
+        } else {
+          // Subsequent rows: Only Doc data, others empty
+          // We explicitly set fixed columns to "" to ensure alignment if they are initialized
+          // Dynamic keys are omitted, so they will default to "" in CSV generation
+          rowData = {
+            Sno: "",
+            "Order Id": "",
+            Status: "",
+            documentSubtype: doc.documentSubtype,
+            doc_type: doc.doc_type,
+            Path: doc.path
+          };
         }
         applicationsDataForCSV.push(rowData);
       });
     } else {
-      // No documents, push one row with empty document fields
-      const rowData: any = {
-        ...commonData,
+      // No documents, push one row with empty document fields but full app data
+      const rowData = {
+        ...commonFixedData,
+        ...dynamicData,
         documentSubtype: "",
         doc_type: "",
         Path: "",
       };
-      Object.keys(appData).forEach((key) => {
-        if (
-          !["firstName", "middleName", "lastName", "gender", "class"].includes(
-            key
-          ) &&
-          appData[key] !== null &&
-          typeof appData[key] !== "object"
-        ) {
-          rowData[key] = appData[key];
-        }
-      });
       applicationsDataForCSV.push(rowData);
     }
   };
@@ -441,27 +416,21 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
 
       // Generate root-level applications_data.csv
       if (applicationsDataForCSV.length > 0) {
-        // Ensure specific order for main columns
-        const fixedHeaders = [
-          "Sno",
-          "OTR No",
-          "Name",
-          "Gender",
-          "Class",
-          "Status",
-          "documentSubtype",
-          "doc_type",
-          "Path",
-        ];
-        // Collect all other headers dynamically
-        const allHeaders = new Set<string>();
-        applicationsDataForCSV.forEach((row) =>
-          Object.keys(row).forEach((k) => allHeaders.add(k))
+        // Collect all keys from all rows to ensure we capture every dynamic field
+        const allKeys = new Set<string>();
+        applicationsDataForCSV.forEach(row => Object.keys(row).forEach(k => allKeys.add(k)));
+
+        // Define fixed headers
+        const fixedStart = ["Sno", "Order Id"];
+        const fixedEnd = ["Status", "documentSubtype", "doc_type", "Path"];
+
+        // Filter out fixed headers from the collected keys to get dynamic ones
+        const dynamicHeaders = Array.from(allKeys).filter(k =>
+          !fixedStart.includes(k) && !fixedEnd.includes(k)
         );
-        const dynamicHeaders = Array.from(allHeaders).filter(
-          (h) => !fixedHeaders.includes(h)
-        );
-        const headers = [...fixedHeaders, ...dynamicHeaders];
+
+        // Construct final header order
+        const headers = [...fixedStart, ...dynamicHeaders, ...fixedEnd];
 
         const rows = applicationsDataForCSV.map((app) =>
           headers
