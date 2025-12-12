@@ -40,28 +40,6 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
       .replaceAll(/[\\/:*?"<>|]/g, "_")
       .replaceAll(/\s+/g, "_");
 
-  const convertApplicationToCSV = (applicationData: any): string => {
-    if (!applicationData || typeof applicationData !== "object") return "";
-
-    const headers: string[] = [];
-    const values: string[] = [];
-
-    Object.keys(applicationData).forEach((key) => {
-      const value = applicationData[key];
-      if (value !== null && value !== undefined && typeof value !== "object") {
-        headers.push(key);
-        const stringValue = String(value);
-        const escapedValue =
-          stringValue.includes(",") || stringValue.includes("\n")
-            ? `"${stringValue.replaceAll(/"/g, '""')}"`
-            : stringValue;
-        values.push(escapedValue);
-      }
-    });
-
-    return [headers.join(","), values.join(",")].join("\n");
-  };
-
   const getFileExtension = (contentType?: string, filename?: string) => {
     if (filename) {
       const ext = filename.split(".").pop();
@@ -105,26 +83,44 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
     }
   };
 
-  const addApplicationCSV = (
-    folder: JSZip,
-    applicationData: any,
-    identifier: string
+  interface DocRecord {
+    documentSubtype: string;
+    doc_type: string;
+    path: string;
+  }
+
+  const addDocRecord = (
+    fileName: string,
+    folderName: string,
+    docRecords: DocRecord[],
+    documentSubtype: string,
+    doc_type: string
   ) => {
-    try {
-      const csvContent = convertApplicationToCSV(applicationData);
-      if (csvContent) {
-        folder.file("application_data.csv", "\uFEFF" + csvContent);
-      }
-    } catch (error) {
-      console.error(`Failed to create CSV for application ${identifier}:`, error);
+    const fullPath = `/${folderName}/${fileName}`;
+
+    // Check if a record with the same subtype and doc_type already exists
+    const existingRecord = docRecords.find(
+      (record) =>
+        record.documentSubtype === documentSubtype &&
+        record.doc_type === doc_type
+    );
+
+    if (existingRecord) {
+      // Do nothing, we only want one path per unique document subtype/type pair
+      return;
+    } else {
+      docRecords.push({
+        documentSubtype,
+        doc_type,
+        path: fullPath,
+      });
     }
   };
 
-  const addToDocPathsIfValid = (fileName: string, folderName: string, docPaths: string[]) => {
+  const isAllowedExtension = (fileName: string) => {
     const ext = fileName.split(".").pop()?.toLowerCase();
-    if (ext && IMAGE_EXTENSIONS.includes(ext)) {
-      docPaths.push(`${folderName}/${fileName}`);
-    }
+    // Only allow specific extensions, excluding JSON implicitly by omission
+    return ext && IMAGE_EXTENSIONS.includes(ext);
   };
 
   const downloadVCImages = async (
@@ -132,8 +128,10 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
     folder: JSZip,
     vcFileName: string,
     docIndex: number,
-    docPaths: string[],
-    folderName: string
+    docRecords: DocRecord[],
+    folderName: string,
+    parentSubtype: string,
+    parentDocType: string
   ) => {
     if (!credentialSubject || typeof credentialSubject !== "object") return;
 
@@ -146,10 +144,15 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
         try {
           const imageBlob = await downloadDocumentFromUrl(urlValue);
           const imageExt = urlValue.split(".").pop()?.split("?")[0] || "jpg";
-          const imageName = `${docIndex + 1}_${vcFileName}_image_${imageCounter + 1}.${imageExt}`;
-          folder.file(imageName, imageBlob);
-          addToDocPathsIfValid(imageName, folderName, docPaths);
-          imageCounter++;
+
+          // Check extension before adding
+          if (IMAGE_EXTENSIONS.includes(imageExt.toLowerCase())) {
+            const imageName = `${docIndex + 1}_${vcFileName}_image_${imageCounter + 1
+              }.${imageExt}`;
+            folder.file(imageName, imageBlob);
+            addDocRecord(imageName, folderName, docRecords, parentSubtype, parentDocType);
+            imageCounter++;
+          }
         } catch (error) {
           console.error(`Failed to download image from ${urlValue}:`, error);
         }
@@ -161,21 +164,39 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
     file: any,
     folder: JSZip,
     docIndex: number,
-    docPaths: string[],
+    docRecords: DocRecord[],
     folderName: string
   ) => {
-    const contentType = file.fileType || file.documentType || "application/octet-stream";
+    console.log("file", file);
+    const contentType =
+      file.fileType || file.documentType || "application/octet-stream";
     const documentBlob = base64ToBlob(file.fileContent, contentType);
     let documentName =
-      file.documentName || file.documentSubtype || extractFilename(file.filePath || `document_${docIndex + 1}`);
+      file.documentName ||
+      file.documentSubtype ||
+      extractFilename(file.filePath || `document_${docIndex + 1}`);
 
     if (!documentName.includes(".")) {
-      documentName = `${documentName}.${getFileExtension(contentType, file.filePath)}`;
+      documentName = `${documentName}.${getFileExtension(
+        contentType,
+        file.filePath
+      )}`;
+    }
+
+    // Filter check
+    if (!isAllowedExtension(documentName)) {
+      return;
     }
 
     const sanitizedName = sanitizeFileName(documentName);
     folder.file(`${docIndex + 1}_${sanitizedName}`, documentBlob);
-    addToDocPathsIfValid(`${docIndex + 1}_${sanitizedName}`, folderName, docPaths);
+    addDocRecord(
+      `${docIndex + 1}_${sanitizedName}`,
+      folderName,
+      docRecords,
+      file.documentSubtype || "Document",
+      file.documentType || file.doc_type || "Document"
+    );
   };
 
   const processVCDocument = async (
@@ -183,19 +204,38 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
     folder: JSZip,
     docIndex: number,
     identifier: string,
-    docPaths: string[],
+    docRecords: DocRecord[],
     folderName: string
   ) => {
     try {
       const decodedVC = decodeBase64ToJson(file.fileContent);
-      const vcFileName = sanitizeFileName(file.documentSubtype || `document_${docIndex + 1}`);
-      const vcFile = `${docIndex + 1}_${vcFileName}_vc.json`;
-      folder.file(vcFile, JSON.stringify(decodedVC, null, 2));
+      const vcFileName = sanitizeFileName(
+        file.documentSubtype || `document_${docIndex + 1}`
+      );
+      // NOTE: We do NOT add the VC JSON file to the folder or docRecords as per request 
+      // "not add json files... take files with this extentions only"
+      // But we DO parse it to extract images.
 
-      await downloadVCImages(decodedVC?.credentialSubject, folder, vcFileName, docIndex, docPaths, folderName);
+      // const vcFile = `${docIndex + 1}_${vcFileName}_vc.json`;
+      // folder.file(vcFile, JSON.stringify(decodedVC, null, 2));
+      // addDocRecord(vcFile, folderName, docRecords, "Verifiable Credential", "VC");
+
+      await downloadVCImages(
+        decodedVC?.credentialSubject,
+        folder,
+        vcFileName,
+        docIndex,
+        docRecords,
+        folderName,
+        file.documentSubtype || "Verifiable Credential",
+        file.documentType || "VC"
+      );
     } catch (error) {
-      console.error(`Failed to decode VC for document ${docIndex} in ${identifier}:`, error);
-      saveFallbackDocument(file, folder, docIndex, docPaths, folderName);
+      console.error(
+        `Failed to decode VC for document ${docIndex} in ${identifier}:`,
+        error
+      );
+      saveFallbackDocument(file, folder, docIndex, docRecords, folderName);
     }
   };
 
@@ -203,24 +243,45 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
     files: any[],
     folder: JSZip,
     identifier: string,
-    docPaths: string[],
+    docRecords: DocRecord[],
     folderName: string
   ) => {
     for (let j = 0; j < files.length; j++) {
       const file = files[j];
       try {
         if (file.fileContent) {
-          await processVCDocument(file, folder, j, identifier, docPaths, folderName);
+          await processVCDocument(
+            file,
+            folder,
+            j,
+            identifier,
+            docRecords,
+            folderName
+          );
         } else if (file.filePath?.startsWith("http")) {
-          const documentBlob = await downloadDocumentFromUrl(file.filePath);
           const documentName = sanitizeFileName(extractFilename(file.filePath));
-          folder.file(`${j + 1}_${documentName}`, documentBlob);
-          addToDocPathsIfValid(`${j + 1}_${documentName}`, folderName, docPaths);
+
+          if (isAllowedExtension(documentName)) {
+            const documentBlob = await downloadDocumentFromUrl(file.filePath);
+            folder.file(`${j + 1}_${documentName}`, documentBlob);
+            addDocRecord(
+              `${j + 1}_${documentName}`,
+              folderName,
+              docRecords,
+              file.documentSubtype || "Document",
+              file.documentType || file.doc_type || "Document"
+            );
+          }
         } else {
-          console.warn(`No valid file content or path for document ${j} in ${identifier}`);
+          console.warn(
+            `No valid file content or path for document ${j} in ${identifier}`
+          );
         }
       } catch (error) {
-        console.error(`Failed to add document ${j} for application ${identifier}:`, error);
+        console.error(
+          `Failed to add document ${j} for application ${identifier}:`,
+          error
+        );
       }
     }
   };
@@ -243,33 +304,102 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
       return;
     }
 
+    console.log(`Processing application for CSV: ${identifier}`, application);
+
     setProgress(((index + 1) / total) * 100);
     setStatusText(`Processing application ${index + 1} of ${total}...`);
 
-    const docPaths: string[] = [];
-
-    // Add per-application CSV
-    addApplicationCSV(applicationFolder, application.applicationData || application, identifier);
+    const docRecords: DocRecord[] = [];
 
     // Process documents
     const files = application.applicationFiles || application.files || [];
-    await processApplicationDocuments(files, applicationFolder, identifier, docPaths, folderName);
+    await processApplicationDocuments(
+      files,
+      applicationFolder,
+      identifier,
+      docRecords,
+      folderName
+    );
 
-    // Prepare row for root-level applications_data.csv
-    const flatData: any = {
-      applicationId,
-      orderId,
-    };
+    // Prepare rows for root-level applications_data.csv
     const appData = application.applicationData || application;
-    Object.keys(appData).forEach((key) => {
-      const value = appData[key];
-      if (value !== null && value !== undefined && typeof value !== "object") {
-        flatData[key] = value;
-      }
-    });
+    const nameParts = [appData.firstName, appData.middleName, appData.lastName]
+      .filter(Boolean)
+      .join(" ");
 
-    flatData.path = docPaths.join(", "); // <-- now contains ALL valid paths
-    applicationsDataForCSV.push(flatData);
+    const commonData = {
+      Sno: index + 1,
+      "OTR No": orderId,
+      Name: nameParts || "N/A",
+      Gender: appData.gender || "",
+      Class: appData.class || "",
+      Status: application.status || "",
+    };
+
+    if (docRecords.length > 0) {
+      docRecords.forEach((doc, i) => {
+        const rowData: any = {
+          ...commonData,
+          // Clear common data for subsequent rows
+          ...(i > 0
+            ? {
+              Sno: "",
+              "OTR No": "",
+              Name: "",
+              Gender: "",
+              Class: "",
+              Status: "",
+            }
+            : {}),
+          documentSubtype: doc.documentSubtype,
+          doc_type: doc.doc_type,
+          Path: doc.path,
+        };
+        // Add other dynamic keys ONLY to the first row to avoid clutter, or as requested
+        // Plan says: "Append any other dynamic keys ... at the end ... strictly keep to these 8 columns if implied"
+        // But to be safe and match "table format" strictly, I will ONLY output the requested columns + dynamic keys.
+        // Actually, for cleanliness, let's keep dynamic keys on the first row only if we add them.
+        // User asked for specific columns. Let's stick to them + dynamic keys on first row?
+        // Ref: "add name column also,also share updated zip structure in table format"
+        // Implies strict structure.
+        // BUT, I should preserve other data. I'll add other data to the FIRST row only.
+
+        if (i === 0) {
+          Object.keys(appData).forEach((key) => {
+            if (
+              !["firstName", "middleName", "lastName", "gender", "class"].includes(
+                key
+              ) &&
+              appData[key] !== null &&
+              typeof appData[key] !== "object"
+            ) {
+              rowData[key] = appData[key];
+            }
+          });
+        }
+        applicationsDataForCSV.push(rowData);
+      });
+    } else {
+      // No documents, push one row with empty document fields
+      const rowData: any = {
+        ...commonData,
+        documentSubtype: "",
+        doc_type: "",
+        Path: "",
+      };
+      Object.keys(appData).forEach((key) => {
+        if (
+          !["firstName", "middleName", "lastName", "gender", "class"].includes(
+            key
+          ) &&
+          appData[key] !== null &&
+          typeof appData[key] !== "object"
+        ) {
+          rowData[key] = appData[key];
+        }
+      });
+      applicationsDataForCSV.push(rowData);
+    }
   };
 
   const handleDownloadZip = async () => {
@@ -300,16 +430,55 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
       const applicationsDataForCSV: any[] = [];
 
       for (let i = 0; i < applications.length; i++) {
-        await processApplication(applications[i], zip, i, applications.length, applicationsDataForCSV);
+        await processApplication(
+          applications[i],
+          zip,
+          i,
+          applications.length,
+          applicationsDataForCSV
+        );
       }
 
       // Generate root-level applications_data.csv
       if (applicationsDataForCSV.length > 0) {
-        const headers = Object.keys(applicationsDataForCSV[0]);
-        const rows = applicationsDataForCSV.map(app =>
-          headers.map(h => app[h] ?? "").join(",")
+        // Ensure specific order for main columns
+        const fixedHeaders = [
+          "Sno",
+          "OTR No",
+          "Name",
+          "Gender",
+          "Class",
+          "Status",
+          "documentSubtype",
+          "doc_type",
+          "Path",
+        ];
+        // Collect all other headers dynamically
+        const allHeaders = new Set<string>();
+        applicationsDataForCSV.forEach((row) =>
+          Object.keys(row).forEach((k) => allHeaders.add(k))
         );
-        zip.file("applications_data.csv", "\uFEFF" + [headers.join(","), ...rows].join("\n"));
+        const dynamicHeaders = Array.from(allHeaders).filter(
+          (h) => !fixedHeaders.includes(h)
+        );
+        const headers = [...fixedHeaders, ...dynamicHeaders];
+
+        const rows = applicationsDataForCSV.map((app) =>
+          headers
+            .map((h) => {
+              const val = app[h];
+              if (val === undefined || val === null) return "";
+              const stringValue = String(val);
+              return stringValue.includes(",") || stringValue.includes("\n")
+                ? `"${stringValue.replaceAll(/"/g, '""')}"`
+                : stringValue;
+            })
+            .join(",")
+        );
+        zip.file(
+          "applications_data.csv",
+          "\uFEFF" + [headers.join(","), ...rows].join("\n")
+        );
       }
 
       setStatusText("Generating ZIP file...");
@@ -334,7 +503,8 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
       console.error("Error downloading ZIP:", err);
       toast({
         title: "Failed to download ZIP",
-        description: err instanceof Error ? err.message : "An unknown error occurred",
+        description:
+          err instanceof Error ? err.message : "An unknown error occurred",
         status: "error",
         duration: 5000,
         isClosable: true,
