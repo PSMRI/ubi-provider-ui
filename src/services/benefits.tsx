@@ -355,8 +355,6 @@ export const fetchAllApplicationsWithDocuments = async ({
       const applications = applicationsResponse?.data?.applications || [];
       const pagination = applicationsResponse?.data?.pagination;
 
-      console.log(`Fetched batch of applications: ${applications.length} (Offset: ${offset})`);
-
       if (applications.length > 0) {
         allApplications.push(...applications);
       }
