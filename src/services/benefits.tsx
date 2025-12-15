@@ -135,9 +135,11 @@ export interface ApplicationListItem {
   createdAt: string;
   updatedAt: string;
   applicationData: {
+    name?: string;
     firstName?: string;
     middleName?: string;
     lastName?: string;
+    otrNumber?: string;
   };
 }
 
