@@ -389,11 +389,25 @@ const ApplicationDetails: React.FC = () => {
     const hasDisabilityType = "disabilityType" in applicantDetails;
     setShowDisabilityStatus(hasDisabilityType);
 
+    // Prioritize 'name' field if present, otherwise construct from firstName, middleName, lastName
+    let studentName = "N/A";
+    if (applicantDetails.name && String(applicantDetails.name).trim()) {
+      studentName = String(applicantDetails.name).trim();
+    } else {
+      const nameParts = [
+        applicantDetails.firstName ?? "",
+        applicantDetails.middleName ?? "",
+        applicantDetails.lastName ?? ""
+      ].filter(part => part.trim() !== "");
+      
+      if (nameParts.length > 0) {
+        studentName = nameParts.join(" ");
+      }
+    }
+
     const applicantRecord: ApplicantData = {
       id: 1,
-      name: `${applicantDetails.firstName ?? ""} ${
-        applicantDetails.middleName ? applicantDetails.middleName + " " : ""
-      }${applicantDetails.lastName ?? ""}`.trim(),
+      name: studentName,
       applicationId: String(applicationData.id ?? "-"),
       orderId: String(applicationData.orderId ?? "-"),
       submittedOn: String(applicationData.createdAt ?? "-"),

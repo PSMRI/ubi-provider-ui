@@ -49,6 +49,7 @@ type AppRow = {
   studentName: string;
   applicationId: string;
   orderId: string;
+  otrNumber: string;
   submittedAt: Date | null;
   lastUpdatedAt: Date | null;
   status: string;
@@ -87,7 +88,7 @@ const ApplicationLists: React.FC = () => {
       isSortEnabled: false,
       style: {
         width: "15%",
-        minWidth: 80,
+        minWidth: 100,
         whiteSpace: "nowrap",
       },
     },
@@ -97,8 +98,8 @@ const ApplicationLists: React.FC = () => {
       dataType: DataType.Number,
       isSortEnabled: false,
       style: {
-        width: "5%",
-        minWidth: 10,
+        width: "8%",
+        minWidth: 60,
         whiteSpace: "nowrap",
         textAlign: "center",
       },
@@ -110,10 +111,23 @@ const ApplicationLists: React.FC = () => {
       isSortEnabled: false,
       style: {
         width: "15%",
-        minWidth: 80,
+        minWidth: 150,
         whiteSpace: "nowrap",
         textAlign: "center",
-        color: "#666",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      },
+    },
+    {
+      key: "otrNumber",
+      title: "OTR Number",
+      dataType: DataType.String,
+      isSortEnabled: false,
+      style: {
+        width: "15%",
+        minWidth: 150,
+        whiteSpace: "nowrap",
+        textAlign: "center",
       },
     },
     {
@@ -122,8 +136,8 @@ const ApplicationLists: React.FC = () => {
       dataType: DataType.Date,
       isSortEnabled: false,
       style: {
-        width: "10%",
-        minWidth: 50,
+        width: "12%",
+        minWidth: 100,
         whiteSpace: "nowrap",
         textAlign: "center",
       },
@@ -134,8 +148,8 @@ const ApplicationLists: React.FC = () => {
       dataType: DataType.Date,
       isSortEnabled: false,
       style: {
-        width: "10%",
-        minWidth: 50,
+        width: "12%",
+        minWidth: 100,
         whiteSpace: "nowrap",
         textAlign: "center",
       },
@@ -147,7 +161,7 @@ const ApplicationLists: React.FC = () => {
       isSortEnabled: false,
       style: {
         width: "10%",
-        minWidth: 30,
+        minWidth: 80,
         whiteSpace: "nowrap",
         textAlign: "center",
       },
@@ -158,11 +172,10 @@ const ApplicationLists: React.FC = () => {
       dataType: DataType.String,
       isSortEnabled: false,
       style: {
-        width: "10%",
-        minWidth: 30,
+        width: "8%",
+        minWidth: 60,
         whiteSpace: "nowrap",
         textAlign: "center",
-        color: "#666",
       },
     },
   ];
@@ -205,18 +218,28 @@ const ApplicationLists: React.FC = () => {
 
           const processedData: AppRow[] = response.applications.map(
             (item: ApplicationListItem) => {
-              const { firstName, middleName, lastName } =
+              const { name, firstName, middleName, lastName, otrNumber } =
                 item.applicationData || {};
-              const nameParts = [firstName, middleName, lastName].filter(
-                Boolean
-              );
-              const studentName =
-                nameParts.length > 0 ? nameParts.join(" ") : "N/A";
+              
+              let studentName = "-";
+              
+              // Prioritize 'name' field if present, otherwise construct from firstName, middleName, lastName
+              if (name && name.trim()) {
+                studentName = name.trim();
+              } else {
+                const nameParts = [firstName, middleName, lastName].filter(
+                  Boolean
+                );
+                if (nameParts.length > 0) {
+                  studentName = nameParts.join(" ");
+                }
+              }
 
               return {
                 studentName,
                 applicationId: item?.id ?? "-",
                 orderId: item?.orderId ?? "-",
+                otrNumber: otrNumber ?? "-",
                 submittedAt: item?.createdAt ? new Date(item.createdAt) : null,
                 lastUpdatedAt: item?.updatedAt
                   ? new Date(item.updatedAt)
@@ -445,6 +468,27 @@ const CellTextContent = (props: ICellTextProps) => {
         {formatDate(displayValue)}
       </Text>
     );
+  }
+
+  // Handle orderId with ellipsis and tooltip, show otrNumber completely
+  if (props.column.key === "orderId") {
+    const value = props.value || "-";
+    return (
+      <Text
+        isTruncated
+        whiteSpace="nowrap"
+        overflow="hidden"
+        textOverflow="ellipsis"
+        title={value}
+      >
+        {value}
+      </Text>
+    );
+  }
+
+  if (props.column.key === "otrNumber") {
+    const value = props.value || "-";
+    return <Text>{value}</Text>;
   }
 
   return props.value;
