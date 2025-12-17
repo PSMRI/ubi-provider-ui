@@ -140,6 +140,7 @@ export interface ApplicationListItem {
     middleName?: string;
     lastName?: string;
     otrNumber?: string;
+    nspOtr?: string;
   };
 }
 
