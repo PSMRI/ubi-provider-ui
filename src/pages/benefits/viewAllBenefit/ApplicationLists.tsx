@@ -218,7 +218,7 @@ const ApplicationLists: React.FC = () => {
 
           const processedData: AppRow[] = response.applications.map(
             (item: ApplicationListItem) => {
-              const { name, firstName, middleName, lastName, otrNumber } =
+              const { name, firstName, middleName, lastName, otrNumber, nspOtr } =
                 item.applicationData || {};
               
               let studentName = "-";
@@ -235,11 +235,14 @@ const ApplicationLists: React.FC = () => {
                 }
               }
 
+              // Use otrNumber if available, otherwise use nspOtr
+              const otrValue = otrNumber ?? nspOtr ?? "-";
+
               return {
                 studentName,
                 applicationId: item?.id ?? "-",
                 orderId: item?.orderId ?? "-",
-                otrNumber: otrNumber ?? "-",
+                otrNumber: otrValue,
                 submittedAt: item?.createdAt ? new Date(item.createdAt) : null,
                 lastUpdatedAt: item?.updatedAt
                   ? new Date(item.updatedAt)

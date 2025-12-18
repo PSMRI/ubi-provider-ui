@@ -71,6 +71,22 @@ const getDocumentName = (doc: Document): string => {
   return doc.newTitle || '';
 };
 
+// Keys to omit from decoded document data
+const KEYS_TO_OMIT = [
+  "@context",
+  "original_vc",
+  "originalvc",
+  "original_vc1",
+  "originalvc1",
+  "issuingauthoritysignature",
+  "id",
+  "Originaldocumentphotocopy",
+  "originalDocumentPhotoCopy",
+  "originalDocument",
+  "original_document",
+  "beneficiary_user_id"
+];
+
 const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
   const {
     isOpen: isPreviewOpen,
@@ -153,7 +169,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
   }, [documents]);
 
   const handlePreview = (doc: Document) => {
-    let decodedContent;
+    let decodedContent: any;
 
     if (doc?.fileContent) {
       let decoded;
@@ -172,18 +188,22 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
         return;
       }
 
-      if (decoded?.credentialSubject) {
-        const filteredData = omit(decoded.credentialSubject, [
-          "@context",
-          "original_vc",
-          "originalvc",
-          "original_vc1",
-          "originalvc1",
-          "issuingauthoritysignature",
-          "id",
-        ]);
+      // First omit keys from the entire decoded object
+      const filteredDecoded = omit(decoded, KEYS_TO_OMIT) as any;
+
+      if (filteredDecoded?.credentialSubject) {
+        // Then omit keys from credentialSubject as well
+        const filteredData = omit(filteredDecoded.credentialSubject, KEYS_TO_OMIT);
         decodedContent = convertKeysToTitleCase(filteredData);
         console.log("Decoded Content:", decodedContent);
+        
+        // Additional filtering: remove any keys from the final decodedContent that match KEYS_TO_OMIT (case-insensitive)
+        const keysToOmitLowerCase = KEYS_TO_OMIT.map(k => k.toLowerCase());
+        Object.keys(decodedContent).forEach(key => {
+          if (keysToOmitLowerCase.includes(key.toLowerCase())) {
+            delete decodedContent[key];
+          }
+        });
       } else {
         decodedContent = {};
       }
@@ -200,7 +220,11 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
         setSelectedImageTitle(_doc.newTitle);
       }
       const decodedData = decodeBase64ToJson(_doc.fileContent);
-      const credentialSubject = decodedData?.credentialSubject;
+      
+      // Omit keys from the entire decoded object first
+      const filteredDecodedData = omit(decodedData, KEYS_TO_OMIT) as any;
+      
+      const credentialSubject = filteredDecodedData?.credentialSubject;
 
       const images: string[] = [];
 
