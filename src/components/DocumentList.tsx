@@ -217,19 +217,15 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
 
   const handleImagePreview = (_doc: Document) => {
     try {
-      console.log("Handling image preview for document:", _doc);
       if (_doc.newTitle) {
         setSelectedImageTitle(_doc.newTitle);
       }
       const decodedData = decodeBase64ToJson(_doc.fileContent);
       
-      // Omit keys from the entire decoded object first
-      const filteredDecodedData = omit(decodedData, KEYS_TO_OMIT) as any;
-      
-      const credentialSubject = filteredDecodedData?.credentialSubject;
-
+      const credentialSubject = decodedData?.credentialSubject;
       const images: string[] = [];
 
+      // First, check credentialSubject if it exists
       if (credentialSubject && typeof credentialSubject === "object") {
         Object.values(credentialSubject).forEach((entry) => {
           if (
@@ -242,6 +238,24 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
           }
         });
       }
+      
+      // Also check for image URLs directly in decodedData
+      if (decodedData && typeof decodedData === "object") {
+        Object.entries(decodedData).forEach(([_key, entry]) => {
+          if (
+            typeof entry === "object" &&
+            entry !== null &&
+            "url" in entry &&
+            typeof (entry as { url: unknown }).url === "string"
+          ) {
+            images.push((entry as { url: string }).url);
+          } else if (typeof entry === "string" && (entry.startsWith("http://") || entry.startsWith("https://"))) {
+            images.push(entry);
+          }
+        });
+      }
+
+      console.log("Total images found:", images.length, images);
 
       if (images.length > 0) {
         setSelectedImageSrc(images);
