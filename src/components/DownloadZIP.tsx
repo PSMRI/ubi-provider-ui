@@ -40,6 +40,29 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
       .replaceAll(/[\\/:*?"<>|]/g, "_")
       .replaceAll(/\s+/g, "_");
 
+  const toTitleCase = (str: string): string => {
+    // Handle snake_case: replace underscores with spaces
+    let result = str.replaceAll("_", " ");
+    
+    // Handle camelCase and PascalCase: insert space before uppercase letters
+    result = result.replaceAll(/([a-z])([A-Z])/g, "$1 $2");
+    result = result.replaceAll(/([A-Z])([A-Z][a-z])/g, "$1 $2");
+    
+    // Trim any extra spaces
+    result = result.trim();
+    
+    // Capitalize first letter of each word
+    result = result
+      .split(/\s+/)
+      .map(word => {
+        if (!word) return "";
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .join(" ");
+    
+    return result;
+  };
+
   const getFileExtension = (contentType?: string, filename?: string) => {
     if (filename) {
       const ext = filename.split(".").pop();
@@ -432,6 +455,9 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
         // Construct final header order
         const headers = [...fixedStart, ...dynamicHeaders, ...fixedEnd];
 
+        // Convert headers to Title Case
+        const titleCaseHeaders = headers.map(h => toTitleCase(h));
+
         const rows = applicationsDataForCSV.map((app) =>
           headers
             .map((h) => {
@@ -446,7 +472,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
         );
         zip.file(
           "applications_data.csv",
-          "\uFEFF" + [headers.join(","), ...rows].join("\n")
+          "\uFEFF" + [titleCaseHeaders.join(","), ...rows].join("\n")
         );
       }
 
