@@ -192,21 +192,23 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
       const filteredDecoded = omit(decoded, KEYS_TO_OMIT) as any;
 
       if (filteredDecoded?.credentialSubject) {
-        // Then omit keys from credentialSubject as well
+        // If credentialSubject exists, use data from it
         const filteredData = omit(filteredDecoded.credentialSubject, KEYS_TO_OMIT);
         decodedContent = convertKeysToTitleCase(filteredData);
-        console.log("Decoded Content:", decodedContent);
-        
-        // Additional filtering: remove any keys from the final decodedContent that match KEYS_TO_OMIT (case-insensitive)
-        const keysToOmitLowerCase = KEYS_TO_OMIT.map(k => k.toLowerCase());
-        Object.keys(decodedContent).forEach(key => {
-          if (keysToOmitLowerCase.includes(key.toLowerCase())) {
-            delete decodedContent[key];
-          }
-        });
+        console.log("Decoded Content (from credentialSubject):", decodedContent);
       } else {
-        decodedContent = {};
+        // If credentialSubject doesn't exist, use data directly from decoded
+        decodedContent = convertKeysToTitleCase(filteredDecoded);
+        console.log("Decoded Content (direct):", decodedContent);
       }
+      
+      // Additional filtering: remove any keys from the final decodedContent that match KEYS_TO_OMIT (case-insensitive)
+      const keysToOmitLowerCase = KEYS_TO_OMIT.map(k => k.toLowerCase());
+      Object.keys(decodedContent).forEach(key => {
+        if (keysToOmitLowerCase.includes(key.toLowerCase())) {
+          delete decodedContent[key];
+        }
+      });
     }
 
     setSelectedDocument({ content: decodedContent ?? {} });
