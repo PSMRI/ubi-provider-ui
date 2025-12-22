@@ -217,9 +217,10 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
 
   const handleImagePreview = (_doc: Document) => {
     try {
-      if (_doc.newTitle) {
-        setSelectedImageTitle(_doc.newTitle);
-      }
+      // Set title first with fallback to ensure it's always set
+      const title = _doc.newTitle || _doc.documentTitle || _doc.title || "Document Preview";
+      setSelectedImageTitle(title);
+
       const decodedData = decodeBase64ToJson(_doc.fileContent);
       
       const credentialSubject = decodedData?.credentialSubject;
@@ -268,7 +269,8 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
           isClosable: true,
         });
       }
-    } catch {
+    } catch (error) {
+      console.error("Error in handleImagePreview:", error);
       toast({
         title: "Invalid JSON in document data",
         status: "error",
@@ -408,11 +410,11 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents }) => {
 
   return (
     <VStack spacing={6} align="center" p="20px" width="full">
-      {selectedImageSrc && selectedImageTitle && (
+      {selectedImageSrc && selectedImageSrc.length > 0 && (
         <ImagePreview
           imageSrc={selectedImageSrc}
           isOpen={isZoomOpen}
-          docType={selectedImageTitle}
+          docType={selectedImageTitle || "Document Preview"}
           onClose={() => {
             setSelectedImageSrc(null);
             setSelectedImageTitle(null);
