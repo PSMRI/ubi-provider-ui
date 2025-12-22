@@ -119,7 +119,8 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
     documentSubtype: string,
     doc_type: string
   ) => {
-    const fullPath = `/${folderName}/${fileName}`;
+    // Use relative path without leading slash for cross-platform compatibility
+    const fullPath = `${folderName}/${fileName}`;
 
     // Check if a record with the same subtype and doc_type already exists
     const existingRecord = docRecords.find(
@@ -160,18 +161,20 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
 
     let imageCounter = 0;
     for (const [, entry] of Object.entries(credentialSubject)) {
-      const hasUrl = entry && typeof entry === "object" && "url" in entry;
-      const urlValue = hasUrl ? (entry as { url: unknown }).url : null;
+      // Check if entry has url or originalDocument property
+      const isHttpString = typeof entry === "string" && (entry.startsWith("http") || entry.startsWith("https"));
+      const stringUrlValue = isHttpString ? entry : null;
+      const urlValue = entry && typeof entry === "object" 
+        ? ((entry as any).url || (entry as any).originalDocument)
+        : stringUrlValue;
 
-      if (hasUrl && typeof urlValue === "string") {
+      if (urlValue && typeof urlValue === "string") {
         try {
           const imageBlob = await downloadDocumentFromUrl(urlValue);
           const imageExt = urlValue.split(".").pop()?.split("?")[0] || "jpg";
 
-          // Check extension before adding
           if (IMAGE_EXTENSIONS.includes(imageExt.toLowerCase())) {
-            const imageName = `${docIndex + 1}_${vcFileName}_image_${imageCounter + 1
-              }.${imageExt}`;
+            const imageName = `${docIndex + 1}_${vcFileName}_image_${imageCounter + 1}.${imageExt}`;
             folder.file(imageName, imageBlob);
             addDocRecord(imageName, folderName, docRecords, parentSubtype, parentDocType);
             imageCounter++;
@@ -243,8 +246,11 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
       // folder.file(vcFile, JSON.stringify(decodedVC, null, 2));
       // addDocRecord(vcFile, folderName, docRecords, "Verifiable Credential", "VC");
 
+      // Check if credentialSubject exists, otherwise use decodedVC directly
+      const imageSource = decodedVC?.credentialSubject ? decodedVC.credentialSubject : decodedVC;
+
       await downloadVCImages(
-        decodedVC?.credentialSubject,
+        imageSource,
         folder,
         vcFileName,
         docIndex,
@@ -445,7 +451,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
 
         // Define fixed headers
         const fixedStart = ["Sno", "Order Id"];
-        const fixedEnd = ["Status", "documentSubtype", "doc_type", "Path"];
+        const fixedEnd = ["Status", "doc_type", "Path"];
 
         // Filter out fixed headers from the collected keys to get dynamic ones
         const dynamicHeaders = Array.from(allKeys).filter(k =>
