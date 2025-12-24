@@ -156,8 +156,8 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
     folderName: string,
     parentSubtype: string,
     parentDocType: string
-  ) => {
-    if (!credentialSubject || typeof credentialSubject !== "object") return;
+  ): Promise<boolean> => {
+    if (!credentialSubject || typeof credentialSubject !== "object") return false;
 
     let imageCounter = 0;
     for (const [, entry] of Object.entries(credentialSubject)) {
@@ -184,6 +184,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
         }
       }
     }
+    return imageCounter > 0;
   };
 
   const saveFallbackDocument = (
@@ -192,7 +193,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
     docIndex: number,
     docRecords: DocRecord[],
     folderName: string
-  ) => {
+  ): boolean => {
     console.log("file", file);
     const contentType =
       file.fileType || file.documentType || "application/octet-stream";
@@ -211,7 +212,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
 
     // Filter check
     if (!isAllowedExtension(documentName)) {
-      return;
+      return false;
     }
 
     const sanitizedName = sanitizeFileName(documentName);
@@ -223,6 +224,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
       file.documentSubtype || "Document",
       file.documentType || file.doc_type || "Document"
     );
+    return true;
   };
 
   const processVCDocument = async (
@@ -232,24 +234,17 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
     identifier: string,
     docRecords: DocRecord[],
     folderName: string
-  ) => {
+  ): Promise<boolean> => {
     try {
       const decodedVC = decodeBase64ToJson(file.fileContent);
       const vcFileName = sanitizeFileName(
         file.documentSubtype || `document_${docIndex + 1}`
       );
-      // NOTE: We do NOT add the VC JSON file to the folder or docRecords as per request 
-      // "not add json files... take files with this extentions only"
-      // But we DO parse it to extract images.
-
-      // const vcFile = `${docIndex + 1}_${vcFileName}_vc.json`;
-      // folder.file(vcFile, JSON.stringify(decodedVC, null, 2));
-      // addDocRecord(vcFile, folderName, docRecords, "Verifiable Credential", "VC");
 
       // Check if credentialSubject exists, otherwise use decodedVC directly
       const imageSource = decodedVC?.credentialSubject ? decodedVC.credentialSubject : decodedVC;
 
-      await downloadVCImages(
+      const imagesAdded = await downloadVCImages(
         imageSource,
         folder,
         vcFileName,
@@ -259,12 +254,13 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
         file.documentSubtype || "Verifiable Credential",
         file.documentType || "VC"
       );
+      return imagesAdded;
     } catch (error) {
       console.error(
         `Failed to decode VC for document ${docIndex} in ${identifier}:`,
         error
       );
-      saveFallbackDocument(file, folder, docIndex, docRecords, folderName);
+      return saveFallbackDocument(file, folder, docIndex, docRecords, folderName);
     }
   };
 
@@ -277,9 +273,11 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
   ) => {
     for (let j = 0; j < files.length; j++) {
       const file = files[j];
+      let documentProcessed = false;
+      
       try {
         if (file.fileContent) {
-          await processVCDocument(
+          documentProcessed = await processVCDocument(
             file,
             folder,
             j,
@@ -300,6 +298,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
               file.documentSubtype || "Document",
               file.documentType || file.doc_type || "Document"
             );
+            documentProcessed = true;
           }
         } else {
           console.warn(
@@ -311,6 +310,15 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
           `Failed to add document ${j} for application ${identifier}:`,
           error
         );
+      }
+      
+      // If document metadata exists but file was not processed/downloaded, add a record with "Document not available"
+      if (!documentProcessed && (file.documentSubtype || file.documentType || file.doc_type)) {
+        docRecords.push({
+          documentSubtype: file.documentSubtype || "Document",
+          doc_type: file.documentType || file.doc_type || "Document",
+          path: "Document not available",
+        });
       }
     }
   };
@@ -374,7 +382,6 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
           rowData = {
             ...commonFixedData,
             ...dynamicData,
-            documentSubtype: doc.documentSubtype,
             doc_type: doc.doc_type,
             Path: doc.path
           };
@@ -386,7 +393,6 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
             Sno: "",
             "Order Id": "",
             Status: "",
-            documentSubtype: doc.documentSubtype,
             doc_type: doc.doc_type,
             Path: doc.path
           };
@@ -398,7 +404,6 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
       const rowData = {
         ...commonFixedData,
         ...dynamicData,
-        documentSubtype: "",
         doc_type: "",
         Path: "",
       };
@@ -471,7 +476,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
               if (val === undefined || val === null) return "";
               const stringValue = String(val);
               return stringValue.includes(",") || stringValue.includes("\n")
-                ? `"${stringValue.replaceAll(/"/g, '""')}"`
+                ? `"${stringValue.replaceAll('"', '""')}"`
                 : stringValue;
             })
             .join(",")
