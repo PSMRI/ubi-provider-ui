@@ -315,7 +315,8 @@ const ApplicationLists: React.FC = () => {
     >
       <VStack spacing="50px" p={"20px"} align="stretch">
         {/* Controls - Only show when not loading and data is available */}
-        {!isLoading && filteredData.length > 0 && (
+        {/* Controls - Always visible */}
+        {id && (
           <HStack justify="space-between" align="center" spacing={4}>
             <HStack spacing={4} align="center">
               <Select
@@ -328,6 +329,7 @@ const ApplicationLists: React.FC = () => {
                 }
                 width="180px"
                 bg="white"
+                isDisabled={isLoading}
               >
                 <option value="" disabled>
                   Order By
@@ -347,6 +349,7 @@ const ApplicationLists: React.FC = () => {
                 }
                 width="150px"
                 bg="white"
+                isDisabled={isLoading}
               >
                 <option value="" disabled>
                   Sort Order
@@ -354,12 +357,14 @@ const ApplicationLists: React.FC = () => {
                 <option value="asc">Ascending</option>
                 <option value="desc">Descending</option>
               </Select>
+
               <Select
                 value={selectedStatus}
                 onChange={(e) => handleStatusChange(e.target.value)}
                 width="220px"
                 bg="white"
                 placeholder="Status"
+                isDisabled={isLoading}
               >
                 {STATUS_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -368,22 +373,24 @@ const ApplicationLists: React.FC = () => {
                 ))}
               </Select>
             </HStack>
-            {id && (
-              <HStack spacing={3}>
-                <DownloadZIP
-                  benefitId={id}
-                  benefitName={benefitName}
-                  selectedStatus={selectedStatus}
-                />
-                <DownloadCSV
-                  benefitId={id}
-                  benefitName={benefitName}
-                  selectedStatus={selectedStatus}
-                />
-              </HStack>
-            )}
+
+            <HStack spacing={3}>
+              <DownloadZIP
+                benefitId={id}
+                benefitName={benefitName}
+                selectedStatus={selectedStatus}
+                isDisabled={isLoading || filteredData.length === 0}
+              />
+              <DownloadCSV
+                benefitId={id}
+                benefitName={benefitName}
+                selectedStatus={selectedStatus}
+                isDisabled={isLoading || filteredData.length === 0}
+              />
+            </HStack>
           </HStack>
         )}
+
 
         {/* Table and Pagination */}
         {(() => {
@@ -409,8 +416,11 @@ const ApplicationLists: React.FC = () => {
           } else {
             return (
               <Text fontSize="lg" textAlign="center" color="gray.500">
-                No applications available
+                {selectedStatus
+                  ? `No applications found for status "${selectedStatus}"`
+                  : "No applications available for this benefit"}
               </Text>
+
             );
           }
         })()}
