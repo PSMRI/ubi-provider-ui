@@ -20,6 +20,7 @@ interface DownloadZIPProps {
   benefitId: string;
   benefitName: string;
   selectedStatus?: string;
+  isDisabled?: boolean;
 }
 
 const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "pdf", "jfif"];
@@ -29,6 +30,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
   benefitId,
   benefitName,
   selectedStatus = "",
+  isDisabled = false,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -43,14 +45,14 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
   const toTitleCase = (str: string): string => {
     // Handle snake_case: replace underscores with spaces
     let result = str.replaceAll("_", " ");
-    
+
     // Handle camelCase and PascalCase: insert space before uppercase letters
     result = result.replaceAll(/([a-z])([A-Z])/g, "$1 $2");
     result = result.replaceAll(/([A-Z])([A-Z][a-z])/g, "$1 $2");
-    
+
     // Trim any extra spaces
     result = result.trim();
-    
+
     // Capitalize first letter of each word
     result = result
       .split(/\s+/)
@@ -59,7 +61,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
       })
       .join(" ");
-    
+
     return result;
   };
 
@@ -164,7 +166,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
       // Check if entry has url or originalDocument property
       const isHttpString = typeof entry === "string" && (entry.startsWith("http") || entry.startsWith("https"));
       const stringUrlValue = isHttpString ? entry : null;
-      const urlValue = entry && typeof entry === "object" 
+      const urlValue = entry && typeof entry === "object"
         ? ((entry as any).url || (entry as any).originalDocument)
         : stringUrlValue;
 
@@ -274,7 +276,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
     for (let j = 0; j < files.length; j++) {
       const file = files[j];
       let documentProcessed = false;
-      
+
       try {
         if (file.fileContent) {
           documentProcessed = await processVCDocument(
@@ -311,7 +313,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
           error
         );
       }
-      
+
       // If document metadata exists but file was not processed/downloaded, add a record with "Document not available"
       if (!documentProcessed && (file.documentSubtype || file.documentType || file.doc_type)) {
         docRecords.push({
@@ -528,7 +530,7 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
         leftIcon={isLoading ? <Spinner size="sm" /> : <DownloadIcon />}
         colorScheme="green"
         onClick={handleDownloadZip}
-        isDisabled={isLoading}
+        isDisabled={isLoading || isDisabled}
         width="200px"
       >
         {isLoading ? "Processing..." : "Download as ZIP"}
