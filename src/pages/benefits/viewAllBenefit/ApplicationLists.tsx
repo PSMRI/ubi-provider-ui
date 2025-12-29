@@ -61,7 +61,8 @@ const STATUS_OPTIONS = [
   { label: "Pending", value: "pending" },
   { label: "Approved", value: "approved" },
   { label: "Rejected", value: "rejected" },
-  { label: "Resubmit", value: "resubmit" }
+  { label: "Resubmit", value: "resubmit" },
+  { label: "Initiated", value: "initiated" },
 ];
 
 const ApplicationLists: React.FC = () => {
@@ -220,9 +221,9 @@ const ApplicationLists: React.FC = () => {
             (item: ApplicationListItem) => {
               const { name, firstName, middleName, lastName, otrNumber, nspOtr } =
                 item.applicationData || {};
-              
+
               let studentName = "-";
-              
+
               // Prioritize 'name' field if present, otherwise construct from firstName, middleName, lastName
               if (name && name.trim()) {
                 studentName = name.trim();
@@ -269,7 +270,7 @@ const ApplicationLists: React.FC = () => {
     };
     fetchApplicationData();
   }, [id, pageIndex, sortConfig, selectedStatus]);
-  
+
   const handleStatusChange = (value: string) => {
     setSelectedStatus(value);
     setPageIndex(0);
