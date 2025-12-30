@@ -18,6 +18,7 @@ interface DownloadCSVProps {
   benefitId: string;
   benefitName: string;
   selectedStatus?: string;
+  isDisabled?: boolean;
 }
 
 const options = [
@@ -33,6 +34,7 @@ const DownloadCSV: React.FC<DownloadCSVProps> = ({
   benefitId,
   benefitName,
   selectedStatus = "",
+  isDisabled = false,
 }) => {
   const [loadingOption, setLoadingOption] = useState<string | null>(null);
   const toast = useToast();
@@ -101,6 +103,7 @@ const DownloadCSV: React.FC<DownloadCSVProps> = ({
                 colorScheme: "blue",
                 width: "200px",
                 isActive: isOpen,
+                isDisabled,
               } as any)}
             >
               Download CSV
