@@ -121,8 +121,8 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
     documentSubtype: string,
     doc_type: string
   ) => {
-    // Use relative path without leading slash for cross-platform compatibility
-    const fullPath = `${folderName}/${fileName}`;
+    // Use Windows-style path with leading backslash as requested
+    const fullPath = `\\${folderName}\\${fileName}`;
 
     // Check if a record with the same subtype and doc_type already exists
     const existingRecord = docRecords.find(
@@ -477,16 +477,30 @@ const DownloadZIP: React.FC<DownloadZIPProps> = ({
               const val = app[h];
               if (val === undefined || val === null) return "";
               const stringValue = String(val);
+
+              // Check if it's a number-like string (digits only)
+              // User requested adding an extra space after the number to force text format
+              // This prevents Excel from treating it as a number while avoiding formula syntax
+              const isNumericString = /^\d+$/.test(stringValue);
+
+              if (isNumericString) {
+                return `="${stringValue}"`;
+              }
+
               return stringValue.includes(",") || stringValue.includes("\n")
                 ? `"${stringValue.replaceAll('"', '""')}"`
                 : stringValue;
             })
             .join(",")
         );
-        zip.file(
-          "applications_data.csv",
-          "\uFEFF" + [titleCaseHeaders.join(","), ...rows].join("\n")
-        );
+        const csvContent = [titleCaseHeaders.join(","), ...rows].join("\n");
+        const encoder = new TextEncoder();
+        const csvData = encoder.encode(csvContent);
+        // Add BOM for UTF-8 including Excel compatibility
+        const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+        const finalCsvBlob = new Blob([bom, csvData], { type: "text/csv;charset=utf-8" });
+
+        zip.file("applications_data.csv", finalCsvBlob);
       }
 
       setStatusText("Generating ZIP file...");
