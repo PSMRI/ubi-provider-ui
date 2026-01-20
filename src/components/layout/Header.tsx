@@ -139,7 +139,7 @@ const HeaderRightSection: React.FC<HeaderRightSectionProps> = ({
       {showMenu && menuNames.map((menu, index) => {
         const isActiveBenefit = location.pathname === "/" && menu.label === "Benefit List";
         const menuKey = menu?.label || index;
-        
+
         if (menu?.option) {
           return (
             <HStack key={menuKey} align="center">
@@ -147,7 +147,7 @@ const HeaderRightSection: React.FC<HeaderRightSectionProps> = ({
             </HStack>
           );
         }
-        
+
         return (
           <HStack key={menuKey} align="center">
             <Text
@@ -189,7 +189,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ menu, currentPath }) => {
   return (
     <Menu>
       <MenuButton
-        as={Text as any}
+        as={Box}
         fontWeight={isActive ? "bold" : "normal"}
         cursor="pointer"
         display="flex"
@@ -245,7 +245,7 @@ const UserProfileDropdown: React.FC = () => {
   const { t } = useTranslation();
   const { getUserDisplayName, getUserOrganization, logout } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  
+
   const userName = getUserDisplayName();
   const userOrg = getUserOrganization();
 

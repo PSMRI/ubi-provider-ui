@@ -13,6 +13,8 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import { saveAs } from "file-saver";
 import { exportApplicationsCsv } from "../services/benefits";
+import { useTranslation } from "react-i18next";
+
 
 interface DownloadCSVProps {
   benefitId: string;
@@ -21,11 +23,6 @@ interface DownloadCSVProps {
   isDisabled?: boolean;
 }
 
-const options = [
-  { label: "SBI to Other Bank", value: "sbiToOtherBanks" },
-  { label: "Application Data", value: "allApplicationDataFields" },
-  { label: "Benefit Amount Calculation", value: "benefit_amounts" },
-];
 
 const DownloadCSV: React.FC<DownloadCSVProps> = ({
   benefitId,
@@ -35,7 +32,12 @@ const DownloadCSV: React.FC<DownloadCSVProps> = ({
 }) => {
   const [loadingOption, setLoadingOption] = useState<string | null>(null);
   const toast = useToast();
-
+  const { t } = useTranslation();
+  const options = [
+    { label: t("APPLICATION_LIST_DOWNLOAD_DATA_Disbursement Bank Details"), value: "sbiToOtherBanks" },
+    { label: t("APPLICATION_LIST_DOWNLOAD_DATA_Application Data"), value: "allApplicationDataFields" },
+    { label: t("APPLICATION_LIST_DOWNLOAD_DATA_Benefit Amount Calculation"), value: "benefit_amounts" },
+  ];
   const handleDownload = async (selectedOption: string) => {
     setLoadingOption(selectedOption);
     try {
@@ -103,7 +105,7 @@ const DownloadCSV: React.FC<DownloadCSVProps> = ({
                 isDisabled,
               } as any)}
             >
-              Download CSV
+              {t("APPLICATION_LIST_DOWNLOAD_DATA")}
             </MenuButton>
 
             <MenuList minW="200px" zIndex={100}>
