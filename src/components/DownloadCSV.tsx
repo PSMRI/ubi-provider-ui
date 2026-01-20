@@ -22,7 +22,7 @@ interface DownloadCSVProps {
 }
 
 const options = [
-  { label: "SBI to Other Bank", value: "sbiToOtherBanks" },
+  { label: "Disbursement Bank Details", value: "sbiToOtherBanks" },
   { label: "Application Data", value: "allApplicationDataFields" },
   { label: "Benefit Amount Calculation", value: "benefit_amounts" },
 ];
@@ -103,7 +103,7 @@ const DownloadCSV: React.FC<DownloadCSVProps> = ({
                 isDisabled,
               } as any)}
             >
-              Download CSV
+              Download Data
             </MenuButton>
 
             <MenuList minW="200px" zIndex={100}>
