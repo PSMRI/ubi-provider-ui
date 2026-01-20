@@ -13,6 +13,7 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import { saveAs } from "file-saver";
 import { exportApplicationsCsv } from "../services/benefits";
+import { t } from "i18next";
 
 interface DownloadCSVProps {
   benefitId: string;
@@ -22,9 +23,9 @@ interface DownloadCSVProps {
 }
 
 const options = [
-  { label: "Disbursement Bank Details", value: "sbiToOtherBanks" },
-  { label: "Application Data", value: "allApplicationDataFields" },
-  { label: "Benefit Amount Calculation", value: "benefit_amounts" },
+  { label: t("APPLICATION_LIST_DOWNLOAD_DATA_Disbursement Bank Details"), value: "sbiToOtherBanks" },
+  { label: t("APPLICATION_LIST_DOWNLOAD_DATA_Application Data"), value: "allApplicationDataFields" },
+  { label: t("APPLICATION_LIST_DOWNLOAD_DATA_Benefit Amount Calculation"), value: "benefit_amounts" },
 ];
 
 const DownloadCSV: React.FC<DownloadCSVProps> = ({
@@ -103,7 +104,7 @@ const DownloadCSV: React.FC<DownloadCSVProps> = ({
                 isDisabled,
               } as any)}
             >
-              Download Data
+              {t("APPLICATION_LIST_DOWNLOAD_DATA")}
             </MenuButton>
 
             <MenuList minW="200px" zIndex={100}>

@@ -53,7 +53,7 @@
   "TOAST_ACCESS_DENIED_TITLE": "Access Denied",
   "TOAST_ACCESS_DENIED_DESCRIPTION": "You don't have permission to perform this action.",
   "TOAST_ERROR_TITLE": "Error",
-  "TOAST_SERVER_ERROR_TITLE": "Server Error", 
+  "TOAST_SERVER_ERROR_TITLE": "Server Error",
   "TOAST_SERVER_ERROR_DESCRIPTION": "Something went wrong on our end. Please try again later.",
   "TOAST_CONNECTION_ERROR_TITLE": "Connection Error",
   "TOAST_CONNECTION_ERROR_DESCRIPTION": "Please check your internet connection and try again.",
@@ -92,5 +92,9 @@
   "APPLICATION_DETAILS_TAB_STATUS_COMPLETED": "(Completed)",
   "APPLICATION_DETAILS_NO_AMOUNT_BREAKDOWN_AVAILABLE": "No amount breakdown available",
   "APPLICATION_DETAILS_NOT_CONFIRMED_WARNING_MESSAGE": "This application cannot be processed because the beneficiary has not yet confirmed their application. Verification and approval actions will become available once the beneficiary confirms the application.",
-  "APPLICATION_DETAILS_AWAITING_BENEFICIARY_CONFIRMATION": "Awaiting Beneficiary Confirmation"
+  "APPLICATION_DETAILS_AWAITING_BENEFICIARY_CONFIRMATION": "Awaiting Beneficiary Confirmation",
+  "APPLICATION_LIST_DOWNLOAD_DATA": "Download Data",
+  "APPLICATION_LIST_DOWNLOAD_DATA_Disbursement Bank Details": "Disbursement Bank Details",
+  "APPLICATION_LIST_DOWNLOAD_DATA_Application Data": "Application Data",
+  "APPLICATION_LIST_DOWNLOAD_DATA_Benefit Amount Calculation": "Benefit Amount Calculation"
 }
