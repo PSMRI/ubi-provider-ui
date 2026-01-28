@@ -1,18 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.png" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DigiVrtti</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DigiVrtti</title>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module">
+    (function () {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 3000);
+      const HEALTH_URL = import.meta.env.VITE_PROVIDER_BASE_URL + "/health";
+      fetch(HEALTH_URL, {
+        method: "GET",
+        cache: "no-store",
+        mode: "no-cors",
+        signal: controller.signal
+      })
+        .then(() => {
+          // no-cors returns opaque response
+          // if fetch succeeded → backend is reachable
+          clearTimeout(timeout);
+        })
+        .catch(() => {
+          window.location.replace("/maintenance.html");
+        });
+    })();
+  </script>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
