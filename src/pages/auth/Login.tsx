@@ -53,10 +53,10 @@ export default function Login() {
 
     setIsLoading(true);
     try {
-      const loginResponse = await LoginProvider(userName, password);
+      const loginResponse = await LoginProvider(userName.trim(), password);
       if (loginResponse?.token) {
         localStorage.setItem("token", loginResponse?.token);
-        
+
         // Store only non-sensitive user data for security
         if (loginResponse?.user) {
           const safeUserData = {
@@ -69,13 +69,13 @@ export default function Login() {
           localStorage.setItem("safeUserData", JSON.stringify(safeUserData));
           setUser(loginResponse.user);
         }
-        
+
         if (loginResponse?.user?.s_roles?.[0]) {
           const userRole = loginResponse.user.s_roles[0];
           localStorage.setItem("userRole", userRole);
           setUserRole(userRole);
         }
-        
+
         setIsLoading(false);
         setMessage("Login successfully!");
         // Notify App component that token has been set
@@ -134,6 +134,7 @@ export default function Login() {
                   w={"full"}
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
+                  onBlur={() => setUserName((prev) => prev.trim())}
                   isRequired
                   marginTop={"14px"}
                   placeholder="Enter username"
